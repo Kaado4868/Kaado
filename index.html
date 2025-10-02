@@ -125,7 +125,7 @@
       <div class="controls">
         <button onclick="encode()">Encode</button>
         <button onclick="decode()">Decode</button>
-        <button onclick="autoDetect()">Auto-Detect</button>
+        <button onclick="smartDetect()">Smart Detect</button>
         <button class="danger" onclick="clearAll()">Clear</button>
         <button class="success" onclick="copyResult()">Copy</button>
         <button onclick="shareResult()">Share</button>
@@ -217,7 +217,8 @@
       saveHistory({type:"Decoded", input:text, result});
     }
 
-    function autoDetect() {
+    // renamed to smartDetect
+    function smartDetect() {
       const text = inputEl.value.trim();
       if (!text) return;
 
@@ -267,7 +268,7 @@
 
     function useHistory(i) {
       inputEl.value = history[i].result;
-      autoDetect();
+      smartDetect(); // updated to smartDetect
     }
 
     document.getElementById("year").textContent = new Date().getFullYear();
