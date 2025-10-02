@@ -7,298 +7,472 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0b5ed7" />
   <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: linear-gradient(135deg, #0b5ed7, #121826);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+    :root{
+      --bg1:#071026;--card:rgba(255,255,255,0.03);--glass:rgba(255,255,255,0.04);
+      --accent1:linear-gradient(90deg,#ff5f8b,#7b61ff);--success:#22c55e;--danger:#ef4444;
+      --muted:rgba(255,255,255,0.65);--radius:12px;
     }
-    header {
-      text-align: center;
-      padding: 15px;
-      background: rgba(0,0,0,0.4);
-    }
-    main {
-      flex: 1;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      padding: 15px;
-      justify-content: center;
-    }
-    section, aside {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(8px);
-      border-radius: 12px;
-      padding: 20px;
-      flex: 1;
-      min-width: 280px;
-      max-width: 600px;
-    }
-    textarea {
-      width: 100%;
-      min-height: 100px;
-      border-radius: 8px;
-      border: none;
-      padding: 10px;
-      margin: 10px 0;
-      background: rgba(0,0,0,0.35);
-      color: #fff;
-      font-size: 14px;
-    }
-    .controls { display: flex; flex-wrap: wrap; gap: 10px; }
-    button {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      color: #fff;
-      background: linear-gradient(90deg,#2575fc,#6a11cb);
-    }
-    button:hover { opacity: 0.9; }
-    button.danger { background: linear-gradient(90deg,#e53935,#ff7043); }
-    button.secondary { background: linear-gradient(90deg,#00c6ff,#0072ff); }
-    .history-item {
-      background: rgba(0,0,0,0.25);
-      padding: 8px;
-      margin-bottom: 6px;
-      border-radius: 6px;
-      font-size: 13px;
-    }
-    footer {
-      text-align: center;
-      padding: 10px;
-      font-size: 13px;
-      background: rgba(0,0,0,0.5);
-    }
-    /* Toast */
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.8);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 22px;
-      opacity: 0;
-      transition: .25s;
-      z-index: 200;
-    }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
-    /* Login modal */
-    #loginScreen {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.9);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 100;
-    }
-    #loginBox {
-      background: #1a1f2f;
-      padding: 20px;
-      border-radius: 12px;
-      width: 300px;
-    }
-    #loginBox input {
-      width: 100%; padding: 10px; margin: 8px 0;
-      border-radius: 8px; border: none;
-      background: rgba(255,255,255,0.1); color: #fff;
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Segoe UI,Arial;background:linear-gradient(180deg,#071026,#0b1020);color:#eaf3ff;min-height:100vh;display:flex;flex-direction:column}
+    header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(255,255,255,0.02);backdrop-filter:blur(6px)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand h1{font-size:18px;margin:0}
+    main{max-width:1100px;margin:18px auto;padding:0 16px;display:grid;grid-template-columns:1fr 320px;gap:18px}
+    @media(max-width:900px){main{grid-template-columns:1fr;padding:12px}}
+    .card{background:var(--card);border-radius:var(--radius);padding:16px;border:1px solid var(--glass);box-shadow:0 8px 26px rgba(2,6,23,0.6)}
+    textarea,input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;margin-top:8px}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .btn{padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700;color:#061124;background:var(--accent1);color:white}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+    .btn.warn{background:var(--danger);color:white}
+    .small{font-size:13px;color:var(--muted)}
+    footer{text-align:center;padding:12px;color:var(--muted)}
+    /* login modal */
+    #loginScreen{position:fixed;inset:0;background:linear-gradient(rgba(2,6,23,0.7),rgba(2,6,23,0.95));display:flex;align-items:center;justify-content:center;z-index:120}
+    #loginBox{width:360px;max-width:94%;padding:18px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)}
+    .google-btn{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:#fff;color:#222;cursor:pointer;border:0}
+    .google-btn img{width:20px;height:20px}
+    /* toast */
+    #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#061124;padding:10px 14px;border-radius:999px;color:#eaf3ff;opacity:0;pointer-events:none;transition:all .2s;z-index:130}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);pointer-events:auto}
+    /* quiz */
+    #quizPage{display:none}
+    .question-box{background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;margin-top:12px}
+    /* history */
+    .history-item{padding:10px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.005));margin-bottom:8px}
   </style>
 </head>
 <body>
-  <!-- Login screen -->
-  <div id="loginScreen">
+  <!-- Login Modal -->
+  <div id="loginScreen" class="card">
     <div id="loginBox">
       <h2>🔑 Login / Sign Up</h2>
-      <input id="username" placeholder="Email" />
-      <input id="password" type="password" placeholder="Password" />
-      <button onclick="login()">Login</button>
-      <button onclick="signup()" class="secondary">Sign Up</button>
-      <button onclick="continueGuest()">Continue as Guest</button>
+      <input id="email" placeholder="Email" type="email" />
+      <input id="pass" placeholder="Password" type="password" />
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" onclick="emailLogin()">Login</button>
+        <button class="btn ghost" onclick="emailSignup()">Sign Up</button>
+      </div>
+      <div style="margin-top:10px;text-align:center">or</div>
+      <button class="google-btn" onclick="googleLogin()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"/> Sign in with Google
+      </button>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn ghost" onclick="guestMode()">Continue as Guest</button>
+        <button class="btn ghost" onclick="forgotPassword()">Forgot Password?</button>
+      </div>
     </div>
   </div>
 
   <header>
-    <h1>🔐 Secret Cipher</h1>
-    <p id="welcomeUser"></p>
-    <button onclick="logout()" class="danger">Logout</button>
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" fill="#7b61ff"/></svg>
+      <div>
+        <h1>Secret Cipher</h1>
+        <div class="small">Vowel Numbers — encode & decode</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div id="userLabel" class="small">Offline</div>
+      <button onclick="openQuiz()" class="btn ghost">Quiz</button>
+      <button id="btnLogout" onclick="confirmLogout()" class="btn warn">Logout</button>
+    </div>
   </header>
 
   <main>
-    <section>
+    <section id="tool" class="card">
       <h3>📝 Cipher Tool</h3>
-      <textarea id="input" placeholder="Type message..."></textarea>
+      <label class="small">Input</label>
+      <textarea id="input" placeholder="Type your message..."></textarea>
+
       <div class="controls">
-        <button onclick="encode()">Encode</button>
-        <button onclick="decode()">Decode</button>
-        <button onclick="smartDetect()">Smart Detect</button>
-        <button onclick="copyResult()" class="secondary">Copy</button>
-        <button onclick="clearAll()" class="danger">Clear</button>
+        <button class="btn" onclick="encode()">Encode</button>
+        <button class="btn ghost" onclick="decode()">Decode</button>
+        <button class="btn ghost" onclick="smartDetect()">Smart Detect</button>
+        <button class="btn ghost" onclick="copyOutput()">Copy</button>
+        <button class="btn ghost" onclick="clearAll()">Clear</button>
       </div>
-      <textarea id="output" readonly placeholder="Result..."></textarea>
+
+      <label class="small" style="margin-top:10px">Output</label>
+      <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
     </section>
-    <aside>
-      <h3>📜 History</h3>
-      <div id="history"></div>
-      <button onclick="clearHistory()" class="danger">Clear History</button>
+
+    <aside class="card">
+      <h4>📜 Recent History</h4>
+      <div id="historyList" style="max-height:380px;overflow:auto;margin-top:8px"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn ghost" onclick="copyHistory()">Copy All</button>
+        <button class="btn ghost" onclick="exportBackup()">Export</button>
+        <button class="btn ghost" onclick="importBackup()">Import</button>
+        <button class="btn warn" onclick="clearHistory()">Clear</button>
+      </div>
+      <div style="margin-top:14px">
+        <h4>🏆 Leaderboard</h4>
+        <div id="leaderboard"></div>
+      </div>
     </aside>
+
+    <section id="quizPage" class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h3>🧩 Daily Quiz</h3>
+          <div class="small">5 questions • 60s each • once per 24h</div>
+        </div>
+        <div class="small">Time left: <span id="quizTimer">60</span>s</div>
+      </div>
+
+      <div class="question-box">
+        <div id="questionText">Press Start</div>
+        <input id="quizAnswer" placeholder="Type decoded sentence" style="margin-top:10px" />
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn" onclick="submitQuiz()">Submit</button>
+          <button class="btn ghost" onclick="nextQuiz()">Next</button>
+          <button class="btn ghost" onclick="endQuiz()">End</button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <div class="small">Question <span id="quizProgress">0</span>/5</div>
+        <button class="btn" id="startQuizBtn" onclick="startQuiz()">Start</button>
+      </div>
+    </section>
   </main>
 
-  <footer>
-    © <span id="year"></span> Secret Cipher
-  </footer>
+  <footer>© <span id="year"></span> Secret Cipher</footer>
   <div id="toast"></div>
 
-<script>
-  // Accounts in localStorage
-  let accounts = JSON.parse(localStorage.getItem("accounts") || "{}");
-  let currentUser = null;
+  <!-- Firebase SDKs and app script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      sendPasswordResetEmail,
+      GoogleAuthProvider,
+      signInWithPopup
+    } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
-  function toast(msg) {
-    const t=document.getElementById("toast");
-    t.textContent=msg;
-    t.classList.add("show");
-    setTimeout(()=>t.classList.remove("show"),2000);
-  }
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
-  function saveAccounts() {
-    localStorage.setItem("accounts", JSON.stringify(accounts));
-  }
+    // ---------- Firebase config (your config) ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00",
+      authDomain: "cipher-e6c22.firebaseapp.com",
+      projectId: "cipher-e6c22",
+      storageBucket: "cipher-e6c22.appspot.com",
+      messagingSenderId: "345358817477",
+      appId: "1:345358817477:web:7ba4dd380d634b559038ac",
+      measurementId: "G-CN75P4JDPW"
+    };
 
-  function login() {
-    const u=document.getElementById("username").value.trim();
-    const p=document.getElementById("password").value.trim();
-    if(!u||!p) return toast("Fill all fields");
-    if(!accounts[u]) return toast("No such user");
-    if(accounts[u].password!==p) return toast("Wrong password");
-    currentUser=u;
-    localStorage.setItem("currentUser", u);
-    document.getElementById("loginScreen").style.display="none";
-    document.getElementById("welcomeUser").textContent="Welcome "+u;
-    renderHistory();
-    toast("✅ Logged in");
-  }
+    // init
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-  function signup() {
-    const u=document.getElementById("username").value.trim();
-    const p=document.getElementById("password").value.trim();
-    if(!u||!p) return toast("Fill all fields");
-    if(accounts[u]) return toast("User exists");
-    accounts[u]={password:p,history:[]};
-    saveAccounts();
-    toast("✅ Account created, please login");
-  }
+    // UI helpers
+    const toastEl = document.getElementById("toast");
+    function toast(msg, t=2200){ toastEl.textContent = msg; toastEl.classList.add("show"); setTimeout(()=>toastEl.classList.remove("show"), t); }
 
-  function continueGuest() {
-    currentUser="guest";
-    localStorage.setItem("currentUser","guest");
-    document.getElementById("loginScreen").style.display="none";
-    document.getElementById("welcomeUser").textContent="Welcome Guest";
-    renderHistory();
-    toast("➡ Continuing as guest");
-  }
+    function $(id){ return document.getElementById(id); }
 
-  function logout() {
-    if(!confirm("Are you sure you want to logout?")) return;
-    currentUser=null;
-    localStorage.removeItem("currentUser");
-    document.getElementById("loginScreen").style.display="flex";
-    toast("🚪 Logged out");
-  }
-
-  // Cipher logic
-  const vmap={a:"1",e:"2",i:"3",o:"4",u:"5"};
-  const vrev={"1":"a","2":"e","3":"i","4":"o","5":"u"};
-
-  function encode() {
-    const txt=document.getElementById("input").value;
-    let out="";
-    for(const c of txt) {
-      if(vmap[c]) out+=vmap[c];
-      else if(vmap[c.toLowerCase()]) out+=vmap[c.toLowerCase()];
-      else if(/[a-zA-Z]/.test(c)) out+=c+"a";
-      else out+=c;
+    // ---------- Auth ----------
+    async function emailSignup(){
+      const email = $("email").value.trim();
+      const pass = $("pass").value.trim();
+      if(!email || !pass) return toast("Enter email & password");
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        toast("Account created — logged in");
+      } catch(e){ toast(e.message); console.error(e); }
     }
-    document.getElementById("output").value=out;
-    addHist("Encoded",txt,out);
-  }
 
-  function decode() {
-    const txt=document.getElementById("input").value;
-    let out="";
-    for(let i=0;i<txt.length;i++) {
-      const c=txt[i];
-      if(vrev[c]) out+=vrev[c];
-      else if(/[a-zA-Z]/.test(c)&&txt[i+1]==="a"){out+=c;i++;}
-      else out+=c;
+    async function emailLogin(){
+      const email = $("email").value.trim();
+      const pass = $("pass").value.trim();
+      if(!email || !pass) return toast("Enter email & password");
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        toast("Logged in");
+      } catch(e){ toast(e.message); console.error(e); }
     }
-    document.getElementById("output").value=out;
-    addHist("Decoded",txt,out);
-  }
 
-  function smartDetect() {
-    const txt=document.getElementById("input").value;
-    if(/[1-5]/.test(txt)) decode(); else encode();
-  }
+    async function googleLogin(){
+      try {
+        const res = await signInWithPopup(auth, provider);
+        toast("Signed in as " + (res.user.displayName || res.user.email));
+        // ensure user doc
+        try { await setDoc(doc(db,"users",res.user.uid), { email: res.user.email }, { merge:true }); } catch(e){ console.warn(e); }
+      } catch(e){ toast(e.message); console.error(e); }
+    }
 
-  function copyResult() {
-    const val=document.getElementById("output").value;
-    if(!val) return toast("Nothing to copy");
-    navigator.clipboard.writeText(val);
-    toast("📋 Copied");
-  }
+    function guestMode(){
+      localStorage.setItem("guestMode","1");
+      $("#loginScreen").style.display = "none";
+      $("userLabel").textContent = "Guest (offline)";
+      toast("Guest mode");
+      renderHistoryLocal();
+      renderLeaderboardLocal();
+    }
 
-  function clearAll() {
-    document.getElementById("input").value="";
-    document.getElementById("output").value="";
-  }
+    function confirmLogout(){
+      if(!confirm("Are you sure you want to logout?")) return;
+      doLogout();
+    }
 
-  // History
-  function addHist(type, inp, res) {
-    if(!currentUser) return;
-    accounts[currentUser].history.unshift({type, inp, res, date:new Date().toLocaleString()});
-    accounts[currentUser].history=accounts[currentUser].history.slice(0,20);
-    saveAccounts();
-    renderHistory();
-  }
+    async function doLogout(){
+      try {
+        if(auth.currentUser) await signOut(auth);
+      } catch(e){ console.warn(e); }
+      localStorage.removeItem("guestMode");
+      $("#loginScreen").style.display = "flex";
+      $("userLabel").textContent = "Offline";
+      toast("Logged out");
+    }
 
-  function renderHistory() {
-    if(!currentUser||!accounts[currentUser]) return;
-    let h=accounts[currentUser].history||[];
-    document.getElementById("history").innerHTML=h.map(x=>`<div class='history-item'><b>${x.type}</b>: ${x.res}<br><small>${x.date}</small></div>`).join("")||"No history yet";
-  }
+    async function forgotPassword(){
+      const email = prompt("Enter your email for reset:");
+      if(!email) return;
+      try {
+        await sendPasswordResetEmail(auth,email);
+        toast("Reset email sent");
+      } catch(e){ toast(e.message); }
+    }
 
-  function clearHistory() {
-    if(!currentUser) return;
-    accounts[currentUser].history=[];
-    saveAccounts();
-    renderHistory();
-  }
+    onAuthStateChanged(auth, async (user) => {
+      if(user){
+        $("#loginScreen").style.display = "none";
+        $("userLabel").textContent = user.displayName || user.email;
+        // load cloud history if present
+        try {
+          const r = await getDoc(doc(db,"users",user.uid));
+          if(r.exists()){
+            const data = r.data();
+            if(data.history) { saveLocalHistory(user.uid, data.history); }
+            if(data.scores) { saveLocalScores(user.uid, data.scores); }
+          }
+        } catch(e){ console.warn(e); }
+        await renderHistoryFromCloudOrLocal();
+        await renderLeaderboard();
+      } else {
+        if(!localStorage.getItem("guestMode")) $("#loginScreen").style.display = "flex";
+        else { $("#loginScreen").style.display = "none"; $("userLabel").textContent = "Guest (offline)"; }
+        renderHistoryLocal();
+        renderLeaderboardLocal();
+      }
+    });
 
-  // Init
-  document.getElementById("year").textContent=new Date().getFullYear();
-  let saved=localStorage.getItem("currentUser");
-  if(saved&&accounts[saved]) {
-    currentUser=saved;
-    document.getElementById("loginScreen").style.display="none";
-    document.getElementById("welcomeUser").textContent="Welcome "+saved;
-    renderHistory();
-  }
-</script>
+    // ---------- Local storage helpers ----------
+    function keyHist(uid){ return `cipher_hist_${uid||"guest"}`; }
+    function keyScores(uid){ return `cipher_scores_${uid||"guest"}`; }
+    function saveLocalHistory(uid, arr){ localStorage.setItem(keyHist(uid), JSON.stringify(arr||[])); }
+    function loadLocalHistory(uid){ return JSON.parse(localStorage.getItem(keyHist(uid)) || "[]"); }
+    function saveLocalScores(uid, arr){ localStorage.setItem(keyScores(uid), JSON.stringify(arr||[])); }
+    function loadLocalScores(uid){ return JSON.parse(localStorage.getItem(keyScores(uid)) || "[]"); }
 
-<script>
-  // Register service worker
-  if("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js")
-      .then(r=>console.log("SW registered",r))
-      .catch(e=>console.log("SW failed",e));
-  }
-</script>
+    // ---------- History UI ----------
+    function renderHistoryArray(arr){
+      const el = $("historyList");
+      if(!arr || arr.length===0){ el.innerHTML = "<div class='small'>No history yet</div>"; return; }
+      el.innerHTML = arr.slice(0,50).map(h=>`<div class='history-item'><b>${h.type}</b><div style='margin-top:6px'>${escapeHtml(h.res)}</div><small>${h.date}</small></div>`).join("");
+    }
+
+    function renderHistoryLocal(){
+      const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+      const arr = loadLocalHistory(uid);
+      renderHistoryArray(arr);
+    }
+
+    async function renderHistoryFromCloudOrLocal(){
+      if(auth.currentUser){
+        try {
+          const snap = await getDoc(doc(db,"users",auth.currentUser.uid));
+          if(snap.exists()){
+            const data = snap.data();
+            const arr = data.history || loadLocalHistory(auth.currentUser.uid);
+            saveLocalHistory(auth.currentUser.uid, arr);
+            renderHistoryArray(arr);
+            return;
+          }
+        } catch(e){ console.warn(e); }
+      }
+      renderHistoryLocal();
+    }
+
+    window.copyHistory = function(){
+      const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+      const arr = loadLocalHistory(uid);
+      if(!arr.length) return toast("No history");
+      navigator.clipboard.writeText(arr.map(x=>`${x.type}: ${x.res}`).join("\n")).then(()=>toast("Copied"));
+    };
+
+    window.clearHistory = async function(){
+      const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+      saveLocalHistory(uid, []);
+      renderHistoryArray([]);
+      if(auth.currentUser){
+        try { await updateDoc(doc(db,"users",auth.currentUser.uid), { history: [] }); } catch(e){ console.warn(e); }
+      }
+      toast("History cleared");
+    };
+
+    async function addHistoryEntry(type, inp, res){
+      const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+      let arr = loadLocalHistory(uid);
+      arr.unshift({ type, res, input: inp, date: new Date().toLocaleString() });
+      arr = arr.slice(0,50);
+      saveLocalHistory(uid, arr);
+      renderHistoryArray(arr);
+      if(auth.currentUser){
+        try {
+          await updateDoc(doc(db,"users",auth.currentUser.uid), { history: arrayUnion({ type, res, input: inp, date: new Date().toISOString() }) });
+        } catch(e){
+          try { await setDoc(doc(db,"users",auth.currentUser.uid), { history: arr }, { merge:true }); } catch(err){ console.warn(err); }
+        }
+      }
+    }
+
+    // ---------- Cipher ----------
+    const vowelMap = { a: "1", e: "2", i: "3", o: "4", u: "5" };
+    const revMap = { "1":"a","2":"e","3":"i","4":"o","5":"u" };
+
+    window.encode = function(){
+      const txt = $("input").value || "";
+      let out = "";
+      for(const ch of txt.toLowerCase()){
+        if(vowelMap[ch]) out += vowelMap[ch];
+        else if(/[a-z]/.test(ch)) out += ch + "a";
+        else out += ch;
+      }
+      $("output").value = out;
+      addHistoryEntry("Encoded", txt, out);
+    };
+
+    window.decode = function(){
+      const txt = $("input").value || "";
+      let out = "";
+      for(let i=0;i<txt.length;i++){
+        const c = txt[i];
+        if(revMap[c]) out += revMap[c];
+        else if(/[a-z]/i.test(c) && txt[i+1] === "a"){ out += c; i++; }
+        else out += c;
+      }
+      $("output").value = out;
+      addHistoryEntry("Decoded", txt, out);
+    };
+
+    window.smartDetect = function(){
+      const txt = ($("input").value || "").trim();
+      if(!txt) return toast("No input");
+      const digitCount = (txt.match(/[12345]/g) || []).length;
+      const suffixCount = (txt.match(/[a-z]a/g) || []).length;
+      if(digitCount > suffixCount) window.decode(); else window.encode();
+    };
+
+    window.copyOutput = function(){ const out = $("output").value || ""; if(!out) return toast("Nothing to copy"); navigator.clipboard.writeText(out).then(()=>toast("Copied")); };
+    window.clearAll = function(){ $("input").value=""; $("output").value=""; };
+
+    // ---------- Backup ----------
+    window.exportBackup = function(){
+      const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+      const data = { history: loadLocalHistory(uid), scores: loadLocalScores(uid) };
+      const blob = new Blob([JSON.stringify(data,null,2)], { type: "application/json" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `cipher-backup-${uid}.json`; a.click();
+    };
+
+    window.importBackup = function(){
+      const inp = document.createElement("input"); inp.type = "file"; inp.accept = "application/json";
+      inp.onchange = async (e) => {
+        const f = e.target.files[0]; if(!f) return; const txt = await f.text();
+        try { const data = JSON.parse(txt); const uid = (auth.currentUser && auth.currentUser.uid) || "guest"; if(data.history) saveLocalHistory(uid, data.history); if(data.scores) saveLocalScores(uid, data.scores); renderHistoryLocal(); renderLeaderboardLocal(); toast("Imported"); } catch(e){ toast("Invalid file"); }
+      }; inp.click();
+    };
+
+    // ---------- Quiz ----------
+    const QUESTIONS = [
+      "The quick brown fox jumps over the lazy dog.",
+      "Knowledge is power, but wisdom is everything.",
+      "Success usually comes to those who are too busy to be looking for it.",
+      "Do not watch the clock. Do what it does. Keep going.",
+      "Difficult roads often lead to beautiful destinations.",
+      "Hard work beats talent when talent doesn’t work hard.",
+      "Great things never come from comfort zones.",
+      "Dream big and dare to fail.",
+      "The only limit to our realization of tomorrow is our doubts of today.",
+      "Opportunities don't happen, you create them."
+    ];
+
+    let pool = [], qi = 0, qscore = 0, qtimer = null, qremaining = 60;
+    const QUIZ_LIMIT = 24 * 60 * 60 * 1000; // 24h
+
+    function encSentence(s){ let out=""; for(const ch of s.toLowerCase()){ if(vowelMap[ch]) out+=vowelMap[ch]; else if(/[a-z]/.test(ch)) out+=ch+"a"; else out+=ch; } return out; }
+
+    window.openQuiz = function(){ $("tool").style.display="none"; $("quizPage").style.display="block"; };
+    window.openTool = function(){ $("quizPage").style.display="none"; $("tool").style.display="block"; };
+
+    window.startQuiz = function(){
+      const last = localStorage.getItem("quizLast");
+      if(last && (Date.now() - parseInt(last) < QUIZ_LIMIT)) { const mins = Math.ceil((QUIZ_LIMIT - (Date.now() - parseInt(last)))/60000); return toast("Played recently, try in " + mins + " min"); }
+      pool = [...QUESTIONS].sort(()=>Math.random()-0.5).slice(0,5); qi=0; qscore=0; showQuestion();
+    };
+
+    function showQuestion(){
+      if(qi>=pool.length) return finishQuiz();
+      const s = pool[qi]; $("questionText").innerHTML = "<b>Decode this:</b><div style='margin-top:8px'>"+escapeHtml(encSentence(s))+"</div>";
+      $("quizAnswer").value = ""; $("quizProgress").textContent = (qi+1) + "/" + pool.length;
+      qremaining = 60; $("quizTimer").textContent = qremaining; clearInterval(qtimer);
+      qtimer = setInterval(()=>{ qremaining--; $("quizTimer").textContent = qremaining; if(qremaining<=0){ clearInterval(qtimer); toast("Time up"); nextQuiz(); } },1000);
+    }
+
+    window.submitQuiz = function(){ clearInterval(qtimer); const ans = ($("quizAnswer").value||"").trim(); const corr = pool[qi]; if(ans.toLowerCase() === corr.toLowerCase()){ qscore++; toast("Correct"); } else toast("Wrong — "+corr); qi++; setTimeout(showQuestion,600); };
+
+    window.nextQuiz = function(){ clearInterval(qtimer); qi++; showQuestion(); };
+    window.endQuiz = function(){ clearInterval(qtimer); finishQuiz(); };
+
+    async function finishQuiz(){
+      clearInterval(qtimer);
+      $("questionText").textContent = "Finished — Score: " + qscore + "/" + pool.length;
+      const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+      const scores = loadLocalScores(uid); scores.unshift({ score: qscore, date: new Date().toISOString() }); saveLocalScores(uid, scores.slice(0,50));
+      localStorage.setItem("quizLast", Date.now().toString());
+      if(auth.currentUser){
+        try { await updateDoc(doc(db,"users",auth.currentUser.uid), { scores: arrayUnion({ score: qscore, date: new Date().toISOString() }) }); } catch(e){ try{ await setDoc(doc(db,"users",auth.currentUser.uid), { scores: loadLocalScores(uid) }, { merge:true }); } catch(err){ console.warn(err); } }
+      }
+      renderLeaderboardLocal();
+    }
+
+    // ---------- Leaderboard ----------
+    async function renderLeaderboard(){
+      if(auth.currentUser){
+        try { const snap = await getDoc(doc(db,"users",auth.currentUser.uid)); if(snap.exists()){ const data = snap.data(); const s = (data.scores||[]).slice(0,5).map((x,i)=>`#${i+1} → ${x.score} (${new Date(x.date).toLocaleDateString()})`).join("<br>"); $("leaderboard").innerHTML = s || "<div class='small'>No scores</div>"; return; } } catch(e){ console.warn(e); }
+      }
+      renderLeaderboardLocal();
+    }
+
+    function renderLeaderboardLocal(uid){ uid = uid || ((auth.currentUser && auth.currentUser.uid) || "guest"); const arr = loadLocalScores(uid); if(!arr.length) { $("leaderboard").innerHTML = "<div class='small'>No scores</div>"; return; } $("leaderboard").innerHTML = arr.slice(0,5).map((s,i)=>`#${i+1} → ${s.score} (${new Date(s.date).toLocaleDateString()})`).join("<br>"); }
+
+    // ---------- Scores local ----------
+    function saveLocalScores(uid, arr){ localStorage.setItem(keyScores(uid), JSON.stringify(arr||[])); }
+    function loadLocalScores(uid){ return JSON.parse(localStorage.getItem(keyScores(uid)) || "[]"); }
+
+    // ---------- small utils ----------
+    function escapeHtml(s){ if(!s) return ""; return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])); }
+    function keyScores(uid){ return `cipher_scores_${uid||"guest"}`; }
+
+    // ---------- init ----------
+    (function init(){
+      $("year").textContent = new Date().getFullYear();
+      renderHistoryLocal();
+      renderLeaderboardLocal();
+      // attempt to register service worker
+      if('serviceWorker' in navigator){ navigator.serviceWorker.register('/service-worker.js').then(()=>console.log('sw')).catch(e=>console.warn(e)); }
+    })();
+
+  </script>
+
 </body>
 </html>
