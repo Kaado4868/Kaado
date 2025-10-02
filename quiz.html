@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quiz - Secret Cipher</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4b0082">
+<link rel="icon" href="icon-192.png">
+<style>
+body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial;background:linear-gradient(135deg,#2575fc,#6a11cb);color:#111;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.container{width:92%;max-width:900px;background:rgba(255,255,255,0.98);padding:20px;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.2);}
+.header{display:flex;justify-content:space-between;align-items:center;}
+.timer{font-weight:800;color:#e55353;}
+.question{margin:18px 0;padding:14px;background:#f7f7fb;border-radius:10px;border-left:6px solid #ff6a88;}
+.controls{display:flex;gap:10px;margin-top:12px;}
+.btn{flex:1;padding:12px;border-radius:10px;border:none;color:white;font-weight:800;background:linear-gradient(90deg,#ff6a88,#5b18b0);cursor:pointer;}
+.btn:hover{opacity:0.95;transform:translateY(-2px);}
+.input{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-top:10px;}
+.leader{margin-top:16px;background:#fff;padding:12px;border-radius:10px;border:1px solid #f1f1f1;}
+.small{font-size:13px;color:#666;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h2>🧩 Daily Cipher Quiz</h2>
+    <div class="small">Questions: 5 • Time: 60s each</div>
+  </div>
+  <div id="quiz-area">
+    <button id="startBtn" class="btn">Start Quiz</button>
+  </div>
+  <div id="leaderboard" class="leader" style="display:none;"></div>
+  <div style="margin-top:12px;"><a href="index.html">← Back to Cipher</a></div>
+</div>
+
+<script src="anime.min.js"></script>
+<script>
+const sentences = [
+  "The quick brown fox jumps over the lazy dog.",
+  "Knowledge is power, but wisdom is everything.",
+  "Success usually comes to those who are too busy to be looking for it.",
+  "Do not watch the clock. Do what it does. Keep going.",
+  "Difficult roads often lead to beautiful destinations.",
+  "Hard work beats talent when talent doesn’t work hard.",
+  "Great things never come from comfort zones.",
+  "Dream big and dare to fail.",
+  "The only limit to our realization of tomorrow is our doubts of today.",
+  "Opportunities don't happen, you create them."
+];
+
+function cipherEncode(text){let vowels={a:'1',e:'2',i:'3',o:'4',u:'5'};let res='';for(let ch of text.toLowerCase()){if(vowels[ch])res+=vowels[ch];else if(/[a-z]/.test(ch))res+=ch+'a';else res+=ch;}return res;}
+
+let index=0,score=0,timerId,currentAnswer,remaining;
+function startQuiz(){
+  const last=localStorage.getItem('quizLastPlayed');
+  if(last && Date.now()-parseInt(last) < 24*60*60*1000){
+    document.getElementById('quiz-area').innerHTML='<p class="small">⛔ You already played today. Come back tomorrow!</p>';
+    showLeaderboard();
+    return;
+  }
+  index=0;score=0;
+  nextQ();
+}
+document.getElementById('startBtn')?.addEventListener('click', startQuiz);
+
+function nextQ(){
+  if(index>=5){ endQuiz(); return;}
+  const sent = sentences[Math.floor(Math.random()*sentences.length)];
+  const enc = cipherEncode(sent);
+  currentAnswer = sent;
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="question" id="qbox">Q ${index+1}/5<br><b>Decode this:</b><br>${enc}</div>
+    <div>Time left: <span id="timer" class="timer">60</span> sec</div>
+    <input class="input" id="answer" placeholder="Type decoded sentence">
+    <div class="controls">
+      <button class="btn" id="submitBtn">Submit</button>
+      <button class="btn" id="nextBtn">Next</button>
+    </div>
+  `;
+  // animate question
+  anime({targets: '#qbox', translateY: 30, opacity: 0, duration: 500, easing: 'easeOutQuad'});
+  remaining = 60;
+  document.getElementById('timer').textContent = remaining;
+  timerId = setInterval(()=>{
+    remaining--;
+    document.getElementById('timer').textContent = remaining;
+    if(remaining<=10){
+      anime({targets:'#timer', scale:1.05, duration:300, easing:'easeOutQuad'});
+    }
+    if(remaining<=0){
+      clearInterval(timerId);
+      autoSubmit();
+    }
+  },1000);
+  document.getElementById('submitBtn').addEventListener('click', ()=>submitAnswer(false));
+  document.getElementById('nextBtn').addEventListener('click', ()=>{ clearInterval(timerId); index++; nextQ(); });
+}
+
+function submitAnswer(isAuto){
+  clearInterval(timerId);
+  const val = document.getElementById('answer')?.value?.trim() || '';
+  if(val.toLowerCase() === currentAnswer.toLowerCase()){
+    score++;
+    alert('✅ Correct!');
+  } else {
+    if(!isAuto) alert('❌ Wrong! Correct: ' + currentAnswer);
+  }
+  index++; nextQ();
+}
+
+function autoSubmit(){ submitAnswer(true); }
+
+function endQuiz(){
+  localStorage.setItem('quizLastPlayed', Date.now().toString());
+  const today = new Date().toISOString().split('T')[0];
+  let hist = JSON.parse(localStorage.getItem('quizHistory')||'[]');
+  hist.unshift({date: today, score: score});
+  hist = hist.slice(0,7);
+  localStorage.setItem('quizHistory', JSON.stringify(hist));
+  document.getElementById('quiz-area').innerHTML = `<div id="result" style="text-align:center;padding:20px;"><h3>🎉 Quiz Finished</h3><div id="scoreBox" style="font-size:28px;font-weight:800;">${score}/5</div><div id="bestBox" class="small"></div></div>`;
+  const best = Math.max(...hist.map(h=>h.score));
+  document.getElementById('bestBox').textContent = '🔥 Best: ' + best + '/5';
+  anime({targets:'#scoreBox', scale:1.1, duration:600, easing:'easeOutQuad'});
+  showLeaderboard();
+}
+
+function showLeaderboard(){
+  const hist = JSON.parse(localStorage.getItem('quizHistory')||'[]');
+  if(!hist.length) return;
+  document.getElementById('leaderboard').style.display='block';
+  document.getElementById('leaderboard').innerHTML = '<h4>📜 Last 7 Days</h4>' + hist.map(h=>`<div>${h.date} → ${h.score}/5</div>`).join('');
+  anime({targets:'#leaderboard', translateY: 20, opacity: 0, duration: 400, easing: 'easeOutQuad'});
+}
+
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('/service-worker.js').catch(()=>{}); }
+</script>
+</body>
+</html>
