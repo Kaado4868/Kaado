@@ -3,7 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <title>🔐 Secret Cipher</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b5ed7">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f7f9fc;
+      color: #333;
+    }
+    header {
+      background: #0b5ed7;
+      color: white;
+      padding: 15px 20px;
+      text-align: center;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+    section, aside {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    section {
+      flex: 1;
+      min-width: 300px;
+    }
+    aside {
+      width: 300px;
+      flex-shrink: 0;
+    }
+    label { font-size: 13px; font-weight: bold; margin-top: 10px; display: block; }
+    textarea {
+      width: 100%; min-height: 100px;
+      margin: 5px 0 15px 0;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #0b5ed7;
+      color: white;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    button.danger { background: #e55353; }
+    button.success { background: #198754; }
+    .history-item {
+      border-bottom: 1px solid #eee;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      margin-top: 20px;
+      font-size: 13px;
+      background: #f0f0f0;
+    }
+    a { color: #0b5ed7; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Update toast */
+    #update-toast {
+      display:none; 
+      position:fixed; 
+      bottom:20px; 
+      left:50%; 
+      transform:translateX(-50%);
+      background:#333; 
+      color:#fff; 
+      padding:10px 20px; 
+      border-radius:8px; 
+      box-shadow:0 4px 8px rgba(0,0,0,0.2); 
+      z-index:9999; 
+      font-family:sans-serif;
+    }
+    #update-toast button {
+      margin-left:10px; 
+      background:#4CAF50; 
+      color:#fff; 
+      border:none; 
+      padding:5px 10px; 
+      border-radius:5px; 
+      cursor:pointer;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -20,9 +125,7 @@
       <div class="controls">
         <button onclick="encode()">Encode</button>
         <button onclick="decode()">Decode</button>
-        <button onclick="autoDetect()" title="Automatically detects whether to encode or decode">
-          Smart Detect
-        </button>
+        <button onclick="autoDetect()">Auto-Detect</button>
         <button class="danger" onclick="clearAll()">Clear</button>
         <button class="success" onclick="copyResult()">Copy</button>
         <button onclick="shareResult()">Share</button>
@@ -54,6 +157,139 @@
     Made with ❤️ Secret Cipher • <span id="year"></span>
   </footer>
 
-  <script src="script.js"></script>
+  <!-- Toast for updates -->
+  <div id="update-toast">
+    A new version is available!
+    <button onclick="refreshApp()">Refresh</button>
+  </div>
+
+  <script>
+    const inputEl = document.getElementById("input");
+    const outputEl = document.getElementById("output");
+    const historyEl = document.getElementById("history");
+    let history = JSON.parse(localStorage.getItem("cipherHistory") || "[]");
+
+    function renderHistory() {
+      historyEl.innerHTML = history.length === 0 
+        ? "<p style='opacity:0.7'>No history yet.</p>"
+        : history.map((h, i) => `
+          <div class="history-item">
+            <strong>${h.type}:</strong> ${h.result}
+            <br>
+            <button onclick="useHistory(${i})">Use</button>
+            <button onclick="navigator.clipboard.writeText('${h.result}').then(()=>alert('Copied'))">Copy</button>
+          </div>`).join("");
+    }
+
+    function saveHistory(item) {
+      history.unshift(item);
+      history = history.slice(0, 20);
+      localStorage.setItem("cipherHistory", JSON.stringify(history));
+      renderHistory();
+    }
+
+    function encode() {
+      let text = inputEl.value.toLowerCase();
+      let result = "";
+      let vowels = {a:"1", e:"2", i:"3", o:"4", u:"5"};
+      for (let ch of text) {
+        if (vowels[ch]) result += vowels[ch];
+        else if (/[a-z]/.test(ch)) result += ch + "a";
+        else result += ch;
+      }
+      outputEl.value = result;
+      saveHistory({type:"Encoded", input:text, result});
+    }
+
+    function decode() {
+      let text = inputEl.value;
+      let result = "";
+      let vowels = {"1":"a","2":"e","3":"i","4":"o","5":"u"};
+      for (let i=0;i<text.length;i++) {
+        let ch = text[i];
+        if (vowels[ch]) result += vowels[ch];
+        else if (/[a-z]/i.test(ch)) {
+          result += ch;
+          if (text[i+1]==="a") i++;
+        } else result += ch;
+      }
+      outputEl.value = result;
+      saveHistory({type:"Decoded", input:text, result});
+    }
+
+    function autoDetect() {
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      const digitCount = (text.match(/[12345]/g) || []).length;
+      const vowelCount = (text.match(/[aeiou]/gi) || []).length;
+
+      if (digitCount > vowelCount) {
+        decode();
+      } else {
+        encode();
+      }
+    }
+
+    function clearAll() {
+      inputEl.value = "";
+      outputEl.value = "";
+    }
+
+    function copyResult() {
+      if (!outputEl.value) return alert("Nothing to copy");
+      navigator.clipboard.writeText(outputEl.value);
+      alert("Copied to clipboard ✅");
+    }
+
+    function shareResult() {
+      if (!outputEl.value) return alert("Nothing to share");
+      if (navigator.share) {
+        navigator.share({title:"Secret Cipher", text:outputEl.value});
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(outputEl.value)}`, "_blank");
+      }
+    }
+
+    function copyHistory() {
+      if (!history.length) return alert("No history");
+      const all = history.map(h => `${h.type}: ${h.result}`).join("\n");
+      navigator.clipboard.writeText(all);
+      alert("History copied ✅");
+    }
+
+    function clearHistory() {
+      if (!confirm("Clear history?")) return;
+      history = [];
+      localStorage.removeItem("cipherHistory");
+      renderHistory();
+    }
+
+    function useHistory(i) {
+      inputEl.value = history[i].result;
+      autoDetect();
+    }
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+    renderHistory();
+
+    // PWA update toast
+    function refreshApp() {
+      window.location.reload();
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              document.getElementById("update-toast").style.display = "block";
+            }
+          });
+        });
+      });
+    }
+  </script>
 </body>
 </html>

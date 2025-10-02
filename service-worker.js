@@ -1,9 +1,6 @@
 // service-worker.js
 
-// 🔧 Toggle this when testing or deploying
-const DEV_MODE = true; // set to false when deploying final version
-
-const CACHE_NAME = "secret-cipher-v1";
+const CACHE_NAME = "secret-cipher-v2"; // bump version when updating
 const ASSETS = [
   "/", 
   "/index.html",
@@ -12,50 +9,38 @@ const ASSETS = [
   "/icon-512.png"
 ];
 
-// Install event
+// Install event - cache files
 self.addEventListener("install", (event) => {
-  if (DEV_MODE) {
-    console.log("🚧 Dev mode: skipping cache install");
-    return;
-  }
+  self.skipWaiting(); // ⬅️ activate new SW immediately
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("✅ Caching app assets");
       return cache.addAll(ASSETS);
     })
   );
 });
 
-// Activate event (cache cleanup)
+// Activate event - clear old caches
 self.addEventListener("activate", (event) => {
-  if (DEV_MODE) {
-    console.log("🚧 Dev mode: skipping cache cleanup");
-    return;
-  }
+  clients.claim(); // ⬅️ take control of pages right away
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
       )
     )
   );
 });
 
-// Fetch event
+// Fetch event - network first, fallback to cache
 self.addEventListener("fetch", (event) => {
-  if (DEV_MODE) {
-    console.log("🚧 Dev mode: network fetch", event.request.url);
-    return; // don’t intercept in dev mode
-  }
-
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request).catch(() => {
-          console.warn("⚠️ Network request failed, offline mode.");
-        })
-      );
-    })
+    fetch(event.request)
+      .then((response) => {
+        // Cache a copy of the response
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request)) // fallback to cache if offline
   );
 });
