@@ -5,28 +5,34 @@
 <title>Quiz - Secret Cipher</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#6a11cb">
+<meta name="theme-color" content="#ff416c">
 <link rel="icon" href="icon-192.png">
+<style>
+body{font-family:Inter,Segoe UI,Roboto,Arial;background:linear-gradient(135deg,#ff416c,#ff4b2b,#1e90ff);background-size:400% 400%;animation:gradientBG 15s ease infinite;color:#111;min-height:100vh;display:flex;align-items:center;justify-content:center;margin:0;}
+@keyframes gradientBG{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+#quiz-wrap{max-width:800px;width:92%;background:rgba(255,255,255,0.97);padding:20px;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.15);}
+button{padding:10px 15px;border:none;border-radius:8px;cursor:pointer;font-weight:700;color:#fff;background:linear-gradient(90deg,#ff6a88,#5b18b0);margin-top:10px;}
+</style>
 </head>
-<body style="font-family:Inter,Segoe UI,Roboto,Arial;background:linear-gradient(135deg,#6a11cb,#2575fc);color:#111;min-height:100vh;display:flex;align-items:center;justify-content:center;">
-<div style="max-width:900px;width:92%;background:rgba(255,255,255,0.97);padding:20px;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.15);" id="quiz-wrap">
-  <div id="quiz-area"><button id="startBtn" style="padding:12px;border:none;border-radius:10px;color:white;font-weight:800;background:linear-gradient(90deg,#ff6a88,#5b18b0);cursor:pointer;">Start Quiz</button></div>
-  <div id="leaderboard" style="display:none;margin-top:12px;"></div>
+<body>
+<div id="quiz-wrap">
+  <div id="quiz-area"><button id="startBtn">Start Quiz</button></div>
   <div style="margin-top:12px;text-align:center;"><a href="index.html">← Back to Cipher</a></div>
 </div>
-<script src="anime.min.js"></script>
 <script>
 const sentences=[
 "Success usually comes to those who are too busy to be looking for it.",
 "The quick brown fox jumps over the lazy dog.",
-"Knowledge is power, but wisdom is everything."
+"Knowledge is power, but wisdom is everything.",
+"Programming is not about what you know, it is about what you can figure out."
 ];
 function cipherEncode(t){let v={a:'1',e:'2',i:'3',o:'4',u:'5'};let r='';for(let c of t.toLowerCase()){if(v[c])r+=v[c];else if(/[a-z]/.test(c))r+=c+'a';else r+=c;}return r;}
-let qIndex=0,score=0,timerId,currentAnswer,remaining;
+let qIndex=0,score=0,currentAnswer,timerId,timeLeft=60;
 function startQuiz(){qIndex=0;score=0;nextQ();}
-document.getElementById('startBtn')?.addEventListener('click',startQuiz);
-function nextQ(){if(qIndex>=5){endQuiz();return;}const s=sentences[Math.floor(Math.random()*sentences.length)];const e=cipherEncode(s);currentAnswer=s;document.getElementById('quiz-area').innerHTML=`<div>${e}</div><input id='answer'><button onclick='submitAnswer()'>Submit</button>`;}
-function submitAnswer(){const val=document.getElementById('answer').value;if(val.toLowerCase()===currentAnswer.toLowerCase()){score++;}qIndex++;nextQ();}
+document.getElementById('startBtn').addEventListener('click',startQuiz);
+function nextQ(){if(qIndex>=5){endQuiz();return;}const s=sentences[Math.floor(Math.random()*sentences.length)];const e=cipherEncode(s);currentAnswer=s;timeLeft=60;document.getElementById('quiz-area').innerHTML=`<div><strong>Decode this:</strong><br>${e}</div><input id='answer'><div id='timer'>Time: 60s</div><button onclick='submitAnswer()'>Submit</button><button onclick='skipQ()'>Next</button>`;timerId=setInterval(()=>{timeLeft--;document.getElementById('timer').textContent="Time: "+timeLeft+"s";if(timeLeft<=0){clearInterval(timerId);skipQ();}},1000);}
+function submitAnswer(){clearInterval(timerId);const val=document.getElementById('answer').value;if(val.toLowerCase()===currentAnswer.toLowerCase()){score++;}qIndex++;nextQ();}
+function skipQ(){clearInterval(timerId);qIndex++;nextQ();}
 function endQuiz(){document.getElementById('quiz-area').innerHTML='<h3>Quiz Finished</h3><p>Score: '+score+'/5</p>';}
 </script>
 </body>
