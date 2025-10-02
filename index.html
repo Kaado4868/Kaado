@@ -45,6 +45,10 @@
     #loginScreen{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:99}
     #loginBox{background:#1a1f2f;padding:20px;border-radius:12px;width:300px}
     input{width:100%;padding:8px;margin:6px 0;border-radius:6px;border:0;background:rgba(255,255,255,0.1);color:#fff}
+    /* profile modal */
+    #profileModal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:100}
+    #profileBox{background:#1a1f2f;padding:20px;border-radius:12px;width:320px}
+    canvas{margin-top:10px;display:none}
   </style>
 </head>
 <body>
@@ -59,9 +63,32 @@
     </div>
   </div>
 
+  <!-- Profile Modal -->
+  <div id="profileModal">
+    <div id="profileBox">
+      <h3>👤 Profile</h3>
+      <p><b>User:</b> <span id="profileUser"></span></p>
+      <label>Nickname</label>
+      <input id="newNick" placeholder="Enter nickname">
+      <button onclick="saveNick()" class="secondary">Save Nickname</button>
+      <hr>
+      <label>Change Password</label>
+      <input id="newPass" type="password" placeholder="New password">
+      <input id="confirmPass" type="password" placeholder="Confirm password">
+      <button onclick="changePass()" class="secondary">Change Password</button>
+      <hr>
+      <button onclick="exportData()">⬇ Export Data</button>
+      <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+      <button onclick="document.getElementById('importFile').click()" class="secondary">⬆ Import Data</button>
+      <hr>
+      <button onclick="closeProfile()" class="danger">Close</button>
+    </div>
+  </div>
+
   <header>
     <h1>🔐 Secret Cipher — Vowel Numbers</h1>
     <p id="welcomeUser"></p>
+    <button onclick="openProfile()" class="secondary">Profile</button>
     <button onclick="logout()" class="danger">Logout</button>
   </header>
 
@@ -75,9 +102,11 @@
         <button onclick="decode()">Decode</button>
         <button onclick="smartDetect()">Smart Detect</button>
         <button onclick="copyResult()" class="secondary">Copy</button>
+        <button onclick="genQR()" class="secondary">Generate QR</button>
         <button onclick="clearAll()" class="danger">Clear</button>
       </div>
       <div id="visualizer">🔄 Visualizer will show here</div>
+      <canvas id="qrCanvas" width="200" height="200"></canvas>
 
       <!-- Quiz -->
       <div style="margin-top:16px;background:rgba(0,0,0,0.25);padding:12px;border-radius:10px">
@@ -115,7 +144,7 @@
     if(accounts[u].password!==p)return toast("Wrong password");
     currentUser=u;localStorage.setItem("currentUser",u);
     document.getElementById("loginScreen").style.display="none";
-    document.getElementById("welcomeUser").textContent="Welcome "+u;
+    document.getElementById("welcomeUser").textContent="Welcome "+u+(accounts[u].nickname?(" ("+accounts[u].nickname+")"):"");
     renderHistory();renderLeaderboard();
   }
   function signup(){
@@ -123,10 +152,41 @@
     const p=document.getElementById("password").value.trim();
     if(!u||!p)return toast("Fill fields");
     if(accounts[u])return toast("User exists");
-    accounts[u]={password:p,history:[],scores:[]};
+    accounts[u]={password:p,nickname:"",history:[],scores:[]};
     save();toast("Account created");
   }
   function logout(){currentUser=null;localStorage.removeItem("currentUser");document.getElementById("loginScreen").style.display="flex";}
+
+  // Profile
+  function openProfile(){
+    if(!currentUser)return;
+    document.getElementById("profileUser").textContent=currentUser;
+    document.getElementById("newNick").value=getUser().nickname||"";
+    document.getElementById("profileModal").style.display="flex";
+  }
+  function closeProfile(){document.getElementById("profileModal").style.display="none";}
+  function saveNick(){getUser().nickname=document.getElementById("newNick").value;save();toast("Nickname saved");}
+  function changePass(){
+    let n=document.getElementById("newPass").value;
+    let c=document.getElementById("confirmPass").value;
+    if(!n||n!==c)return toast("Passwords do not match");
+    getUser().password=n;save();toast("Password changed");
+  }
+
+  // export/import
+  function exportData(){
+    const blob=new Blob([JSON.stringify(accounts)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="cipher_accounts.json";
+    a.click();
+  }
+  function importData(e){
+    const file=e.target.files[0];if(!file)return;
+    const r=new FileReader();
+    r.onload=function(){try{accounts=JSON.parse(r.result);save();toast("Imported data OK");}catch{toast("Import failed")}};
+    r.readAsText(file);
+  }
 
   // toast
   function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
@@ -139,6 +199,14 @@
   function smartDetect(){const txt=document.getElementById("input").value;if(/[1-5]/.test(txt))decode();else encode();}
   function copyResult(){navigator.clipboard.writeText(document.getElementById("output").value);toast("Copied")}
   function clearAll(){document.getElementById("input").value="";document.getElementById("output").value="";}
+
+  // QR generator (simple)
+  function genQR(){
+    let text=document.getElementById("output").value;if(!text)return toast("Nothing to QR");
+    let c=document.getElementById("qrCanvas");let ctx=c.getContext("2d");c.style.display="block";
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle="#000";
+    for(let i=0;i<text.length;i++){let x=(i%20)*10;let y=Math.floor(i/20)*10; if(text.charCodeAt(i)%2==0)ctx.fillRect(x,y,8,8);}
+  }
 
   // history
   function addHist(type,inp,res){if(!currentUser)return;let u=getUser();u.history.unshift({type,inp,res,date:new Date().toLocaleString()});u.history=u.history.slice(0,20);save();renderHistory();}
