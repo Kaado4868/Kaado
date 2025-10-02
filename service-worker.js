@@ -1,5 +1,5 @@
-const CACHE_NAME = "secret-cipher-v3";
-const ASSETS = ["/", "/index.html", "/quiz.html", "/manifest.json", "/icon-192.png", "/icon-512.png", "/anime.min.js", "/service-worker.js"];
+const CACHE_NAME = "secret-cipher-v4";
+const ASSETS = ["/", "/index.html", "/quiz.html", "/manifest.json", "/icon-192.png", "/icon-512.png", "/anime.min.js"];
 
 self.addEventListener("install", e => {
   self.skipWaiting();
