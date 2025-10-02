@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>🔐 Secret Cipher — Vowel Numbers (Cloud + Local)</title>
+  <title>🔐 Secret Cipher</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+
   <style>
-    :root{
+    :root {
       --glass: rgba(255,255,255,0.08);
       --card-glow: 0 8px 30px rgba(0,0,0,0.45);
       --accent1: #ff5f8b;
@@ -13,65 +14,51 @@
       --accent3: #00f0ff;
       --accent4: #5efc82;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;font-family: Inter,"Segoe UI",Arial,sans-serif;color:#fff;
-      min-height:100vh;display:flex;flex-direction:column;
-      background:
-        radial-gradient(1200px 600px at 10% 10%, rgba(123,97,255,0.12), transparent 10%),
-        radial-gradient(1000px 500px at 90% 90%, rgba(0,240,255,0.08), transparent 12%),
-        linear-gradient(135deg,#0a0f1f,#0d1117 40%,#121826 100%);
-      background-size:300% 300%;animation:bgShift 18s ease infinite;
+    body {
+      margin: 0; font-family: Inter, "Segoe UI", Arial, sans-serif; color: #fff;
+      background: linear-gradient(135deg,#0a0f1f,#0d1117 40%,#121826 100%);
+      min-height: 100vh; display: flex; flex-direction: column;
     }
-    @keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-    header{padding:20px;text-align:center;background:rgba(0,0,0,0.3)}
-    main{flex:1;display:flex;gap:20px;padding:20px;flex-wrap:wrap;justify-content:center}
-    section,aside{min-width:320px;flex:1;border-radius:16px;padding:18px;background:var(--glass);
-      box-shadow:var(--card-glow);backdrop-filter:blur(8px)}
-    textarea{width:100%;min-height:110px;border-radius:12px;border:0;padding:12px;margin:10px 0;
-      background:rgba(0,0,0,0.35);color:#fff;font-size:15px;resize:vertical}
-    .controls{display:flex;gap:10px;flex-wrap:wrap}
-    button{padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700;color:#fff;
-      background-image:linear-gradient(90deg,rgba(255,95,139,0.95),rgba(123,97,255,0.95));
-      box-shadow:0 8px 20px rgba(0,0,0,0.4)}
-    button.secondary{background-image:linear-gradient(90deg,#00c6ff,#0072ff)}
-    button.danger{background-image:linear-gradient(90deg,#ff8a65,#e53935)}
-    .history-item{padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(0,0,0,0.14);font-size:14px}
-    #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);
-      padding:10px 16px;border-radius:22px;opacity:0;transition:.25s}
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
-    /* login screen */
-    #loginScreen{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:99}
-    #loginBox{background:#1a1f2f;padding:20px;border-radius:12px;width:320px;max-width:90%}
-    input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:0;background:rgba(255,255,255,0.06);color:#fff}
-    .small{font-size:13px;opacity:0.9}
-    footer{padding:12px;text-align:center;color:#aaa}
+    header { padding: 20px; text-align: center; background: rgba(0,0,0,0.3); }
+    main { flex:1; display:flex; gap:20px; padding:20px; flex-wrap:wrap; justify-content:center; }
+    section, aside { min-width:320px; flex:1; border-radius:16px; padding:18px; background:var(--glass);
+      box-shadow:var(--card-glow); backdrop-filter:blur(8px); }
+    textarea { width:100%; min-height:110px; border-radius:12px; border:0; padding:12px; margin:10px 0;
+      background:rgba(0,0,0,0.35); color:#fff; font-size:15px; }
+    .controls { display:flex; gap:10px; flex-wrap:wrap; }
+    button { padding:10px 12px; border-radius:10px; border:0; cursor:pointer; font-weight:700; color:#fff;
+      background-image:linear-gradient(90deg,rgba(255,95,139,0.95),rgba(123,97,255,0.95)); }
+    button.secondary { background-image:linear-gradient(90deg,#00c6ff,#0072ff); }
+    button.danger { background-image:linear-gradient(90deg,#ff8a65,#e53935); }
+    .history-item { padding:8px; border-radius:8px; margin-bottom:8px; background:rgba(0,0,0,0.14); font-size:14px; }
+    footer { text-align:center; padding:10px; }
+    #toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8);
+      padding:10px 16px; border-radius:22px; opacity:0; transition:.25s; }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(-6px); }
+
+    /* login modal */
+    #loginScreen { position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:99; }
+    #loginBox { background:#1a1f2f; padding:20px; border-radius:12px; width:300px; }
+    input { width:100%; padding:8px; margin:6px 0; border-radius:6px; border:0; background:rgba(255,255,255,0.1); color:#fff; }
   </style>
 </head>
 <body>
-  <!-- Login / Signup Modal -->
+  <!-- Login -->
   <div id="loginScreen">
     <div id="loginBox">
       <h2>🔑 Login / Sign Up</h2>
-      <input id="username" placeholder="Email (you@example.com)" type="email" />
-      <input id="password" placeholder="Password (min 6 chars)" type="password" />
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button onclick="login()">Login</button>
-        <button onclick="signup()" class="secondary">Sign Up</button>
-        <button onclick="guestMode()" class="danger">Continue Offline</button>
-      </div>
-      <p class="small">Make sure Email/Password sign-in is enabled and your domain is added to Firebase Authorized domains.</p>
+      <input id="username" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <button onclick="signup()" class="secondary">Sign Up</button>
+      <button onclick="guestMode()" class="danger">Continue as Guest</button>
     </div>
   </div>
 
   <header>
-    <h1>🔐 Secret Cipher — Vowel Numbers</h1>
+    <h1>🔐 Secret Cipher</h1>
     <p id="welcomeUser"></p>
-    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
-      <button onclick="openProfile()" class="secondary">Profile</button>
-      <button onclick="logout()" class="danger">Logout</button>
-    </div>
+    <button onclick="logout()" class="danger">Logout</button>
   </header>
 
   <main>
@@ -84,55 +71,40 @@
         <button onclick="decode()">Decode</button>
         <button onclick="smartDetect()">Smart Detect</button>
         <button onclick="copyResult()" class="secondary">Copy</button>
-        <button onclick="genQR()" class="secondary">Generate QR</button>
         <button onclick="clearAll()" class="danger">Clear</button>
       </div>
 
-      <div style="margin-top:18px;background:rgba(255,255,255,0.03);padding:12px;border-radius:10px">
+      <!-- Quiz -->
+      <div style="margin-top:16px; background:rgba(0,0,0,0.25); padding:12px; border-radius:10px">
         <h3>🧩 Quiz</h3>
-        <div id="quiz-status">Not started</div>
-        <div id="quiz-container"></div>
-        <div style="margin-top:8px">
-          <button onclick="startQuiz()">Start Quiz</button>
-        </div>
+        <div id="quiz-container">Not started</div>
+        <button onclick="startQuiz()">Start Quiz</button>
       </div>
 
-      <h4 style="margin-top:12px">🏆 Leaderboard</h4>
+      <h4>🏆 Leaderboard</h4>
       <div id="leaderboard"></div>
     </section>
 
     <aside>
       <h3>📜 History</h3>
       <div id="history"></div>
-      <div style="margin-top:8px">
-        <button onclick="downloadLocalBackup()">Export Local Backup</button>
-        <button onclick="clearHistory()" class="danger">Clear History</button>
-      </div>
+      <button onclick="clearHistory()" class="danger">Clear History</button>
     </aside>
   </main>
 
   <footer>© <span id="year"></span> Secret Cipher</footer>
   <div id="toast"></div>
 
-  <!-- Firebase (modular) + App logic -->
-  <script type="module">
-  /* ===========================
-     Firebase + Firestore + Auth
-     ============================
-     Note: this file uses modular Firebase SDK imports (v10). If you prefer CDN <script> tags,
-     tell me and I can provide a non-module variant.
-  */
-
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, collection, getDocs, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // ---------- YOUR FIREBASE CONFIG ----------
   const firebaseConfig = {
     apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00",
     authDomain: "cipher-e6c22.firebaseapp.com",
     projectId: "cipher-e6c22",
-    storageBucket: "cipher-e6c22.appspot.com", // fixed to .appspot.com style
+    storageBucket: "cipher-e6c22.appspot.com",
     messagingSenderId: "345358817477",
     appId: "1:345358817477:web:7ba4dd380d634b559038ac",
     measurementId: "G-CN75P4JDPW"
@@ -142,443 +114,115 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // expose for debug if needed
-  window._firebase = { app, auth, db };
+  const inputEl=document.getElementById("input");
+  const outputEl=document.getElementById("output");
+  const historyEl=document.getElementById("history");
 
-  /* ======= Utility: Toast ======= */
-  function toast(m){
-    const el = document.getElementById("toast");
-    el.textContent = m;
-    el.classList.add("show");
-    setTimeout(()=>el.classList.remove("show"), 2400);
-  }
+  function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
 
-  /* ======= Local backup helpers ======= */
-  function localKeyHistory(uid){ return `sc_history_${uid||"guest"}`; }
-  function localKeyScores(uid){ return `sc_scores_${uid||"guest"}`; }
-
-  function saveLocalHistory(uid, arr){
-    localStorage.setItem(localKeyHistory(uid), JSON.stringify(arr||[]));
-  }
-  function loadLocalHistory(uid){
-    return JSON.parse(localStorage.getItem(localKeyHistory(uid))||"[]");
-  }
-  function saveLocalScores(uid, arr){
-    localStorage.setItem(localKeyScores(uid), JSON.stringify(arr||[]));
-  }
-  function loadLocalScores(uid){
-    return JSON.parse(localStorage.getItem(localKeyScores(uid))||"[]");
-  }
-
-  /* ======= Auth: signup / login / logout (exposed) ======= */
+  // ---------------- AUTH ----------------
   async function signup(){
-    const email = (document.getElementById("username").value||"").trim();
-    const password = (document.getElementById("password").value||"").trim();
-    if(!email || !password){ return toast("Enter email & password"); }
+    const email=document.getElementById("username").value.trim();
+    const pass=document.getElementById("password").value.trim();
     try{
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth,email,pass);
       toast("Account created ✅");
-      // after create, Firestore doc will be created lazily when saving data
-    }catch(err){
-      console.error("signup err", err);
-      toast(err.message || "Signup failed");
-    }
+    }catch(e){toast(e.message);}
   }
 
   async function login(){
-    const email = (document.getElementById("username").value||"").trim();
-    const password = (document.getElementById("password").value||"").trim();
-    if(!email || !password){ return toast("Enter email & password"); }
+    const email=document.getElementById("username").value.trim();
+    const pass=document.getElementById("password").value.trim();
     try{
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth,email,pass);
       toast("Logged in ✅");
-    }catch(err){
-      console.error("login err", err);
-      toast(err.message || "Login failed");
-    }
+    }catch(e){toast(e.message);}
   }
 
   async function logout(){
-    try{
-      await signOut(auth);
-      toast("Logged out");
-      enterGuestMode(); // fall back to guest/local-only mode
-    }catch(err){
-      console.error("logout", err);
-      toast("Logout failed");
-    }
+    await signOut(auth);
+    toast("Logged out");
   }
 
-  // Guest / offline mode
   function guestMode(){
-    // show UI but as guest; history stored under "guest"
-    window._guest = true;
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("welcomeUser").textContent = "Offline (Guest)";
-    renderHistoryLocal("guest");
-    renderLeaderboardLocal("guest");
-    toast("Guest mode: local only");
+    localStorage.setItem("guestMode","true");
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("welcomeUser").textContent="Welcome Guest";
   }
 
-  function enterGuestMode(){
-    window._guest = false;
-    // when logged out, show login screen by default
-    document.getElementById("loginScreen").style.display = "flex";
-    document.getElementById("welcomeUser").textContent = "";
-  }
-
-  /* ======= Firestore helpers for user data ======= */
-  function userDocRef(uid){
-    return doc(db, "users", uid);
-  }
-
-  // Save history entry to Firestore and local backup
-  async function addHist(type, inp, res){
-    // Add to local backup first
-    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
-    let local = loadLocalHistory(uid);
-    local.unshift({type, inp, res, date: new Date().toLocaleString()});
-    local = local.slice(0, 50);
-    saveLocalHistory(uid, local);
-    renderHistoryLocal(uid);
-
-    // If logged in, also push to Firestore
-    if(auth.currentUser){
-      try{
-        const uRef = userDocRef(auth.currentUser.uid);
-        // use setDoc merge with arrayUnion via updateDoc if doc exists
-        await updateDoc(uRef, { history: arrayUnion({type, inp, res, date: new Date().toLocaleString()}) });
-      }catch(e){
-        // if doc doesn't exist yet, create it with setDoc
-        try{
-          await setDoc(userDocRef(auth.currentUser.uid), { history: loadLocalHistory(uid), scores: loadLocalScores(uid) || [] }, { merge: true });
-        }catch(err){
-          console.error("failed saving history to firestore", err);
-        }
-      }
-    }
-  }
-
-  // Load history either from Firestore (when logged in) or from local backup
-  async function renderHistory(){
-    if(auth.currentUser){
-      const uid = auth.currentUser.uid;
-      // Try to read Firestore document
-      try{
-        const snap = await getDoc(userDocRef(uid));
-        if(snap.exists()){
-          const data = snap.data();
-          const arr = data.history || [];
-          // also save a local backup copy
-          saveLocalHistory(uid, arr.slice(0,50));
-          // Render
-          document.getElementById("history").innerHTML = arr.length ? arr.map(x=>`<div class="history-item"><b>${x.type}</b>: ${x.res}<br><small>${x.date}</small></div>`).join("") : "No history";
-          return;
-        }
-      }catch(err){
-        console.error("fetch history err", err);
-      }
-    }
-    // fallback to local
-    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
-    renderHistoryLocal(uid);
-  }
-
-  function renderHistoryLocal(uid){
-    const arr = loadLocalHistory(uid);
-    document.getElementById("history").innerHTML = arr.length ? arr.map(x=>`<div class="history-item"><b>${x.type}</b>: ${x.res}<br><small>${x.date}</small></div>`).join("") : "No history";
-  }
-
-  // Clear history both local and cloud (if logged in)
-  async function clearHistory(){
-    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
-    // clear local
-    saveLocalHistory(uid, []);
-    renderHistoryLocal(uid);
-    // clear cloud
-    if(auth.currentUser){
-      try{
-        // naive approach: read docs under users/{uid}/history collection and delete - but we used array in user doc so set empty array
-        await setDoc(userDocRef(uid), { history: [] }, { merge: true });
-      }catch(e){ console.error("clear cloud history err", e); }
-    }
-    toast("History cleared");
-  }
-
-  /* ======= Quiz: local + cloud storage of scores ======= */
-  const quizQuestions = [
-    "The quick brown fox jumps over the lazy dog.",
-    "Knowledge is power, but wisdom is everything.",
-    "Success usually comes to those who are too busy to be looking for it.",
-    "Do not watch the clock. Do what it does. Keep going.",
-    "Difficult roads often lead to beautiful destinations.",
-    "Hard work beats talent when talent doesn’t work hard.",
-    "Great things never come from comfort zones.",
-    "Dream big and dare to fail.",
-    "The only limit to our realization of tomorrow is our doubts of today.",
-    "Opportunities don't happen, you create them."
-  ];
-  let quizIndex=0, quizScore=0, quizTimer=null, quizPool=[];
-
-  function startQuiz(){
-    if(!auth.currentUser && !window._guest){ toast("Please login or choose Guest mode to play"); return; }
-    quizIndex=0; quizScore=0;
-    quizPool = [...quizQuestions].sort(()=>Math.random()-0.5).slice(0,5);
-    showQuizQuestion();
-  }
-
-  function encSen(txt){
-    const map = {a:"1",e:"2",i:"3",o:"4",u:"5"};
-    let out="";
-    for(const ch of txt.toLowerCase()){
-      if(map[ch]) out+=map[ch];
-      else if(/[a-z]/.test(ch)) out+=ch+"a";
-      else out+=ch;
-    }
-    return out;
-  }
-
-  function showQuizQuestion(){
-    if(quizIndex>=quizPool.length){ finishQuiz(); return; }
-    const sentence = quizPool[quizIndex];
-    const encoded = encSen(sentence);
-    document.getElementById("quiz-container").innerHTML = `
-      <div style="padding:8px;background:rgba(255,255,255,0.03);border-radius:8px">
-        <b>Q${quizIndex+1}/${quizPool.length}</b>
-        <p style="margin:8px 0"><b>Decode this:</b><br>${encoded}</p>
-        <input id="quiz-answer" placeholder="Type decoded sentence" style="width:100%;padding:10px;border-radius:8px;border:0;background:rgba(255,255,255,0.03);color:#fff" />
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button onclick="submitQuizAnswer('${escapeForAttr(sentence)}')">Submit</button>
-          <button onclick="skipQuiz()">Next</button>
-          <div style="margin-left:auto" class="small">Time left: <span id="quiz-timer">60</span>s</div>
-        </div>
-      </div>
-    `;
-    startQuizTimer(60, ()=>submitQuizAnswer(sentence,true));
-  }
-
-  function escapeForAttr(s){
-    return s.replace(/'/g,"\\'").replace(/"/g,"&quot;");
-  }
-
-  function startQuizTimer(seconds, onTimeUp){
-    clearInterval(quizTimer);
-    let t = seconds;
-    document.getElementById("quiz-timer").textContent = t;
-    quizTimer = setInterval(()=> {
-      t--;
-      const el = document.getElementById("quiz-timer");
-      if(el) el.textContent = t;
-      if(t<=0){ clearInterval(quizTimer); onTimeUp(); }
-    }, 1000);
-  }
-
-  function submitQuizAnswer(correct, timedOut=false){
-    clearInterval(quizTimer);
-    const ans = (document.getElementById("quiz-answer") && document.getElementById("quiz-answer").value || "").trim();
-    if(!timedOut && ans.toLowerCase() === correct.toLowerCase()){ quizScore++; toast("✅ Correct"); }
-    else if(!timedOut){ toast("❌ Wrong"); }
-    else { toast("⏱ Time up!"); }
-    quizIndex++;
-    setTimeout(()=> showQuizQuestion(), 600);
-  }
-
-  function skipQuiz(){
-    clearInterval(quizTimer);
-    quizIndex++;
-    showQuizQuestion();
-  }
-
-  async function finishQuiz(){
-    // Save score locally & cloud
-    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
-    // local scores
-    const localScores = loadLocalScores(uid);
-    localScores.unshift({score: quizScore, date: new Date().toLocaleString()});
-    saveLocalScores(uid, localScores.slice(0,50));
-    renderLeaderboardLocal(uid);
-    // cloud
-    if(auth.currentUser){
-      try{
-        await updateDoc(userDocRef(auth.currentUser.uid), { scores: arrayUnion({score: quizScore, date: new Date().toISOString()}) });
-      }catch(e){
-        // if doc missing, create
-        try{
-          await setDoc(userDocRef(auth.currentUser.uid), { scores: loadLocalScores(uid) }, { merge: true });
-        }catch(err){
-          console.error("save quiz to cloud err", err);
-        }
-      }
-    }
-    document.getElementById("quiz-container").innerHTML = `<div>Done! Score: ${quizScore}/${quizPool.length}</div>`;
-    toast("Quiz finished: " + quizScore + "/" + quizPool.length);
-  }
-
-  /* ======= Leaderboard rendering ======= */
-  async function renderLeaderboard(){
-    if(auth.currentUser){
-      try{
-        const snap = await getDoc(userDocRef(auth.currentUser.uid));
-        if(snap.exists()){
-          const data = snap.data();
-          const scores = data.scores || [];
-          document.getElementById("leaderboard").innerHTML = scores.length ? scores.slice(0,5).map((s,i)=>`#${i+1} → ${s.score} (${new Date(s.date).toLocaleDateString()})`).join("<br>") : "No scores";
-          return;
-        }
-      }catch(e){ console.error("render leaderboard err", e); }
-    }
-    renderLeaderboardLocal((auth.currentUser && auth.currentUser.uid) || "guest");
-  }
-
-  function renderLeaderboardLocal(uid){
-    const arr = loadLocalScores(uid);
-    document.getElementById("leaderboard").innerHTML = arr.length ? arr.slice(0,5).map((s,i)=>`#${i+1} → ${s.score} (${new Date(s.date).toLocaleDateString()})`).join("<br>") : "No scores";
-  }
-
-  /* ======= Cipher basic functions (exposed) ======= */
-  function encode(){
-    const txt = document.getElementById("input").value || "";
-    let out = "";
-    for(const ch of txt.toLowerCase()){
-      if("aeiou".includes(ch)) out += ({a:"1", e:"2", i:"3", o:"4", u:"5"})[ch];
-      else if(/[a-z]/.test(ch)) out += ch + "a";
-      else out += ch;
-    }
-    document.getElementById("output").value = out;
-    addHist("Encoded", txt, out);
-  }
-
-  function decode(){
-    const txt = document.getElementById("input").value || "";
-    let out = "";
-    for(let i=0;i<txt.length;i++){
-      const c = txt[i];
-      if("12345".includes(c)) out += ({"1":"a","2":"e","3":"i","4":"o","5":"u"})[c];
-      else if(/[A-Za-z]/.test(c) && txt[i+1]==="a"){ out += c; i++; }
-      else out += c;
-    }
-    document.getElementById("output").value = out;
-    addHist("Decoded", txt, out);
-  }
-
-  function smartDetect(){
-    const txt = document.getElementById("input").value || "";
-    const digits = (txt.match(/[12345]/g) || []).length;
-    const suffixes = (txt.match(/[a-z]a/g) || []).length;
-    if(digits > suffixes) decode(); else encode();
-  }
-
-  function copyResult(){
-    const out = document.getElementById("output").value || "";
-    if(!out) return toast("Nothing to copy");
-    navigator.clipboard.writeText(out).then(()=>toast("Copied"));
-  }
-
-  function clearAll(){ document.getElementById("input").value=""; document.getElementById("output").value=""; }
-
-  function genQR(){
-    const text = document.getElementById("output").value || "";
-    if(!text) return toast("Nothing to QR");
-    let c = document.createElement("canvas");
-    c.width = 200; c.height = 200;
-    let ctx = c.getContext("2d");
-    ctx.fillStyle = "#fff"; ctx.fillRect(0,0,c.width,c.height);
-    ctx.fillStyle = "#000";
-    for(let i=0;i<text.length;i++){
-      let x=(i%20)*10, y=Math.floor(i/20)*10;
-      if(text.charCodeAt(i)%2==0) ctx.fillRect(x,y,8,8);
-    }
-    // show in page
-    const existing = document.getElementById("qrCanvasDisplay");
-    if(existing) existing.replaceWith(c); else document.getElementById("quiz-container").insertAdjacentElement("afterend", c);
-    c.id = "qrCanvasDisplay";
-  }
-
-  // utility: export local backup as JSON
-  function downloadLocalBackup(){
-    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
-    const data = { history: loadLocalHistory(uid), scores: loadLocalScores(uid) };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `cipher-backup-${uid}.json`; a.click();
-  }
-
-  /* ======= Auth state listener: sync/load data ======= */
-  onAuthStateChanged(auth, async (user) => {
+  onAuthStateChanged(auth,(user)=>{
     if(user){
-      // hide login
-      document.getElementById("loginScreen").style.display = "none";
-      document.getElementById("welcomeUser").textContent = "Welcome " + (user.email || "");
-      // Merge local backup into cloud (simple strategy: push local array items to cloud if cloud is empty)
-      try{
-        const uRef = userDocRef(user.uid);
-        const snap = await getDoc(uRef);
-        const localHist = loadLocalHistory(user.uid);
-        const localScores = loadLocalScores(user.uid);
-        if(!snap.exists()){
-          // create doc with local backup
-          await setDoc(uRef, { history: localHist, scores: localScores });
-        } else {
-          const data = snap.data();
-          // if cloud has no history but local has, push local
-          if((data.history||[]).length === 0 && localHist.length>0) await updateDoc(uRef, { history: localHist });
-          if((data.scores||[]).length === 0 && localScores.length>0) await updateDoc(uRef, { scores: localScores });
-          // also update local to reflect cloud authoritative copy
-          saveLocalHistory(user.uid, data.history || localHist);
-          saveLocalScores(user.uid, data.scores || localScores);
-        }
-      }catch(err){
-        console.error("auth state sync err", err);
-      }
-      // render data
-      await renderHistory();
-      await renderLeaderboard();
-    } else {
-      // not logged in => show login screen (unless guest mode toggled)
-      if(!window._guest){
-        document.getElementById("loginScreen").style.display = "flex";
-        document.getElementById("welcomeUser").textContent = "";
-      }
-      renderHistory(); // will show local guest or empty
-      renderLeaderboard();
+      document.getElementById("loginScreen").style.display="none";
+      document.getElementById("welcomeUser").textContent="Welcome "+user.email;
+      loadUserData();
+    }else if(!localStorage.getItem("guestMode")){
+      document.getElementById("loginScreen").style.display="flex";
     }
   });
 
-  /* ======= On load: if user is already signed-in (persisted), UI will update via onAuthStateChanged ======= */
-  document.getElementById("year").textContent = new Date().getFullYear();
+  // ---------------- DATA ----------------
+  async function addHist(type,inp,res){
+    history.unshift({type,inp,res,date:new Date().toLocaleString()});
+    history=history.slice(0,20);
+    renderHistory();
+    localStorage.setItem("cipherHistory",JSON.stringify(history));
 
-  /* ======= Expose window functions for HTML onclick attributes ======= */
-  window.signup = signup;
-  window.login = login;
-  window.logout = logout;
-  window.guestMode = guestMode;
-  window.encode = encode;
-  window.decode = decode;
-  window.smartDetect = smartDetect;
-  window.copyResult = copyResult;
-  window.clearAll = clearAll;
-  window.genQR = genQR;
-  window.addHist = addHist;
-  window.clearHistory = clearHistory;
-  window.startQuiz = startQuiz;
-  window.downloadLocalBackup = downloadLocalBackup;
-  window.openProfile = function(){ 
-    const user = auth.currentUser;
-    if(!user) return toast("Log in to open profile");
-    const nick = prompt("Set a nickname (saved locally):", localStorage.getItem("nickname_"+user.uid) || "");
-    if(nick !== null){ localStorage.setItem("nickname_"+user.uid, nick); toast("Nickname saved locally"); }
-  };
-
-  // helper to display local history immediately (when guest)
-  function renderHistoryLocal(uid){
-    const arr = loadLocalHistory(uid);
-    document.getElementById("history").innerHTML = arr.length ? arr.map(x=>`<div class="history-item"><b>${x.type}</b>: ${x.res}<br><small>${x.date}</small></div>`).join("") : "No history";
+    if(auth.currentUser){
+      const ref=doc(db,"users",auth.currentUser.uid);
+      await setDoc(ref,{history:arrayUnion({type,inp,res,date:new Date().toISOString()})},{merge:true});
+    }
   }
 
-  function renderLeaderboardLocal(uid){
-    const arr = loadLocalScores(uid);
-    document.getElementById("leaderboard").innerHTML = arr.length ? arr.slice(0,5).map((s,i)=>`#${i+1} → ${s.score} (${new Date(s.date).toLocaleDateString()})`).join("<br>") : "No scores";
+  async function loadUserData(){
+    if(!auth.currentUser)return;
+    const ref=doc(db,"users",auth.currentUser.uid);
+    const snap=await getDoc(ref);
+    if(snap.exists()){
+      const data=snap.data();
+      if(data.history){
+        history=data.history;
+        renderHistory();
+      }
+      if(data.scores){
+        leaderboard=data.scores;
+        renderLeaderboard();
+      }
+    }
   }
 
-  </script>
+  // ---------------- CIPHER ----------------
+  let history=JSON.parse(localStorage.getItem("cipherHistory")||"[]");
+  let leaderboard=[];
+  const vmap={a:"1",e:"2",i:"3",o:"4",u:"5"};
+  const vrev={"1":"a","2":"e","3":"i","4":"o","5":"u"};
+
+  function encode(){const txt=inputEl.value;let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}outputEl.value=out;addHist("Encoded",txt,out);}
+  function decode(){const txt=inputEl.value;let out="";for(let i=0;i<txt.length;i++){const c=txt[i];if(vrev[c])out+=vrev[c];else if(/[A-Za-z]/.test(c)&&txt[i+1]==="a"){out+=c;i++;}else out+=c;}outputEl.value=out;addHist("Decoded",txt,out);}
+  function smartDetect(){const txt=inputEl.value;if(/[1-5]/.test(txt))decode();else encode();}
+  function copyResult(){navigator.clipboard.writeText(outputEl.value);toast("Copied")}
+  function clearAll(){inputEl.value="";outputEl.value="";}
+  function renderHistory(){historyEl.innerHTML=history.map(h=>`<div class='history-item'><b>${h.type}</b>: ${h.res}<br><small>${h.date}</small></div>`).join("")||"No history";}
+  function clearHistory(){history=[];localStorage.removeItem("cipherHistory");renderHistory();}
+
+  // ---------------- QUIZ ----------------
+  const qs=["The quick brown fox jumps over the lazy dog.","Knowledge is power.","Dream big and dare to fail."];
+  let qi=0,score=0,pool=[];
+  function startQuiz(){qi=0;score=0;pool=[...qs].sort(()=>Math.random()-0.5).slice(0,3);showQ();}
+  function showQ(){if(qi>=pool.length)return endQ();let s=pool[qi];let enc=encSen(s);document.getElementById("quiz-container").innerHTML=`<div><b>Q${qi+1}</b>: ${enc}</div><input id='ans'><button onclick="subAns('${s.replace(/'/g,"\\'")}')">Submit</button>`;}
+  function subAns(correct){let a=document.getElementById("ans").value;if(a.toLowerCase()===correct.toLowerCase()){score++;toast("✅")}else toast("❌");qi++;showQ();}
+  function endQ(){leaderboard.unshift(score);leaderboard=leaderboard.slice(0,5);renderLeaderboard();document.getElementById("quiz-container").innerHTML=`Done! Score: ${score}/${pool.length}`;if(auth.currentUser){const ref=doc(db,"users",auth.currentUser.uid);setDoc(ref,{scores:arrayUnion(score)},{merge:true});}}
+  function encSen(txt){let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}return out;}
+  function renderLeaderboard(){document.getElementById("leaderboard").innerHTML=leaderboard.map((x,i)=>`#${i+1} → ${x}`).join("<br>")||"No scores";}
+
+  // init
+  document.getElementById("year").textContent=new Date().getFullYear();
+  renderHistory();
+
+  // Expose functions globally
+  window.signup=signup; window.login=login; window.logout=logout; window.guestMode=guestMode;
+  window.encode=encode; window.decode=decode; window.smartDetect=smartDetect;
+  window.copyResult=copyResult; window.clearAll=clearAll;
+  window.startQuiz=startQuiz; window.clearHistory=clearHistory;
+</script>
 </body>
 </html>
