@@ -170,7 +170,7 @@
   <header>
     <h1>🔐 Secret Cipher</h1>
     <p>Type → Encode → Decode → Share</p>
-    <button class="toggle-theme" onclick="toggleTheme()">🌙</button>
+    <button class="toggle-theme" id="themeToggle">🌙</button>
   </header>
 
   <main>
@@ -186,6 +186,8 @@
         <button class="danger" onclick="clearAll()">🗑 Clear</button>
         <button class="success" onclick="copyResult()">📋 Copy</button>
         <button onclick="shareResult()">📤 Share</button>
+        <button onclick="downloadResult()">💾 Download</button>
+        <button onclick="showQR()">📱 QR</button>
       </div>
       
       <label for="output">Output</label>
@@ -220,6 +222,16 @@
     <button onclick="refreshApp()">Refresh</button>
   </div>
 
+  <!-- QR Modal -->
+  <div id="qrModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:10000;">
+    <canvas id="qrCanvas"></canvas>
+    <button class="danger" onclick="closeQR()" style="margin-top:15px;">Close</button>
+  </div>
+
+  <!-- External QR library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+  <!-- App Logic -->
   <script>
     const inputEl = document.getElementById("input");
     const outputEl = document.getElementById("output");
@@ -297,6 +309,25 @@
         window.open(`https://wa.me/?text=${encodeURIComponent(outputEl.value)}`, "_blank");
       }
     }
+    function downloadResult() {
+      if (!outputEl.value) return alert("Nothing to download");
+      const blob = new Blob([outputEl.value], {type:"text/plain"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "cipher-result.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    function showQR() {
+      if (!outputEl.value) return alert("Nothing to generate");
+      const canvas = document.getElementById("qrCanvas");
+      QRCode.toCanvas(canvas, outputEl.value, { width: 200 }, function (error) {
+        if (error) console.error(error);
+        document.getElementById("qrModal").style.display = "flex";
+      });
+    }
+    function closeQR() { document.getElementById("qrModal").style.display = "none"; }
     function copyHistory() {
       if (!history.length) return alert("No history");
       const all = history.map(h => `${h.type}: ${h.result}`).join("\n");
@@ -309,26 +340,26 @@
     }
     function useHistory(i) { inputEl.value = history[i].result; smartDetect(); }
 
-    document.getElementById("year").textContent = new Date().getFullYear();
-    renderHistory();
-
-    // 🌙 Dark Mode Toggle
-    function toggleTheme() {
-      let current = document.body.getAttribute("data-theme");
-      if (current === "dark") {
-        document.body.removeAttribute("data-theme");
-        localStorage.setItem("theme", "light");
-        document.querySelector(".toggle-theme").textContent = "🌙";
-      } else {
+    // 🌙 Theme toggle
+    const themeToggle = document.getElementById("themeToggle");
+    function applyTheme() {
+      if (localStorage.getItem("theme") === "dark") {
         document.body.setAttribute("data-theme","dark");
-        localStorage.setItem("theme", "dark");
-        document.querySelector(".toggle-theme").textContent = "☀️";
+        themeToggle.textContent = "☀️";
+      } else {
+        document.body.removeAttribute("data-theme");
+        themeToggle.textContent = "🌙";
       }
     }
-    if (localStorage.getItem("theme") === "dark") {
-      document.body.setAttribute("data-theme","dark");
-      document.querySelector(".toggle-theme").textContent = "☀️";
-    }
+    themeToggle.addEventListener("click", () => {
+      const newTheme = localStorage.getItem("theme") === "dark" ? "light" : "dark";
+      localStorage.setItem("theme", newTheme);
+      applyTheme();
+    });
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+    applyTheme();
+    renderHistory();
 
     // 🔄 Service Worker update toast
     function refreshApp() { window.location.reload(); }
