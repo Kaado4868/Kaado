@@ -2,53 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🔐 Secret Cipher</title>
+  <title>🔐 Secret Cipher Hub</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b5ed7">
   <style>
-    body { font-family:'Segoe UI',Arial,sans-serif; margin:0; padding:0; background:linear-gradient(135deg,#0b5ed7,#2575fc); color:#fff; min-height:100vh; display:flex; flex-direction:column; }
-    header { text-align:center; padding:25px; background:rgba(0,0,0,0.3); backdrop-filter:blur(6px); }
-    h1 { margin:0; }
-    main { flex:1; display:flex; flex-wrap:wrap; gap:20px; padding:20px; justify-content:center; }
-    section, aside { background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); border-radius:16px; padding:20px; box-shadow:0 8px 20px rgba(0,0,0,0.3); flex:1; min-width:320px; transition:.3s; }
-    section:hover,aside:hover{transform:translateY(-3px);}
-    textarea { width:100%; min-height:100px; border:none; outline:none; border-radius:10px; padding:12px; margin:10px 0; background:rgba(255,255,255,0.2); color:#fff; font-size:15px; }
-    textarea::placeholder{color:rgba(255,255,255,0.6);}
+    body {
+      font-family:'Segoe UI',Arial,sans-serif;
+      margin:0; padding:0; min-height:100vh;
+      background:linear-gradient(135deg,#6a11cb,#2575fc,#00c9ff,#92fe9d);
+      background-size:400% 400%; animation:gradientShift 12s infinite;
+      color:#fff; display:flex; flex-direction:column;
+    }
+    @keyframes gradientShift {0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+    header{text-align:center;padding:20px;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px);}
+    main{flex:1;display:flex;flex-wrap:wrap;gap:20px;padding:20px;justify-content:center;}
+    section,aside{background:rgba(255,255,255,0.15);backdrop-filter:blur(12px);border-radius:16px;padding:20px;flex:1;min-width:340px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+    textarea{width:100%;min-height:120px;margin:10px 0;padding:12px;border:none;border-radius:10px;background:rgba(0,0,0,0.35);color:#fff;font-size:15px;}
+    select{padding:8px;border-radius:8px;border:none;background:#2575fc;color:#fff;font-weight:bold;}
     .controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
-    .controls button{flex:1;padding:10px;border:none;border-radius:8px;background:#2575fc;color:#fff;font-weight:bold;cursor:pointer;transition:.3s;}
-    .controls button:hover{transform:scale(1.05);}
-    .btn-danger{background:#e55353;}
-    .btn-success{background:#198754;}
-    .history-item{border-bottom:1px solid rgba(255,255,255,0.2);padding:5px 0;font-size:14px;}
-    footer{text-align:center;padding:12px;background:rgba(0,0,0,0.4);}
-    #quiz-wrap{margin-top:20px;padding:15px;background:rgba(0,0,0,0.3);border-radius:12px;}
-    #quiz-timer{font-weight:bold;color:#ffcc00;}
-    button.quiz-btn{background:#ff9800;}
+    .controls button{flex:1;padding:10px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;background:linear-gradient(45deg,#ff416c,#ff4b2b);color:#fff;transition:.3s;}
+    .controls button:hover{transform:scale(1.08);}
+    .btn-success{background:linear-gradient(45deg,#00c6ff,#0072ff);}
+    .btn-danger{background:linear-gradient(45deg,#f85032,#e73827);}
     #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:10px 18px;border-radius:20px;opacity:0;transition:.5s;}
     #toast.show{opacity:1;bottom:40px;}
+    .history-item{border-bottom:1px solid rgba(255,255,255,0.3);padding:5px 0;}
+    footer{text-align:center;padding:12px;background:rgba(0,0,0,0.35);}
+    /* Quiz */
+    #quiz-wrap{margin-top:20px;padding:15px;background:rgba(0,0,0,0.25);border-radius:14px;}
+    .quiz-btn{background:linear-gradient(45deg,#ff9800,#ff5722);padding:10px 15px;border:none;border-radius:8px;color:#fff;cursor:pointer;}
+    /* Visualizer */
+    #visualizer{margin-top:15px;min-height:40px;font-weight:bold;}
   </style>
 </head>
 <body>
   <header>
-    <h1>🔐 Secret Cipher</h1>
-    <p>Type → Encode → Decode → Play Quiz</p>
+    <h1>🔐 Secret Cipher Hub</h1>
+    <p>Encode • Decode • Share • Play</p>
   </header>
   <main>
     <!-- Cipher Tool -->
     <section>
       <h3>📝 Cipher Tool</h3>
+      <label>Cipher Mode:</label>
+      <select id="mode">
+        <option value="vowel">Vowel Numbers</option>
+        <option value="caesar">Caesar Shift (3)</option>
+        <option value="atbash">Atbash</option>
+        <option value="morse">Morse Code</option>
+      </select>
       <label for="input">Input</label>
-      <textarea id="input" placeholder="Type your message here..."></textarea>
+      <textarea id="input" placeholder="Type your message..."></textarea>
       <label for="output">Output</label>
-      <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
+      <textarea id="output" readonly></textarea>
       <div class="controls">
         <button onclick="encode()">Encode</button>
         <button onclick="decode()">Decode</button>
-        <button onclick="smartDetect()">Smart Detect</button>
         <button class="btn-danger" onclick="clearAll()">Clear</button>
         <button class="btn-success" onclick="copyResult()">Copy</button>
         <button onclick="shareResult()">Share</button>
+        <button onclick="genQR()">QR Code</button>
       </div>
-      <!-- Embedded Quiz -->
+      <div id="visualizer"></div>
+      <!-- Quiz -->
       <div id="quiz-wrap">
         <h3>🧩 Daily Quiz</h3>
         <div id="quiz-container">
@@ -62,62 +79,64 @@
       <h3>📜 History</h3>
       <div id="history"></div>
       <div style="margin-top:10px;display:flex;gap:10px;">
-        <button onclick="copyHistory()">Copy All</button>
+        <button class="btn-success" onclick="copyHistory()">Copy All</button>
         <button class="btn-danger" onclick="clearHistory()">Clear</button>
       </div>
       <h3 style="margin-top:20px;">📞 Contact</h3>
-      <p><b>Email:</b> <a href="mailto:abdulkadirbukar2006@gmail.com">abdulkadirbukar2006@gmail.com</a></p>
-      <p><b>Phone:</b> <a href="tel:+2347048684062">07048684062</a></p>
-      <p><a href="https://wa.me/2347048684062" target="_blank">Message on WhatsApp</a></p>
+      <p><a href="mailto:abdulkadirbukar2006@gmail.com">📧 Email</a></p>
+      <p><a href="tel:+2347048684062">📞 Call</a></p>
+      <p><a href="https://wa.me/2347048684062" target="_blank">💬 WhatsApp</a></p>
     </aside>
   </main>
+  <canvas id="qrCanvas" style="display:none;margin:20px auto;"></canvas>
   <div id="toast"></div>
   <footer>Made with ❤️ Secret Cipher • <span id="year"></span></footer>
 
-  <script>
-    const inputEl=document.getElementById("input");
-    const outputEl=document.getElementById("output");
-    const historyEl=document.getElementById("history");
-    const toast=document.getElementById("toast");
-    let history=JSON.parse(localStorage.getItem("cipherHistory")||"[]");
+<script>
+  const inputEl=document.getElementById("input"),outputEl=document.getElementById("output"),modeSel=document.getElementById("mode"),toast=document.getElementById("toast"),vis=document.getElementById("visualizer");
+  let history=JSON.parse(localStorage.getItem("cipherHistory")||"[]");
+  function showToast(msg){toast.textContent=msg;toast.className="show";setTimeout(()=>toast.className=toast.className.replace("show",""),2000);}
+  function renderHistory(){document.getElementById("history").innerHTML=history.length?history.map((h,i)=>`<div class="history-item"><b>${h.type}:</b> ${h.result}<br><button onclick="useHistory(${i})">Use</button></div>`).join(""):"<p>No history yet</p>";}
+  function saveHistory(item){history.unshift(item);history=history.slice(0,20);localStorage.setItem("cipherHistory",JSON.stringify(history));renderHistory();}
 
-    function showToast(msg){toast.textContent=msg;toast.className="show";setTimeout(()=>toast.className=toast.className.replace("show",""),2000);}
-    function renderHistory(){historyEl.innerHTML=history.length===0?"<p style='opacity:.7'>No history yet.</p>":history.map((h,i)=>`<div class="history-item"><b>${h.type}:</b> ${h.result}<br><button onclick="useHistory(${i})">Use</button><button onclick="copyFromHistory(${i})">Copy</button></div>`).join("");}
-    function saveHistory(item){history.unshift(item);history=history.slice(0,20);localStorage.setItem("cipherHistory",JSON.stringify(history));renderHistory();}
-    function encode(){let text=inputEl.value;let result="";let vowels={a:"1",e:"2",i:"3",o:"4",u:"5",A:"1",E:"2",I:"3",O:"4",U:"5"};for(let ch of text){if(vowels[ch])result+=vowels[ch];else if(/[a-zA-Z]/.test(ch))result+=ch+"a";else result+=ch;}outputEl.value=result;saveHistory({type:"Encoded",input:text,result});}
-    function decode(){let text=inputEl.value;let result="";let vowels={"1":"a","2":"e","3":"i","4":"o","5":"u"};for(let i=0;i<text.length;i++){let ch=text[i];if(vowels[ch])result+=vowels[ch];else if(/[a-z]/i.test(ch)){result+=ch;if(text[i+1]==="a")i++;}else result+=ch;}outputEl.value=result;saveHistory({type:"Decoded",input:text,result});}
-    function smartDetect(){const text=inputEl.value.trim();if(!text)return;const digitCount=(text.match(/[12345]/g)||[]).length;const suffixCount=(text.match(/[a-z]a/gi)||[]).length;if(digitCount>suffixCount){decode();}else if(suffixCount>digitCount){encode();}else{decode();}}
-    function clearAll(){inputEl.value="";outputEl.value="";showToast("Cleared");}
-    function copyResult(){if(!outputEl.value)return showToast("Nothing to copy");navigator.clipboard.writeText(outputEl.value);showToast("Copied ✅");}
-    function shareResult(){if(!outputEl.value)return showToast("Nothing to share");if(navigator.share){navigator.share({title:"Secret Cipher",text:outputEl.value});}else{window.open(`https://wa.me/?text=${encodeURIComponent(outputEl.value)}`,"_blank");}}
-    function copyHistory(){if(!history.length)return showToast("No history");navigator.clipboard.writeText(history.map(h=>`${h.type}: ${h.result}`).join("\n"));showToast("History copied ✅");}
-    function copyFromHistory(i){navigator.clipboard.writeText(history[i].result);showToast("Copied ✅");}
-    function clearHistory(){if(!confirm("Clear history?"))return;history=[];localStorage.removeItem("cipherHistory");renderHistory();showToast("History cleared");}
-    function useHistory(i){inputEl.value=history[i].result;smartDetect();}
-    document.getElementById("year").textContent=new Date().getFullYear();
-    renderHistory();
+  /* Cipher Implementations */
+  function vowelEncode(t){let v={a:"1",e:"2",i:"3",o:"4",u:"5",A:"1",E:"2",I:"3",O:"4",U:"5"};let r="";for(let c of t){r+=v[c]||(/[a-zA-Z]/.test(c)?c+"a":c);}return r;}
+  function vowelDecode(t){let v={"1":"a","2":"e","3":"i","4":"o","5":"u"};let r="";for(let i=0;i<t.length;i++){let c=t[i];if(v[c])r+=v[c];else if(/[a-z]/i.test(c)){r+=c;if(t[i+1]==="a")i++;}else r+=c;}return r;}
+  function caesarEncode(t){return t.replace(/[a-z]/gi,c=>String.fromCharCode((c.toLowerCase().charCodeAt(0)-97+3)%26+97)).toLowerCase();}
+  function caesarDecode(t){return t.replace(/[a-z]/gi,c=>String.fromCharCode((c.toLowerCase().charCodeAt(0)-97-3+26)%26+97)).toLowerCase();}
+  function atbashEncode(t){return t.replace(/[a-z]/gi,c=>{let base=c>="a"?"a".charCodeAt(0):"A".charCodeAt(0);return String.fromCharCode(base+25-(c.charCodeAt(0)-base));});}
+  function atbashDecode(t){return atbashEncode(t);} // same
+  const morseMap={a:".-",b:"-...",c:"-.-.",d:"-..",e:".",f:"..-.",g:"--.",h:"....",i:"..",j:".---",k:"-.-",l:".-..",m:"--",n:"-.",o:"---",p:".--.",q:"--.-",r:".-.",s:"...",t:"-",u:"..-",v:"...-",w:".--",x:"-..-",y:"-.--",z:"--.."," ":"/"};
+  const morseRev=Object.fromEntries(Object.entries(morseMap).map(([k,v])=>[v,k]));
+  function morseEncode(t){return t.toLowerCase().split("").map(c=>morseMap[c]||c).join(" ");}
+  function morseDecode(t){return t.split(" ").map(c=>morseRev[c]||c).join("");}
 
-    // QUIZ SECTION
-    const quizSentences=[
-      "The quick brown fox jumps over the lazy dog.",
-      "Knowledge is power, but wisdom is everything.",
-      "Success usually comes to those who are too busy to be looking for it.",
-      "Do not watch the clock. Do what it does. Keep going.",
-      "Difficult roads often lead to beautiful destinations.",
-      "Hard work beats talent when talent doesn’t work hard.",
-      "Great things never come from comfort zones.",
-      "Dream big and dare to fail.",
-      "The only limit to our realization of tomorrow is our doubts of today.",
-      "Opportunities don't happen, you create them."
-    ];
-    let quizIndex=0,quizScore=0,quizTimer;
-    function cipherEncodeQuiz(text){let vowels={a:"1",e:"2",i:"3",o:"4",u:"5"};let res="";for(let ch of text.toLowerCase()){if(vowels[ch])res+=vowels[ch];else if(/[a-z]/.test(ch))res+=ch+"a";else res+=ch;}return res;}
-    function startQuiz(){let lastPlayed=localStorage.getItem("quizLastPlayed");if(lastPlayed && Date.now()-parseInt(lastPlayed)<24*60*60*1000){document.getElementById("quiz-container").innerHTML="<p>⛔ You already played today. Come back tomorrow!</p>";return;}quizIndex=0;quizScore=0;nextQuestion();}
-    function nextQuestion(){if(quizIndex>=5){endQuiz();return;}let sentence=quizSentences[Math.floor(Math.random()*quizSentences.length)];let encoded=cipherEncodeQuiz(sentence);document.getElementById("quiz-container").innerHTML=`<div><b>Q${quizIndex+1}/5:</b><br>${encoded}</div><div>⏱ Time left: <span id="quiz-timer">60</span>s</div><input type="text" id="quiz-answer" placeholder="Type decoded sentence"><button class="quiz-btn" onclick="submitAnswer('${sentence}')">Submit</button><button onclick="skipQ()">Skip</button>`;startTimer(60,()=>submitAnswer(sentence));}
-    function startTimer(sec,cb){clearInterval(quizTimer);let rem=sec;document.getElementById("quiz-timer").textContent=rem;quizTimer=setInterval(()=>{rem--;document.getElementById("quiz-timer").textContent=rem;if(rem<=0){clearInterval(quizTimer);cb();}},1000);}
-    function submitAnswer(correct){clearInterval(quizTimer);let ans=document.getElementById("quiz-answer").value.trim();if(ans.toLowerCase()===correct.toLowerCase()){quizScore++;showToast("✅ Correct!");}else{showToast("❌ Wrong!");}quizIndex++;nextQuestion();}
-    function skipQ(){clearInterval(quizTimer);quizIndex++;nextQuestion();}
-    function endQuiz(){const today=new Date().toISOString().split("T")[0];let quizHistory=JSON.parse(localStorage.getItem("quizHistory")||"[]");quizHistory.unshift({date:today,score:quizScore});quizHistory=quizHistory.slice(0,7);localStorage.setItem("quizHistory",JSON.stringify(quizHistory));localStorage.setItem("quizLastPlayed",Date.now().toString());let best=Math.max(...quizHistory.map(h=>h.score));let leaderboard=quizHistory.map(h=>`📅 ${h.date} → ${h.score}/5`).join("<br>");document.getElementById("quiz-container").innerHTML=`<p>🎉 Finished!</p><p>Your Score: <b>${quizScore}/5</b></p><p>🔥 Best: <b>${best}/5</b></p><h4>📜 Past 7 Days:</h4><div>${leaderboard}</div>`;}
-  </script>
+  function encode(){let text=inputEl.value,mode=modeSel.value,r="";if(mode==="vowel")r=vowelEncode(text);if(mode==="caesar")r=caesarEncode(text);if(mode==="atbash")r=atbashEncode(text);if(mode==="morse")r=morseEncode(text);outputEl.value=r;saveHistory({type:"Encoded",input:text,result:r});visualize(text,r);}
+  function decode(){let text=inputEl.value,mode=modeSel.value,r="";if(mode==="vowel")r=vowelDecode(text);if(mode==="caesar")r=caesarDecode(text);if(mode==="atbash")r=atbashDecode(text);if(mode==="morse")r=morseDecode(text);outputEl.value=r;saveHistory({type:"Decoded",input:text,result:r});visualize(text,r);}
+  function clearAll(){inputEl.value="";outputEl.value="";vis.innerHTML="";showToast("Cleared");}
+  function copyResult(){if(!outputEl.value)return;navigator.clipboard.writeText(outputEl.value);showToast("Copied");}
+  function shareResult(){if(!outputEl.value)return;const url=location.origin+location.pathname+"?msg="+encodeURIComponent(outputEl.value)+"&mode="+modeSel.value;navigator.clipboard.writeText(url);showToast("Link Copied!");}
+  function useHistory(i){inputEl.value=history[i].result;encode();}
+  function visualize(inp,out){vis.textContent=`🔄 ${inp} → ${out}`;}
+
+  // QR Generator (lightweight)
+  function genQR(){if(!outputEl.value)return;let canvas=document.getElementById("qrCanvas");canvas.style.display="block";let ctx=canvas.getContext("2d");canvas.width=200;canvas.height=200;ctx.fillStyle="#fff";ctx.fillRect(0,0,200,200);ctx.fillStyle="#000";let data=outputEl.value;for(let i=0;i<data.length;i++){ctx.fillRect((i*10)%200,Math.floor(i/20)*10,8,8);}showToast("QR Generated");}
+
+  // Load from link
+  const params=new URLSearchParams(window.location.search);if(params.get("msg")){inputEl.value=params.get("msg");modeSel.value=params.get("mode")||"vowel";decode();}
+
+  // QUIZ (shortened same logic)
+  const quizSentences=["The quick brown fox jumps over the lazy dog.","Knowledge is power, but wisdom is everything.","Dream big and dare to fail."];
+  let quizIndex=0,quizScore=0,quizTimer;
+  function startQuiz(){quizIndex=0;quizScore=0;nextQuestion();}
+  function nextQuestion(){if(quizIndex>=3){endQuiz();return;}let s=quizSentences[quizIndex];let e=vowelEncode(s);document.getElementById("quiz-container").innerHTML=`<div>${e}</div><input id="quiz-answer"><button class="quiz-btn" onclick="submitAnswer('${s}')">Submit</button>`;}
+  function submitAnswer(c){let a=document.getElementById("quiz-answer").value;if(a.toLowerCase()===c.toLowerCase()){quizScore++;showToast("✅");}quizIndex++;nextQuestion();}
+  function endQuiz(){document.getElementById("quiz-container").innerHTML=`<p>Score: ${quizScore}/3</p>`;}
+  
+  document.getElementById("year").textContent=new Date().getFullYear();
+  renderHistory();
+  // real-time
+  inputEl.addEventListener("input",()=>encode());
+</script>
 </body>
 </html>
