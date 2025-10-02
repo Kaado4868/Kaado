@@ -2,673 +2,303 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Secret Cipher — Modern</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🔐 Secret Cipher</title>
+  <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0b5ed7" />
   <style>
-    /* -------------------- Basic theme -------------------- */
-    :root{
-      --bg-1: #0b1020;
-      --card: rgba(255,255,255,0.04);
-      --glass: rgba(255,255,255,0.06);
-      --accent1: linear-gradient(90deg,#ff5f8b,#7b61ff);
-      --accent2: linear-gradient(90deg,#00d2ff,#0072ff);
-      --success: #22c55e;
-      --danger: #ef4444;
-      --muted: rgba(255,255,255,0.6);
-      --glass-border: rgba(255,255,255,0.06);
-      --radius: 14px;
-      --shadow: 0 8px 30px rgba(2,6,23,0.6);
-      font-family: Inter, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #0b5ed7, #121826);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:radial-gradient(1200px 600px at 10% 10%, rgba(123,97,255,0.06), transparent 10%),linear-gradient(180deg,#071026,#0b1020);color:#e8eef8}
-    a{color:inherit}
-    /* -------------------- layout -------------------- */
-    header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);backdrop-filter:blur(6px)}
-    header .brand{display:flex;align-items:center;gap:12px}
-    header h1{margin:0;font-size:18px;letter-spacing:0.4px}
-    header .actions{display:flex;gap:10px;align-items:center}
-    main{max-width:1120px;margin:22px auto;padding:18px;display:grid;grid-template-columns:1fr 340px;gap:20px}
-    @media (max-width:860px){main{grid-template-columns:1fr; padding:12px} aside{order:2}}
-    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:1px solid var(--glass-border);transition:transform .18s,box-shadow .18s}
-    .card:hover{transform:translateY(-6px)}
-    textarea,input{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;font-size:14px}
-    .controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;color:#061124}
-    .btn.primary{background:var(--accent1);color:white}
-    .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04)}
-    .btn.success{background:var(--success);color:#061124}
-    .btn.danger{background:var(--danger);color:white}
-    .small{font-size:13px;color:var(--muted)}
-    .muted{color:var(--muted)}
-    /* -------------------- login modal -------------------- */
-    #loginScreen{position:fixed;inset:0;background:linear-gradient(rgba(2,6,23,0.7),rgba(2,6,23,0.9));display:flex;align-items:center;justify-content:center;z-index:120}
-    #loginBox{width:360px;max-width:92%;padding:20px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)}
-    .row{display:flex;gap:10px}
-    .google-btn{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;border:0;background:white;color:#222;cursor:pointer}
-    .google-btn img{width:20px;height:20px}
-    /* -------------------- history / leaderboard -------------------- */
-    .history-item{padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));margin-bottom:10px}
-    .history-item small{display:block;color:var(--muted);margin-top:6px}
-    /* -------------------- quiz -------------------- */
-    #quizPage{display:none;padding:18px;min-height:400px}
-    .quiz-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .timer{font-weight:800;color:#ffd166}
-    .question-box{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px}
-    .hidden{display:none}
-    /* -------------------- toast -------------------- */
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#061124;color:#eaf3ff;padding:10px 14px;border-radius:999px;box-shadow:0 8px 30px rgba(2,6,23,0.6);opacity:0;pointer-events:none;transition:all .2s}
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);pointer-events:auto}
-    /* -------------------- small helpers -------------------- */
-    footer{text-align:center;padding:18px;color:var(--muted)}
-    .fade-in{animation:fadeIn .28s ease both}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    header {
+      text-align: center;
+      padding: 15px;
+      background: rgba(0,0,0,0.4);
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 15px;
+      justify-content: center;
+    }
+    section, aside {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 20px;
+      flex: 1;
+      min-width: 280px;
+      max-width: 600px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      border-radius: 8px;
+      border: none;
+      padding: 10px;
+      margin: 10px 0;
+      background: rgba(0,0,0,0.35);
+      color: #fff;
+      font-size: 14px;
+    }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; }
+    button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(90deg,#2575fc,#6a11cb);
+    }
+    button:hover { opacity: 0.9; }
+    button.danger { background: linear-gradient(90deg,#e53935,#ff7043); }
+    button.secondary { background: linear-gradient(90deg,#00c6ff,#0072ff); }
+    .history-item {
+      background: rgba(0,0,0,0.25);
+      padding: 8px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 13px;
+      background: rgba(0,0,0,0.5);
+    }
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 22px;
+      opacity: 0;
+      transition: .25s;
+      z-index: 200;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+    /* Login modal */
+    #loginScreen {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    #loginBox {
+      background: #1a1f2f;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+    }
+    #loginBox input {
+      width: 100%; padding: 10px; margin: 8px 0;
+      border-radius: 8px; border: none;
+      background: rgba(255,255,255,0.1); color: #fff;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 6px 20px rgba(123,97,255,0.12))">
-        <rect x="2" y="2" width="20" height="20" rx="6" fill="url(#g)"></rect>
-        <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ff5f8b"/><stop offset="1" stop-color="#7b61ff"/></linearGradient></defs>
-      </svg>
-      <div>
-        <h1 style="margin:0;font-size:16px">Secret Cipher</h1>
-        <div class="small muted">Vowel Numbers — encode & decode</div>
-      </div>
+  <!-- Login screen -->
+  <div id="loginScreen">
+    <div id="loginBox">
+      <h2>🔑 Login / Sign Up</h2>
+      <input id="username" placeholder="Email" />
+      <input id="password" type="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <button onclick="signup()" class="secondary">Sign Up</button>
+      <button onclick="continueGuest()">Continue as Guest</button>
     </div>
+  </div>
 
-    <div class="actions" style="align-items:center">
-      <div id="welcomeUser" class="muted small">Offline</div>
-      <button id="openQuizBtn" class="btn ghost" title="Open Quiz">Quiz</button>
-      <button id="openCipherBtn" class="btn ghost" title="Open Tool">Tool</button>
-      <button id="btnProfile" class="btn ghost">Profile</button>
-      <button id="btnLogout" class="btn danger">Logout</button>
-    </div>
+  <header>
+    <h1>🔐 Secret Cipher</h1>
+    <p id="welcomeUser"></p>
+    <button onclick="logout()" class="danger">Logout</button>
   </header>
 
   <main>
-    <!-- Left column: tool or quiz (single page app style) -->
-    <section id="toolPage" class="card fade-in">
-      <h3 style="margin-top:0">Cipher Tool</h3>
-      <label class="small">Input</label>
-      <textarea id="input" placeholder="Type your message..."></textarea>
-
+    <section>
+      <h3>📝 Cipher Tool</h3>
+      <textarea id="input" placeholder="Type message..."></textarea>
       <div class="controls">
-        <button class="btn primary" onclick="encode()">Encode</button>
-        <button class="btn" onclick="decode()">Decode</button>
-        <button class="btn ghost" onclick="smartDetect()">Smart Detect</button>
-        <button class="btn" onclick="copyResult()">Copy</button>
-        <button class="btn danger" onclick="clearAll()">Clear</button>
-        <button class="btn" onclick="goQuizPage()">Play Quiz</button>
+        <button onclick="encode()">Encode</button>
+        <button onclick="decode()">Decode</button>
+        <button onclick="smartDetect()">Smart Detect</button>
+        <button onclick="copyResult()" class="secondary">Copy</button>
+        <button onclick="clearAll()" class="danger">Clear</button>
       </div>
-
-      <label class="small" style="margin-top:12px">Output</label>
-      <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-        <div class="small muted">Saved locally & synced when logged in</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn ghost" onclick="exportBackup()">Export</button>
-          <button class="btn ghost" onclick="importBackup()">Import</button>
-        </div>
-      </div>
+      <textarea id="output" readonly placeholder="Result..."></textarea>
     </section>
-
     <aside>
-      <div class="card" style="margin-bottom:16px">
-        <h4 style="margin:0 0 8px 0">Recent History</h4>
-        <div id="historyList" style="max-height:330px;overflow:auto"></div>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn ghost" onclick="copyHistory()">Copy All</button>
-          <button class="btn danger" onclick="clearHistory()">Clear</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h4 style="margin:0 0 8px 0">Quiz — Quick Play</h4>
-        <div class="small muted">Play 5 random challenges. 1 minute per question.</div>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn primary" onclick="goQuizPage()">Open Quiz</button>
-          <button class="btn ghost" onclick="showLeaderboard()">Leaderboard</button>
-        </div>
-        <div id="leaderboard" style="margin-top:10px"></div>
-      </div>
+      <h3>📜 History</h3>
+      <div id="history"></div>
+      <button onclick="clearHistory()" class="danger">Clear History</button>
     </aside>
-
-    <!-- Hidden quiz page (single page switching) -->
-    <section id="quizPage" class="card hidden">
-      <div class="quiz-top">
-        <div>
-          <h3 style="margin:0">Cipher Quiz</h3>
-          <div class="small muted">5 questions • 60s each • once per 24h</div>
-        </div>
-        <div class="timer">Time: <span id="quizTimer">60</span>s</div>
-      </div>
-
-      <div id="questionArea" class="question-box">
-        <div id="questionText" style="font-weight:700">Press Start to begin</div>
-        <input id="quizAnswer" placeholder="Type your decoded sentence" style="margin-top:10px" />
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn primary" onclick="submitQuiz()">Submit</button>
-          <button class="btn ghost" onclick="nextQuiz()">Next</button>
-          <button class="btn danger" onclick="endQuizEarly()">End</button>
-        </div>
-      </div>
-
-      <div id="quizFooter" style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
-        <div class="small muted">Question <span id="quizProgress">0</span>/5</div>
-        <div>
-          <button class="btn primary" id="startQuizBtn" onclick="startQuiz()">Start</button>
-        </div>
-      </div>
-    </section>
   </main>
 
-  <footer class="small muted">© <span id="year"></span> Secret Cipher — Built for you</footer>
-
-  <!-- Toast -->
+  <footer>
+    © <span id="year"></span> Secret Cipher
+  </footer>
   <div id="toast"></div>
 
-  <!-- Optional: Firebase and App script -->
-  <script type="module">
-  /* =========================== App (plain HTML/JS) ===========================
-     Features included:
-       - Firebase Auth (Email / Google), forgot password, guest mode
-       - LocalStorage history + sync to Firestore when logged in
-       - Cipher encode/decode/smart-detect
-       - Quiz (60s per question) with Next/Submit, 5 Qs per round, 24h cooldown
-  =========================================================================== */
+<script>
+  // Accounts in localStorage
+  let accounts = JSON.parse(localStorage.getItem("accounts") || "{}");
+  let currentUser = null;
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged,
-    sendPasswordResetEmail,
-    GoogleAuthProvider,
-    signInWithPopup
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-  import {
-    getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  // ------------------ CONFIG: paste your firebase config here if different ------------------
-  const firebaseConfig = {
-    apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00",
-    authDomain: "cipher-e6c22.firebaseapp.com",
-    projectId: "cipher-e6c22",
-    storageBucket: "cipher-e6c22.appspot.com",
-    messagingSenderId: "345358817477",
-    appId: "1:345358817477:web:7ba4dd380d634b559038ac",
-    measurementId: "G-CN75P4JDPW"
-  };
-
-  // Init Firebase (safe if user removed config; you'll need valid keys)
-  let firebaseAvailable = true;
-  let app, auth, db;
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-  } catch (err) {
-    console.warn("Firebase init failed:", err);
-    firebaseAvailable = false;
+  function toast(msg) {
+    const t=document.getElementById("toast");
+    t.textContent=msg;
+    t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),2000);
   }
 
-  // ------------------ UI helpers ------------------
-  const toastEl = document.getElementById("toast");
-  function toast(msg, time=2200) {
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
-    setTimeout(()=> toastEl.classList.remove("show"), time);
+  function saveAccounts() {
+    localStorage.setItem("accounts", JSON.stringify(accounts));
   }
 
-  function $(id){ return document.getElementById(id); }
-
-  // ------------------ Auth helpers ------------------
-  const provider = new GoogleAuthProvider();
-
-  // show login modal
-  function showLogin(){
-    $("loginScreen").style.display = "flex";
+  function login() {
+    const u=document.getElementById("username").value.trim();
+    const p=document.getElementById("password").value.trim();
+    if(!u||!p) return toast("Fill all fields");
+    if(!accounts[u]) return toast("No such user");
+    if(accounts[u].password!==p) return toast("Wrong password");
+    currentUser=u;
+    localStorage.setItem("currentUser", u);
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("welcomeUser").textContent="Welcome "+u;
+    renderHistory();
+    toast("✅ Logged in");
   }
-  function hideLogin(){
-    $("loginScreen").style.display = "none";
+
+  function signup() {
+    const u=document.getElementById("username").value.trim();
+    const p=document.getElementById("password").value.trim();
+    if(!u||!p) return toast("Fill all fields");
+    if(accounts[u]) return toast("User exists");
+    accounts[u]={password:p,history:[]};
+    saveAccounts();
+    toast("✅ Account created, please login");
   }
 
-  // Sign up and login will only work if Firebase initialized
-  window.signup = async function() {
-    if(!firebaseAvailable) return toast("Firebase not configured");
-    const email = $("username").value.trim();
-    const pass = $("password").value.trim();
-    if(!email || !pass) return toast("Enter email & password");
-    try {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      toast("Account created");
-    } catch (e) { toast(e.message); console.error(e); }
-  };
+  function continueGuest() {
+    currentUser="guest";
+    localStorage.setItem("currentUser","guest");
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("welcomeUser").textContent="Welcome Guest";
+    renderHistory();
+    toast("➡ Continuing as guest");
+  }
 
-  window.login = async function() {
-    if(!firebaseAvailable) return toast("Firebase not configured");
-    const email = $("username").value.trim();
-    const pass = $("password").value.trim();
-    if(!email || !pass) return toast("Enter email & password");
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      toast("Logged in as " + email);
-    } catch (e) { toast(e.message); console.error(e); }
-  };
+  function logout() {
+    if(!confirm("Are you sure you want to logout?")) return;
+    currentUser=null;
+    localStorage.removeItem("currentUser");
+    document.getElementById("loginScreen").style.display="flex";
+    toast("🚪 Logged out");
+  }
 
-  window.googleLogin = async function() {
-    if(!firebaseAvailable) return toast("Firebase not configured");
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      toast("Signed in as " + (user.displayName || user.email));
-      // ensure user doc exists
-      try { await setDoc(doc(db,"users",user.uid), { email: user.email }, { merge: true }); } catch(e){console.warn(e)}
-    } catch (e) { toast(e.message); console.error(e); }
-  };
+  // Cipher logic
+  const vmap={a:"1",e:"2",i:"3",o:"4",u:"5"};
+  const vrev={"1":"a","2":"e","3":"i","4":"o","5":"u"};
 
-  window.logout = async function() {
-    if(!firebaseAvailable) {
-      // guest mode exit
-      localStorage.removeItem("guestMode");
-      toast("Offline session cleared");
-      showLogin(); $("welcomeUser").textContent = "Offline";
-      return;
+  function encode() {
+    const txt=document.getElementById("input").value;
+    let out="";
+    for(const c of txt) {
+      if(vmap[c]) out+=vmap[c];
+      else if(vmap[c.toLowerCase()]) out+=vmap[c.toLowerCase()];
+      else if(/[a-zA-Z]/.test(c)) out+=c+"a";
+      else out+=c;
     }
-    try {
-      await signOut(auth);
-      localStorage.removeItem("guestMode");
-      toast("Logged out");
-      showLogin();
-      $("welcomeUser").textContent = "Offline";
-    } catch(e) { toast("Logout failed"); console.error(e); }
-  };
-
-  window.forgotPassword = async function(){
-    if(!firebaseAvailable) return toast("Firebase not configured");
-    const email = prompt("Enter your email for password reset:");
-    if(!email) return;
-    try {
-      await sendPasswordResetEmail(auth, email);
-      toast("Reset email sent");
-    } catch(e) { toast(e.message); console.error(e); }
-  };
-
-  // Guest mode
-  window.guestMode = function() {
-    localStorage.setItem("guestMode","1");
-    hideLogin();
-    $("welcomeUser").textContent = "Guest (offline)";
-    toast("Guest mode");
-    loadLocalHistory();
-    renderLeaderboardLocal();
-  };
-
-  // Auth state changes
-  if(firebaseAvailable){
-    onAuthStateChanged(auth, async (user) => {
-      if(user){
-        hideLogin();
-        $("welcomeUser").textContent = user.displayName || user.email;
-        // merge local history into cloud if needed
-        try {
-          const userRef = doc(db, "users", user.uid);
-          const snap = await getDoc(userRef);
-          const localHist = loadLocalHistory(user.uid);
-          const localScores = loadLocalScores(user.uid);
-          if(!snap.exists()){
-            await setDoc(userRef, { history: localHist || [], scores: localScores || [] });
-          } else {
-            // if cloud empty but local present, push local
-            const data = snap.data();
-            if((data.history||[]).length === 0 && (localHist||[]).length>0) {
-              await updateDoc(userRef, { history: localHist });
-            }
-            if((data.scores||[]).length === 0 && (localScores||[]).length>0) {
-              await updateDoc(userRef, { scores: localScores });
-            }
-            // refresh local copies to match cloud
-            saveLocalHistory(user.uid, data.history || localHist);
-            saveLocalScores(user.uid, data.scores || localScores);
-          }
-        } catch(err) {
-          console.warn("sync user data err", err);
-        }
-        await renderHistoryFromCloudOrLocal();
-        await renderLeaderboard();
-      } else {
-        // not signed in
-        if(!localStorage.getItem("guestMode")) showLogin();
-        else { hideLogin(); $("welcomeUser").textContent = "Guest (offline)"; }
-        renderHistoryLocalDefault();
-        renderLeaderboardLocal();
-      }
-    });
-  } else {
-    // firebase not present => offline-only
-    showLogin(); // we can repurpose login box to offer guest mode; user can click guest
-    $("welcomeUser").textContent = "Offline";
+    document.getElementById("output").value=out;
+    addHist("Encoded",txt,out);
   }
 
-  // ------------------ Local storage helpers ------------------
-  function localKeyHist(uid){ return `cipher_hist_${uid||"guest"}`; }
-  function localKeyScores(uid){ return `cipher_scores_${uid||"guest"}`; }
-
-  function saveLocalHistory(uid, arr){ localStorage.setItem(localKeyHist(uid), JSON.stringify(arr||[])); }
-  function loadLocalHistory(uid){ return JSON.parse(localStorage.getItem(localKeyHist(uid)) || "[]"); }
-  function saveLocalScores(uid, arr){ localStorage.setItem(localKeyScores(uid), JSON.stringify(arr||[])); }
-  function loadLocalScores(uid){ return JSON.parse(localStorage.getItem(localKeyScores(uid)) || "[]"); }
-
-  // ------------------ History UI ------------------
-  function renderHistoryLocalDefault(){
-    const arr = loadLocalHistory((auth && auth.currentUser && auth.currentUser.uid) || "guest");
-    renderHistoryArray(arr);
-  }
-
-  function renderHistoryArray(arr){
-    const container = $("historyList");
-    if(!arr || arr.length===0){ container.innerHTML = `<div class="small muted">No history yet</div>`; return; }
-    container.innerHTML = arr.slice(0,50).map(h => `<div class="history-item"><b>${h.type}</b><div style="margin-top:6px">${escapeHtml(h.res)}</div><small>${h.date}</small></div>`).join("");
-  }
-
-  window.copyHistory = function(){
-    const arr = loadLocalHistory((auth && auth.currentUser && auth.currentUser.uid) || "guest");
-    if(!arr.length) return toast("No history");
-    const txt = arr.map(h => `${h.type}: ${h.res}`).join("\n");
-    navigator.clipboard.writeText(txt).then(()=>toast("Copied"));
-  };
-
-  window.clearHistory = async function(){
-    const uid = (auth && auth.currentUser && auth.currentUser.uid) || "guest";
-    saveLocalHistory(uid, []);
-    renderHistoryArray([]);
-    if(firebaseAvailable && auth && auth.currentUser){
-      try { await updateDoc(doc(db,"users",auth.currentUser.uid), { history: [] }); } catch(e){console.warn(e); }
+  function decode() {
+    const txt=document.getElementById("input").value;
+    let out="";
+    for(let i=0;i<txt.length;i++) {
+      const c=txt[i];
+      if(vrev[c]) out+=vrev[c];
+      else if(/[a-zA-Z]/.test(c)&&txt[i+1]==="a"){out+=c;i++;}
+      else out+=c;
     }
-    toast("History cleared");
-  };
-
-  // local push & cloud sync
-  async function addHistoryEntry(type, input, result){
-    const uid = (auth && auth.currentUser && auth.currentUser.uid) || "guest";
-    let arr = loadLocalHistory(uid);
-    arr.unshift({ type, res: result, date: new Date().toLocaleString(), input });
-    arr = arr.slice(0,50);
-    saveLocalHistory(uid, arr);
-    renderHistoryArray(arr);
-    // try push to cloud as well
-    if(firebaseAvailable && auth && auth.currentUser){
-      try {
-        await updateDoc(doc(db,"users", auth.currentUser.uid), { history: arrayUnion({ type, res: result, date: new Date().toISOString(), input }) });
-      } catch(e){
-        // if update fails (e.g., doc doesn't exist), create doc
-        try { await setDoc(doc(db,"users",auth.currentUser.uid), { history: arr }, { merge: true }); } catch(err){console.warn(err);}
-      }
-    }
+    document.getElementById("output").value=out;
+    addHist("Decoded",txt,out);
   }
 
-  // render history (prefers cloud if logged in)
-  async function renderHistoryFromCloudOrLocal(){
-    if(firebaseAvailable && auth && auth.currentUser){
-      try {
-        const snap = await getDoc(doc(db,"users",auth.currentUser.uid));
-        if(snap.exists()){
-          const data = snap.data();
-          const arr = data.history || loadLocalHistory(auth.currentUser.uid);
-          saveLocalHistory(auth.currentUser.uid, arr);
-          renderHistoryArray(arr);
-          return;
-        }
-      } catch(e){ console.warn(e); }
-    }
-    renderHistoryLocalDefault();
+  function smartDetect() {
+    const txt=document.getElementById("input").value;
+    if(/[1-5]/.test(txt)) decode(); else encode();
   }
 
-  // ------------------ Cipher logic ------------------
-  const vowelMap = { a: "1", e: "2", i: "3", o: "4", u: "5" };
-  const revMap = { "1": "a", "2": "e", "3": "i", "4": "o", "5": "u" };
-
-  window.encode = function(){
-    const txt = $("input").value || "";
-    let out = "";
-    for(const ch of txt.toLowerCase()){
-      if(vowelMap[ch]) out += vowelMap[ch];
-      else if(/[a-z]/.test(ch)) out += ch + "a";
-      else out += ch;
-    }
-    $("output").value = out;
-    addHistoryEntry("Encoded", txt, out);
-  };
-
-  window.decode = function(){
-    const txt = $("input").value || "";
-    let out = "";
-    for(let i=0;i<txt.length;i++){
-      const c = txt[i];
-      if(revMap[c]) { out += revMap[c]; }
-      else if(/[a-z]/i.test(c) && txt[i+1] === "a"){ out += c; i++; }
-      else out += c;
-    }
-    $("output").value = out;
-    addHistoryEntry("Decoded", txt, out);
-  };
-
-  // smarter detect: count digits vs 'char+a' pattern
-  window.smartDetect = function(){
-    const txt = ($("input").value || "").trim();
-    if(!txt) return toast("No input");
-    const digitCount = (txt.match(/[12345]/g) || []).length;
-    const suffixCount = (txt.match(/[a-z]a/g) || []).length;
-    // If digits more than suffix patterns => decode, otherwise encode
-    if(digitCount > suffixCount) window.decode();
-    else window.encode();
-  };
-
-  window.copyResult = function(){
-    const out = $("output").value || "";
-    if(!out) return toast("Nothing to copy");
-    navigator.clipboard.writeText(out).then(()=> toast("Copied to clipboard"));
-  };
-
-  window.clearAll = function(){ $("input").value = ""; $("output").value = ""; };
-
-  // ------------------ Backup import/export ------------------
-  window.exportBackup = function(){
-    const uid = (auth && auth.currentUser && auth.currentUser.uid) || "guest";
-    const data = { history: loadLocalHistory(uid), scores: loadLocalScores(uid) };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `cipher-backup-${uid}.json`;
-    a.click();
-  };
-
-  window.importBackup = function(){
-    const inp = document.createElement("input");
-    inp.type = "file";
-    inp.accept = "application/json";
-    inp.onchange = async (e) => {
-      const f = e.target.files[0];
-      if(!f) return;
-      const txt = await f.text();
-      try {
-        const data = JSON.parse(txt);
-        const uid = (auth && auth.currentUser && auth.currentUser.uid) || "guest";
-        if(data.history) saveLocalHistory(uid, data.history);
-        if(data.scores) saveLocalScores(uid, data.scores);
-        renderHistoryArray(loadLocalHistory(uid));
-        renderLeaderboardLocal(uid);
-        toast("Imported backup");
-      } catch(err){ toast("Invalid backup file"); }
-    };
-    inp.click();
-  };
-
-  // ------------------ Quiz logic ------------------
-  const QUESTIONS = [
-    "The quick brown fox jumps over the lazy dog.",
-    "Knowledge is power, but wisdom is everything.",
-    "Success usually comes to those who are too busy to be looking for it.",
-    "Do not watch the clock. Do what it does. Keep going.",
-    "Difficult roads often lead to beautiful destinations.",
-    "Hard work beats talent when talent doesn’t work hard.",
-    "Great things never come from comfort zones.",
-    "Dream big and dare to fail.",
-    "The only limit to our realization of tomorrow is our doubts of today.",
-    "Opportunities don't happen, you create them."
-  ];
-
-  let quizPool = [], qIndex = 0, qScore = 0, qTimer = null, qRemaining = 60;
-  const QUIZ_LIMIT_MS = 24 * 60 * 60 * 1000; // 24 hr
-
-  function encSentence(s){
-    let out = "";
-    for(const ch of s.toLowerCase()){
-      if(vowelMap[ch]) out += vowelMap[ch];
-      else if(/[a-z]/.test(ch)) out += ch + "a";
-      else out += ch;
-    }
-    return out;
+  function copyResult() {
+    const val=document.getElementById("output").value;
+    if(!val) return toast("Nothing to copy");
+    navigator.clipboard.writeText(val);
+    toast("📋 Copied");
   }
 
-  function goQuizPage(){
-    $("toolPage").classList.add("hidden");
-    $("quizPage").classList.remove("hidden");
-    window.scrollTo({top:0,behavior:"smooth"});
-  }
-  function goToolPage(){
-    $("quizPage").classList.add("hidden");
-    $("toolPage").classList.remove("hidden");
-    window.scrollTo({top:0,behavior:"smooth"});
-  }
-  // nav buttons
-  $("openQuizBtn").addEventListener("click", goQuizPage);
-  $("openCipherBtn").addEventListener("click", goToolPage);
-  $("btnProfile").addEventListener("click", ()=>{ if(firebaseAvailable && auth && auth.currentUser) { const nick = prompt("Nickname:", localStorage.getItem("nick_" + auth.currentUser.uid) || ""); if(nick != null) { localStorage.setItem("nick_" + auth.currentUser.uid, nick); toast("Nickname saved"); } } else toast("Not signed in"); });
-  $("btnLogout").addEventListener("click", () => { window.logout(); });
-
-  window.startQuiz = function(){
-    // check 24h limit
-    const last = localStorage.getItem("quizLastPlayed");
-    if(last && (Date.now() - parseInt(last)) < QUIZ_LIMIT_MS){
-      const remain = Math.ceil((QUIZ_LIMIT_MS - (Date.now() - parseInt(last))) / (1000*60));
-      return toast(`You already played in the last 24h. Try again in ${remain} min`);
-    }
-    quizPool = [...QUESTIONS].sort(()=>Math.random()-0.5).slice(0,5);
-    qIndex = 0; qScore = 0;
-    $("quizProgress").textContent = `${qIndex}/${quizPool.length}`;
-    showQuizQuestion();
-    // switch page
-    goQuizPage();
-  };
-
-  function showQuizQuestion(){
-    if(qIndex >= quizPool.length) return finishQuiz();
-    const sentence = quizPool[qIndex];
-    const encoded = encSentence(sentence);
-    $("questionText").innerHTML = `<div><b>Decode this:</b></div><div style="margin-top:8px">${escapeHtml(encoded)}</div>`;
-    $("quizAnswer").value = "";
-    $("quizProgress").textContent = `${qIndex+1}`;
-    qRemaining = 60;
-    $("quizTimer").textContent = qRemaining;
-    clearInterval(qTimer);
-    qTimer = setInterval(()=> {
-      qRemaining--;
-      $("quizTimer").textContent = qRemaining;
-      if(qRemaining <= 0){ clearInterval(qTimer); toast("Time up"); nextQuiz(); }
-    }, 1000);
+  function clearAll() {
+    document.getElementById("input").value="";
+    document.getElementById("output").value="";
   }
 
-  window.submitQuiz = function(){
-    clearInterval(qTimer);
-    const ans = ($("quizAnswer").value || "").trim();
-    const correct = quizPool[qIndex];
-    if(ans.toLowerCase() === correct.toLowerCase()){ qScore++; toast("Correct"); }
-    else toast("Wrong — correct: " + correct);
-    qIndex++;
-    setTimeout(()=> showQuizQuestion(), 700);
-  };
-
-  window.nextQuiz = function(){
-    clearInterval(qTimer);
-    qIndex++;
-    showQuizQuestion();
-  };
-
-  window.endQuizEarly = function(){
-    clearInterval(qTimer);
-    finishQuiz();
-  };
-
-  async function finishQuiz(){
-    clearInterval(qTimer);
-    $("questionText").textContent = `Finished — Score: ${qScore}/${quizPool.length}`;
-    // save locally
-    const uid = (auth && auth.currentUser && auth.currentUser.uid) || "guest";
-    const scores = loadLocalScores(uid);
-    scores.unshift({ score: qScore, date: new Date().toISOString() });
-    saveLocalScores(uid, scores.slice(0,50));
-    // save last played time
-    localStorage.setItem("quizLastPlayed", Date.now().toString());
-    // push to firestore if logged in
-    if(firebaseAvailable && auth && auth.currentUser){
-      try {
-        await updateDoc(doc(db,"users",auth.currentUser.uid), { scores: arrayUnion({ score: qScore, date: new Date().toISOString() }) });
-      } catch(e){ try { await setDoc(doc(db,"users",auth.currentUser.uid), { scores: loadLocalScores(uid) }, { merge:true }); } catch(err){console.warn(err);} }
-    }
-    renderLeaderboardLocal();
+  // History
+  function addHist(type, inp, res) {
+    if(!currentUser) return;
+    accounts[currentUser].history.unshift({type, inp, res, date:new Date().toLocaleString()});
+    accounts[currentUser].history=accounts[currentUser].history.slice(0,20);
+    saveAccounts();
+    renderHistory();
   }
 
-  // leaderboards
-  async function renderLeaderboard(){
-    if(firebaseAvailable && auth && auth.currentUser){
-      try {
-        const snap = await getDoc(doc(db,"users",auth.currentUser.uid));
-        if(snap.exists()){
-          const data = snap.data();
-          const s = (data.scores || []).slice(0,5).map((x,i)=>`#${i+1} → ${x.score} (${new Date(x.date).toLocaleDateString()})`).join("<br>");
-          $("leaderboard").innerHTML = s || "<div class='small muted'>No scores</div>";
-          return;
-        }
-      } catch(e){ console.warn(e); }
-    }
-    renderLeaderboardLocal();
+  function renderHistory() {
+    if(!currentUser||!accounts[currentUser]) return;
+    let h=accounts[currentUser].history||[];
+    document.getElementById("history").innerHTML=h.map(x=>`<div class='history-item'><b>${x.type}</b>: ${x.res}<br><small>${x.date}</small></div>`).join("")||"No history yet";
   }
 
-  function renderLeaderboardLocal(uid){
-    uid = uid || ((auth && auth.currentUser && auth.currentUser.uid) || "guest");
-    const arr = loadLocalScores(uid).slice(0,5);
-    if(!arr.length) { $("leaderboard").innerHTML = "<div class='small muted'>No scores</div>"; return; }
-    $("leaderboard").innerHTML = arr.map((s,i)=>`#${i+1} → ${s.score} (${new Date(s.date).toLocaleDateString()})`).join("<br>");
+  function clearHistory() {
+    if(!currentUser) return;
+    accounts[currentUser].history=[];
+    saveAccounts();
+    renderHistory();
   }
 
-  // ------------------ small utils ------------------
-  function escapeHtml(str){ if(!str) return ""; return str.replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" })[m]); }
-  function saveLocalScores(uid, arr){ localStorage.setItem(localKeyScores(uid), JSON.stringify(arr||[])); }
-  function loadLocalScores(uid){ return JSON.parse(localStorage.getItem(localKeyScores(uid)) || "[]"); }
+  // Init
+  document.getElementById("year").textContent=new Date().getFullYear();
+  let saved=localStorage.getItem("currentUser");
+  if(saved&&accounts[saved]) {
+    currentUser=saved;
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("welcomeUser").textContent="Welcome "+saved;
+    renderHistory();
+  }
+</script>
 
-  // initial render
-  (function init(){
-    $("year").textContent = new Date().getFullYear();
-    renderHistoryLocalDefault();
-    renderLeaderboardLocal();
-    // show tool by default
-    goToolPage();
-    // expose some functions globally for button onClick usage (keeps inline handlers working)
-    window.goQuizPage = goQuizPage;
-    window.goToolPage = goToolPage;
-    window.renderHistoryFromCloudOrLocal = renderHistoryFromCloudOrLocal;
-  })();
-
-  // end module script
-  </script>
+<script>
+  // Register service worker
+  if("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(r=>console.log("SW registered",r))
+      .catch(e=>console.log("SW failed",e));
+  }
+</script>
 </body>
 </html>
