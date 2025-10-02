@@ -30,7 +30,6 @@
       --card: rgba(20, 20, 30, 0.8);
       --shadow: rgba(0,0,0,0.6);
     }
-
     body {
       margin: 0; padding: 0;
       font-family: 'Segoe UI', Arial, sans-serif;
@@ -38,7 +37,6 @@
       color: var(--text);
       transition: background 0.4s, color 0.4s;
     }
-
     header {
       text-align: center;
       padding: 20px;
@@ -48,106 +46,58 @@
       box-shadow: 0 4px 15px var(--shadow);
       position: relative;
     }
-
     h1 { margin: 0; font-size: 1.8em; }
     p { opacity: 0.9; }
-
     main {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      max-width: 1100px;
-      margin: 20px auto;
-      padding: 0 15px;
+      display: flex; flex-wrap: wrap; gap: 20px;
+      max-width: 1100px; margin: 20px auto; padding: 0 15px;
     }
-
     section, aside {
-      flex: 1;
-      min-width: 280px;
-      border-radius: 16px;
-      padding: 20px;
+      flex: 1; min-width: 280px;
+      border-radius: 16px; padding: 20px;
       background: var(--card);
       backdrop-filter: blur(12px);
       box-shadow: 0 8px 24px var(--shadow);
       transition: background 0.4s;
     }
     aside { max-width: 320px; }
-
     label { font-size: 13px; font-weight: bold; margin: 10px 0; display: block; }
-
     textarea {
       width: 100%; min-height: 120px;
-      margin: 8px 0 15px 0;
-      padding: 12px;
-      font-size: 15px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      resize: vertical;
+      margin: 8px 0 15px 0; padding: 12px;
+      font-size: 15px; border-radius: 12px;
+      border: none; outline: none; resize: vertical;
       background: rgba(255,255,255,0.4);
       backdrop-filter: blur(5px);
       box-shadow: inset 2px 2px 6px rgba(0,0,0,0.1);
       transition: background 0.3s;
     }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
     button {
-      flex: 1;
-      padding: 12px 15px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      color: white;
-      font-size: 14px;
-      font-weight: 600;
+      flex: 1; padding: 12px 15px;
+      border: none; border-radius: 10px; cursor: pointer;
+      color: white; font-size: 14px; font-weight: 600;
       background: var(--primary);
       box-shadow: 0 4px 12px var(--shadow);
       transition: transform 0.2s, opacity 0.2s;
     }
     button:hover { transform: translateY(-2px); opacity: 0.9; }
     button:active { transform: scale(0.97); }
-
     button.danger { background: var(--danger); }
     button.success { background: var(--success); }
-
-    .history-item {
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-      padding: 8px 0;
-      font-size: 13px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      margin-top: 30px;
-      font-size: 13px;
-      opacity: 0.8;
-    }
-
-    /* Dark Mode Toggle */
+    .history-item { border-bottom: 1px solid rgba(255,255,255,0.2); padding: 8px 0; font-size: 13px; }
+    footer { text-align: center; padding: 15px; margin-top: 30px; font-size: 13px; opacity: 0.8; }
     .toggle-theme {
-      position: absolute;
-      top: 15px; right: 20px;
+      position: absolute; top: 15px; right: 20px;
       background: rgba(255,255,255,0.2);
-      border: none;
-      border-radius: 50%;
+      border: none; border-radius: 50%;
       width: 40px; height: 40px;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
+      color: white; font-size: 18px;
+      cursor: pointer; backdrop-filter: blur(8px);
     }
-
-    /* Update toast */
     #update-toast {
-      display:none; 
-      position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+      display:none; position:fixed; bottom:20px; left:50%;
+      transform:translateX(-50%);
       background:#333; color:#fff;
       padding:12px 20px; border-radius:10px;
       box-shadow:0 4px 12px rgba(0,0,0,0.3);
@@ -155,10 +105,8 @@
       animation: slideUp 0.4s ease;
     }
     #update-toast button {
-      margin-left:10px; 
-      background:#4CAF50; border:none;
-      padding:5px 10px; border-radius:6px;
-      color:white; cursor:pointer;
+      margin-left:10px; background:#4CAF50; border:none;
+      padding:5px 10px; border-radius:6px; color:white; cursor:pointer;
     }
     @keyframes slideUp {
       from { transform:translate(-50%, 50px); opacity:0; }
@@ -170,15 +118,12 @@
   <header>
     <h1>🔐 Secret Cipher</h1>
     <p>Type → Encode → Decode → Share</p>
-    <button class="toggle-theme" id="themeToggle">🌙</button>
+    <button class="toggle-theme" onclick="toggleTheme()">🌙</button>
   </header>
-
   <main>
-    <!-- Cipher panel -->
     <section>
       <label for="input">Input</label>
       <textarea id="input" placeholder="Type your message here..."></textarea>
-      
       <div class="controls">
         <button onclick="encode()">🔒 Encode</button>
         <button onclick="decode()">🔓 Decode</button>
@@ -186,15 +131,10 @@
         <button class="danger" onclick="clearAll()">🗑 Clear</button>
         <button class="success" onclick="copyResult()">📋 Copy</button>
         <button onclick="shareResult()">📤 Share</button>
-        <button onclick="downloadResult()">💾 Download</button>
-        <button onclick="showQR()">📱 QR</button>
       </div>
-      
       <label for="output">Output</label>
       <textarea id="output" placeholder="Result will appear here..." readonly></textarea>
     </section>
-
-    <!-- History + Contact -->
     <aside>
       <h3>📜 Recent History</h3>
       <div id="history"></div>
@@ -202,179 +142,46 @@
         <button onclick="copyHistory()">Copy All</button>
         <button class="danger" onclick="clearHistory()">Clear</button>
       </div>
-      
       <h3 style="margin-top:20px;">📞 Contact</h3>
-      <p><strong>Email:</strong> 
-        <a href="mailto:abdulkadirbukar2006@gmail.com">abdulkadirbukar2006@gmail.com</a></p>
-      <p><strong>Phone:</strong> 
-        <a href="tel:+2347048684062">07048684062</a></p>
+      <p><strong>Email:</strong> <a href="mailto:abdulkadirbukar2006@gmail.com">abdulkadirbukar2006@gmail.com</a></p>
+      <p><strong>Phone:</strong> <a href="tel:+2347048684062">07048684062</a></p>
       <p><a href="https://wa.me/2347048684062" target="_blank">Message on WhatsApp</a></p>
     </aside>
   </main>
-
-  <footer>
-    Made with ❤️ Secret Cipher • <span id="year"></span>
-  </footer>
-
-  <!-- Toast for updates -->
-  <div id="update-toast">
-    🔄 A new version is available!
-    <button onclick="refreshApp()">Refresh</button>
-  </div>
-
-  <!-- QR Modal -->
-  <div id="qrModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:10000;">
-    <canvas id="qrCanvas"></canvas>
-    <button class="danger" onclick="closeQR()" style="margin-top:15px;">Close</button>
-  </div>
-
-  <!-- External QR library -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
-  <!-- App Logic -->
+  <footer>Made with ❤️ Secret Cipher • <span id="year"></span></footer>
+  <div id="update-toast">🔄 A new version is available! <button onclick="refreshApp()">Refresh</button></div>
   <script>
-    const inputEl = document.getElementById("input");
-    const outputEl = document.getElementById("output");
-    const historyEl = document.getElementById("history");
-    let history = JSON.parse(localStorage.getItem("cipherHistory") || "[]");
+    const inputEl=document.getElementById("input");
+    const outputEl=document.getElementById("output");
+    const historyEl=document.getElementById("history");
+    let history=JSON.parse(localStorage.getItem("cipherHistory")||"[]");
 
-    function renderHistory() {
-      historyEl.innerHTML = history.length === 0 
-        ? "<p style='opacity:0.7'>No history yet.</p>"
-        : history.map((h, i) => `
+    function renderHistory(){
+      historyEl.innerHTML=history.length===0?"<p style='opacity:0.7'>No history yet.</p>":
+        history.map((h,i)=>`
           <div class="history-item">
             <strong>${h.type}:</strong> ${h.result}
             <br>
             <button onclick="useHistory(${i})">Use</button>
-            <button onclick="navigator.clipboard.writeText('${h.result}').then(()=>alert('Copied'))">Copy</button>
+            <button onclick="copyHistoryItem(${i})">Copy</button>
           </div>`).join("");
     }
-
-    function saveHistory(item) {
-      history.unshift(item);
-      history = history.slice(0, 20);
-      localStorage.setItem("cipherHistory", JSON.stringify(history));
-      renderHistory();
-    }
-
-    function encode() {
-      let text = inputEl.value.toLowerCase();
-      let result = "";
-      let vowels = {a:"1", e:"2", i:"3", o:"4", u:"5"};
-      for (let ch of text) {
-        if (vowels[ch]) result += vowels[ch];
-        else if (/[a-z]/.test(ch)) result += ch + "a";
-        else result += ch;
-      }
-      outputEl.value = result;
-      saveHistory({type:"Encoded", input:text, result});
-    }
-
-    function decode() {
-      let text = inputEl.value;
-      let result = "";
-      let vowels = {"1":"a","2":"e","3":"i","4":"o","5":"u"};
-      for (let i=0;i<text.length;i++) {
-        let ch = text[i];
-        if (vowels[ch]) result += vowels[ch];
-        else if (/[a-z]/i.test(ch)) {
-          result += ch;
-          if (text[i+1]==="a") i++;
-        } else result += ch;
-      }
-      outputEl.value = result;
-      saveHistory({type:"Decoded", input:text, result});
-    }
-
-    function smartDetect() {
-      const text = inputEl.value.trim();
-      if (!text) return;
-      const digitCount = (text.match(/[12345]/g) || []).length;
-      const vowelCount = (text.match(/[aeiou]/gi) || []).length;
-      if (digitCount > vowelCount) decode();
-      else encode();
-    }
-
-    function clearAll() { inputEl.value = ""; outputEl.value = ""; }
-    function copyResult() {
-      if (!outputEl.value) return alert("Nothing to copy");
-      navigator.clipboard.writeText(outputEl.value);
-      alert("Copied to clipboard ✅");
-    }
-    function shareResult() {
-      if (!outputEl.value) return alert("Nothing to share");
-      if (navigator.share) {
-        navigator.share({title:"Secret Cipher", text:outputEl.value});
-      } else {
-        window.open(`https://wa.me/?text=${encodeURIComponent(outputEl.value)}`, "_blank");
-      }
-    }
-    function downloadResult() {
-      if (!outputEl.value) return alert("Nothing to download");
-      const blob = new Blob([outputEl.value], {type:"text/plain"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "cipher-result.txt";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-    function showQR() {
-      if (!outputEl.value) return alert("Nothing to generate");
-      const canvas = document.getElementById("qrCanvas");
-      QRCode.toCanvas(canvas, outputEl.value, { width: 200 }, function (error) {
-        if (error) console.error(error);
-        document.getElementById("qrModal").style.display = "flex";
-      });
-    }
-    function closeQR() { document.getElementById("qrModal").style.display = "none"; }
-    function copyHistory() {
-      if (!history.length) return alert("No history");
-      const all = history.map(h => `${h.type}: ${h.result}`).join("\n");
-      navigator.clipboard.writeText(all);
-      alert("History copied ✅");
-    }
-    function clearHistory() {
-      if (!confirm("Clear history?")) return;
-      history = []; localStorage.removeItem("cipherHistory"); renderHistory();
-    }
-    function useHistory(i) { inputEl.value = history[i].result; smartDetect(); }
-
-    // 🌙 Theme toggle
-    const themeToggle = document.getElementById("themeToggle");
-    function applyTheme() {
-      if (localStorage.getItem("theme") === "dark") {
-        document.body.setAttribute("data-theme","dark");
-        themeToggle.textContent = "☀️";
-      } else {
-        document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙";
-      }
-    }
-    themeToggle.addEventListener("click", () => {
-      const newTheme = localStorage.getItem("theme") === "dark" ? "light" : "dark";
-      localStorage.setItem("theme", newTheme);
-      applyTheme();
-    });
-
-    document.getElementById("year").textContent = new Date().getFullYear();
-    applyTheme();
-    renderHistory();
-
-    // 🔄 Service Worker update toast
-    function refreshApp() { window.location.reload(); }
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js').then(reg => {
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              document.getElementById("update-toast").style.display = "block";
-            }
-          });
-        });
-      });
-    }
+    function saveHistory(item){history.unshift(item);history=history.slice(0,20);localStorage.setItem("cipherHistory",JSON.stringify(history));renderHistory();}
+    function encode(){let text=inputEl.value.toLowerCase();let result="";let vowels={a:"1",e:"2",i:"3",o:"4",u:"5"};for(let ch of text){if(vowels[ch])result+=vowels[ch];else if(/[a-z]/.test(ch))result+=ch+"a";else result+=ch;}outputEl.value=result;saveHistory({type:"Encoded",input:text,result});}
+    function decode(){let text=inputEl.value;let result="";let vowels={"1":"a","2":"e","3":"i","4":"o","5":"u"};for(let i=0;i<text.length;i++){let ch=text[i];if(vowels[ch])result+=vowels[ch];else if(/[a-z]/i.test(ch)){result+=ch;if(text[i+1]==="a")i++;}else result+=ch;}outputEl.value=result;saveHistory({type:"Decoded",input:text,result});}
+    function smartDetect(){const text=inputEl.value.trim();if(!text)return;const digitCount=(text.match(/[12345]/g)||[]).length;const vowelCount=(text.match(/[aeiou]/gi)||[]).length;if(digitCount>vowelCount)decode();else encode();}
+    function clearAll(){inputEl.value="";outputEl.value="";}
+    function copyResult(){if(!outputEl.value)return alert("Nothing to copy");navigator.clipboard.writeText(outputEl.value);alert("Copied to clipboard ✅");}
+    function shareResult(){if(!outputEl.value)return alert("Nothing to share");if(navigator.share){navigator.share({title:"Secret Cipher",text:outputEl.value});}else{window.open(`https://wa.me/?text=${encodeURIComponent(outputEl.value)}`,"_blank");}}
+    function copyHistory(){if(!history.length)return alert("No history");const all=history.map(h=>`${h.type}: ${h.result}`).join("\n");navigator.clipboard.writeText(all);alert("History copied ✅");}
+    function copyHistoryItem(i){navigator.clipboard.writeText(history[i].result).then(()=>alert("Copied ✅"));}
+    function clearHistory(){if(!confirm("Clear history?"))return;history=[];localStorage.removeItem("cipherHistory");renderHistory();}
+    function useHistory(i){inputEl.value=history[i].result;smartDetect();}
+    document.getElementById("year").textContent=new Date().getFullYear();renderHistory();
+    function toggleTheme(){let current=document.body.getAttribute("data-theme");if(current==="dark"){document.body.removeAttribute("data-theme");localStorage.setItem("theme","light");document.querySelector(".toggle-theme").textContent="🌙";}else{document.body.setAttribute("data-theme","dark");localStorage.setItem("theme","dark");document.querySelector(".toggle-theme").textContent="☀️";}}
+    if(localStorage.getItem("theme")==="dark"){document.body.setAttribute("data-theme","dark");document.querySelector(".toggle-theme").textContent="☀️";}
+    function refreshApp(){window.location.reload();}
+    if('serviceWorker' in navigator){navigator.serviceWorker.register('/service-worker.js').then(reg=>{reg.addEventListener('updatefound',()=>{const newWorker=reg.installing;newWorker.addEventListener('statechange',()=>{if(newWorker.state==='installed'&&navigator.serviceWorker.controller){document.getElementById("update-toast").style.display="block";}});});});}
   </script>
 </body>
 </html>
