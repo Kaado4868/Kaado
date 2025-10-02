@@ -1,112 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>🔐 Secret Cipher</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ff416c">
-<link rel="icon" href="icon-192.png">
-<style>
-body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial;background:linear-gradient(135deg,#ff416c,#ff4b2b,#1e90ff);background-size:400% 400%;animation:gradientBG 15s ease infinite;color:#222;display:flex;flex-direction:column;align-items:center;min-height:100vh;}
-@keyframes gradientBG{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-header{color:white;text-align:center;margin:20px;}
-main{background:rgba(255,255,255,0.97);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,0.15);padding:20px;max-width:800px;width:90%;display:flex;flex-direction:column;align-items:stretch;}
-label{font-weight:600;font-size:14px;margin-top:10px;}
-textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;resize:vertical;font-size:15px;min-height:100px;}
-.controls{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;}
-button{flex:1;padding:12px;border:none;border-radius:10px;color:white;font-weight:700;cursor:pointer;background:linear-gradient(90deg,#ff6a88,#5b18b0);box-shadow:0 6px 18px rgba(0,0,0,0.12);transition:transform .15s;}
-button:hover{transform:translateY(-3px)}
-button.danger{background:linear-gradient(90deg,#ff416c,#ff4b2b)}
-button.success{background:linear-gradient(90deg,#11998e,#38ef7d)}
-#historyBox{margin-top:16px;}
-#historyContent{display:none;max-height:200px;overflow-y:auto;margin-top:10px;}
-.history-item{padding:8px 0;border-bottom:1px solid #eee;font-size:14px;}
-footer{margin:20px;color:white;text-align:center;}
-.play-quiz{background:linear-gradient(90deg,#ffd700,#ff6a88);color:#111;padding:12px 20px;border-radius:12px;border:none;font-weight:800;cursor:pointer;}
-.small{font-size:13px;color:#666;}
-</style>
+  <meta charset="UTF-8">
+  <title>🔐 Secret Cipher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b5ed7">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin:0; padding:0; background:#f7f9fc; color:#333; animation:fadeIn 1s ease; }
+    header { text-align:center; padding:20px; background:#2575fc; color:#fff; border-radius:0 0 20px 20px; }
+    h1 { margin:0; }
+    main { max-width:1100px; margin:20px auto; padding:0 15px; display:flex; flex-wrap:wrap; gap:20px; }
+    section, aside { background:white; border-radius:16px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.1); flex:1; min-width:280px; animation:slideUp 0.6s ease; }
+    aside { max-width:320px; }
+    textarea { width:100%; min-height:100px; margin:8px 0 15px; padding:10px; border-radius:8px; border:1px solid #ddd; transition:0.3s; }
+    textarea:focus { border-color:#2575fc; box-shadow:0 0 6px rgba(37,117,252,0.3); }
+    .controls { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; }
+    button { flex:1; padding:10px; border:none; border-radius:8px; cursor:pointer; background:#2575fc; color:white; font-weight:bold; transition:0.3s; }
+    button:hover { transform:scale(1.05); box-shadow:0 0 8px rgba(37,117,252,0.5); }
+    button.danger { background:#e55353; }
+    button.success { background:#198754; }
+    .history-item { border-bottom:1px solid #eee; padding:6px 0; font-size:13px; }
+    footer { text-align:center; margin-top:30px; padding:10px; font-size:13px; background:#f0f0f0; animation:fadeIn 2s ease; }
+    .quiz-link { margin-top:20px; text-align:center; }
+    .quiz-link button { background:#ff9800; color:white; padding:10px 20px; border:none; border-radius:8px; font-weight:bold; cursor:pointer; transition:0.3s; }
+    .quiz-link button:hover { transform:scale(1.08); box-shadow:0 0 10px rgba(255,152,0,0.5); }
+
+    /* Animations */
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+    @keyframes slideUp { from {transform:translateY(20px);opacity:0;} to {transform:translateY(0);opacity:1;} }
+  </style>
 </head>
 <body>
-<header>
-  <h1>🔐 Secret Cipher</h1>
-  <p>Type → Encode → Decode → Share • Smart Detect</p>
-</header>
+  <header>
+    <h1>🔐 Secret Cipher</h1>
+    <p>Type → Encode → Decode → Share</p>
+  </header>
 
-<main>
-  <label for="input">Input</label>
-  <textarea id="input" placeholder="Type your message..."></textarea>
-  <div class="controls">
-    <button id="encodeBtn">🔒 Encode</button>
-    <button id="decodeBtn">🔓 Decode</button>
-    <button id="smartBtn">🤖 Smart Detect</button>
-    <button class="danger" id="clearBtn">🗑 Clear</button>
-    <button class="success" id="copyBtn">📋 Copy</button>
-    <button id="shareBtn">📤 Share</button>
+  <main>
+    <!-- Cipher Tool -->
+    <section>
+      <h3>📝 Cipher Tool</h3>
+      <label for="input">Input</label>
+      <textarea id="input" placeholder="Type your message here..."></textarea>
+      <div class="controls">
+        <button onclick="encode()">Encode</button>
+        <button onclick="decode()">Decode</button>
+        <button onclick="smartDetect()">Smart Detect</button>
+        <button class="danger" onclick="clearAll()">Clear</button>
+        <button class="success" onclick="copyResult()">Copy</button>
+        <button onclick="shareResult()">Share</button>
+      </div>
+      <label for="output">Output</label>
+      <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
+    </section>
+
+    <!-- History & Contact -->
+    <aside>
+      <h3>📜 History</h3>
+      <div id="history"></div>
+      <div style="margin-top:10px; display:flex; gap:10px;">
+        <button onclick="copyHistory()">Copy All</button>
+        <button class="danger" onclick="clearHistory()">Clear</button>
+      </div>
+      <h3 style="margin-top:20px;">📞 Contact</h3>
+      <p><b>Email:</b> <a href="mailto:abdulkadirbukar2006@gmail.com">abdulkadirbukar2006@gmail.com</a></p>
+      <p><b>Phone:</b> <a href="tel:+2347048684062">07048684062</a></p>
+      <p><a href="https://wa.me/2347048684062" target="_blank">Message on WhatsApp</a></p>
+    </aside>
+  </main>
+
+  <!-- Link to Quiz -->
+  <div class="quiz-link">
+    <button onclick="location.href='quiz.html'">🧩 Play Daily Quiz</button>
   </div>
-  <label for="output">Output</label>
-  <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
 
-  <div id="historyBox">
-    <button id="toggleHistory">📜 Show History</button>
-    <div id="historyContent"></div>
-    <div style="margin-top:8px;display:flex;gap:8px;">
-      <button id="copyAll">Copy All</button>
-      <button class="danger" id="clearHistory">Clear</button>
-    </div>
-  </div>
+  <footer>
+    Made with ❤️ Secret Cipher • <span id="year"></span>
+  </footer>
 
-  <div style="margin-top:20px;">
-    <h3>📞 Contact</h3>
-    <p class="small">Email: <a href="mailto:abdulkadirbukar2006@gmail.com">abdulkadirbukar2006@gmail.com</a></p>
-    <p class="small">Phone: <a href="tel:+2347048684062">07048684062</a></p>
-    <p class="small"><a href="https://wa.me/2347048684062" target="_blank">Message on WhatsApp</a></p>
-  </div>
-</main>
+  <script>
+    const inputEl=document.getElementById("input");
+    const outputEl=document.getElementById("output");
+    const historyEl=document.getElementById("history");
+    let history=JSON.parse(localStorage.getItem("cipherHistory")||"[]");
 
-<footer>
-  <button class="play-quiz" onclick="location.href='quiz.html'">Play Daily Quiz</button>
-  <div class="small">Made with ❤️ Secret Cipher • <span id="year"></span></div>
-</footer>
-
-<script>
-const inputEl=document.getElementById('input');const outputEl=document.getElementById('output');const historyEl=document.getElementById('historyContent');
-let historyArr=JSON.parse(localStorage.getItem('cipherHistory')||'[]');
-
-function renderHistory(){
-  if(!historyArr.length){historyEl.innerHTML='<p class="small">No history yet.</p>';return;}
-  historyEl.innerHTML='';
-  historyArr.forEach((h,i)=>{
-    const div=document.createElement('div');div.className='history-item';
-    div.innerHTML=`<strong>${h.type}:</strong> ${h.result}<br><button onclick="useHistory(${i})">Use</button> <button onclick="copyHistoryItem(${i})">Copy</button>`;
-    historyEl.appendChild(div);
-  });
-}
-function saveHistory(item){historyArr.unshift(item);historyArr=historyArr.slice(0,20);localStorage.setItem('cipherHistory',JSON.stringify(historyArr));renderHistory();}
-function cipherEncode(text){let vowels={a:'1',e:'2',i:'3',o:'4',u:'5'};let res='';for(let ch of text.toLowerCase()){if(vowels[ch])res+=vowels[ch];else if(/[a-z]/.test(ch))res+=ch+'a';else res+=ch;}return res;}
-function cipherDecode(text){let vowels={'1':'a','2':'e','3':'i','4':'o','5':'u'};let res='';for(let i=0;i<text.length;i++){let ch=text[i];if(vowels[ch])res+=vowels[ch];else if(/[a-z]/i.test(ch)){res+=ch;if(text[i+1]==='a')i++;}else res+=ch;}return res;}
-function smartDetect(){
-  const text=inputEl.value.trim();
-  if(!text)return;
-  const digitCount=(text.match(/[12345]/g)||[]).length;
-  const suffixCount=(text.match(/[a-z]a/g)||[]).length;
-  if(digitCount>=suffixCount){const r=cipherDecode(text);outputEl.value=r;saveHistory({type:'Decoded',input:text,result:r});}
-  else{const r=cipherEncode(text);outputEl.value=r;saveHistory({type:'Encoded',input:text,result:r});}
-}
-document.getElementById('encodeBtn').addEventListener('click',()=>{const r=cipherEncode(inputEl.value);outputEl.value=r;saveHistory({type:'Encoded',input:inputEl.value,result:r});});
-document.getElementById('decodeBtn').addEventListener('click',()=>{const r=cipherDecode(inputEl.value);outputEl.value=r;saveHistory({type:'Decoded',input:inputEl.value,result:r});});
-document.getElementById('smartBtn').addEventListener('click',smartDetect);
-document.getElementById('clearBtn').addEventListener('click',()=>{inputEl.value='';outputEl.value='';});
-document.getElementById('copyBtn').addEventListener('click',()=>{if(!outputEl.value)return alert('Nothing to copy');navigator.clipboard.writeText(outputEl.value).then(()=>alert('Copied ✅'));});
-document.getElementById('shareBtn').addEventListener('click',()=>{if(!outputEl.value)return alert('Nothing to share');if(navigator.share)navigator.share({title:'Secret Cipher',text:outputEl.value});else window.open('https://wa.me/?text='+encodeURIComponent(outputEl.value),'_blank');});
-document.getElementById('copyAll').addEventListener('click',()=>{if(!historyArr.length)return alert('No history');navigator.clipboard.writeText(historyArr.map(h=>`${h.type}: ${h.result}`).join('\n'));alert('History copied ✅');});
-document.getElementById('clearHistory').addEventListener('click',()=>{if(!confirm('Clear history?'))return;historyArr=[];localStorage.removeItem('cipherHistory');renderHistory();});
-function useHistory(i){inputEl.value=historyArr[i].result;smartDetect();}
-function copyHistoryItem(i){navigator.clipboard.writeText(historyArr[i].result).then(()=>alert('Copied ✅'));}
-
-document.getElementById('toggleHistory').addEventListener('click',()=>{const hc=document.getElementById('historyContent');if(hc.style.display==='none'||!hc.style.display){hc.style.display='block';document.getElementById('toggleHistory').textContent='📜 Hide History';}else{hc.style.display='none';document.getElementById('toggleHistory').textContent='📜 Show History';}});
-
-document.getElementById('year').textContent=new Date().getFullYear();renderHistory();
-</script>
+    function renderHistory(){historyEl.innerHTML=history.length===0?"<p style='opacity:0.7'>No history yet.</p>":history.map((h,i)=>`<div class="history-item"><b>${h.type}:</b> ${h.result}<br><button onclick="useHistory(${i})">Use</button><button onclick="navigator.clipboard.writeText(history[${i}].result)">Copy</button></div>`).join("");}
+    function saveHistory(item){history.unshift(item);history=history.slice(0,20);localStorage.setItem("cipherHistory",JSON.stringify(history));renderHistory();}
+    function encode(){let text=inputEl.value.toLowerCase();let result="";let vowels={a:"1",e:"2",i:"3",o:"4",u:"5"};for(let ch of text){if(vowels[ch])result+=vowels[ch];else if(/[a-z]/.test(ch))result+=ch+"a";else result+=ch;}outputEl.value=result;saveHistory({type:"Encoded",input:text,result});}
+    function decode(){let text=inputEl.value;let result="";let vowels={"1":"a","2":"e","3":"i","4":"o","5":"u"};for(let i=0;i<text.length;i++){let ch=text[i];if(vowels[ch])result+=vowels[ch];else if(/[a-z]/i.test(ch)){result+=ch;if(text[i+1]==="a")i++;}else result+=ch;}outputEl.value=result;saveHistory({type:"Decoded",input:text,result});}
+    
+    // Fixed Smart Detect
+    function smartDetect(){const text=inputEl.value.trim();if(!text)return;const digitCount=(text.match(/[12345]/g)||[]).length;const suffixCount=(text.match(/[a-z]a/g)||[]).length;if(digitCount>suffixCount){decode();}else{encode();}}
+    
+    function clearAll(){inputEl.value="";outputEl.value="";}
+    function copyResult(){if(!outputEl.value)return alert("Nothing to copy");navigator.clipboard.writeText(outputEl.value);alert("Copied ✅");}
+    function shareResult(){if(!outputEl.value)return alert("Nothing to share");if(navigator.share){navigator.share({title:"Secret Cipher",text:outputEl.value});}else{window.open(`https://wa.me/?text=${encodeURIComponent(outputEl.value)}`,"_blank");}}
+    function copyHistory(){if(!history.length)return alert("No history");navigator.clipboard.writeText(history.map(h=>`${h.type}: ${h.result}`).join("\\n"));alert("History copied ✅");}
+    function clearHistory(){if(!confirm("Clear history?"))return;history=[];localStorage.removeItem("cipherHistory");renderHistory();}
+    function useHistory(i){inputEl.value=history[i].result;smartDetect();}
+    document.getElementById("year").textContent=new Date().getFullYear();
+    renderHistory();
+  </script>
 </body>
 </html>
