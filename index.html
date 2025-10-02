@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>🔐 Secret Cipher — Vowel Numbers</title>
+  <title>🔐 Secret Cipher — Vowel Numbers (Cloud + Local)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root{
@@ -43,40 +43,35 @@
     #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
     /* login screen */
     #loginScreen{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:99}
-    #loginBox{background:#1a1f2f;padding:20px;border-radius:12px;width:300px}
-    input{width:100%;padding:8px;margin:6px 0;border-radius:6px;border:0;background:rgba(255,255,255,0.1);color:#fff}
-    /* profile modal */
-    #profileModal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:100}
-    #profileBox{background:#1a1f2f;padding:20px;border-radius:12px;width:320px}
-    canvas{margin-top:10px;display:none}
+    #loginBox{background:#1a1f2f;padding:20px;border-radius:12px;width:320px;max-width:90%}
+    input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:0;background:rgba(255,255,255,0.06);color:#fff}
+    .small{font-size:13px;opacity:0.9}
+    footer{padding:12px;text-align:center;color:#aaa}
   </style>
 </head>
 <body>
-  <!-- Login -->
+  <!-- Login / Signup Modal -->
   <div id="loginScreen">
     <div id="loginBox">
       <h2>🔑 Login / Sign Up</h2>
-      <input id="username" placeholder="Email">
-      <input id="password" type="password" placeholder="Password">
-      <button onclick="login()">Login</button>
-      <button onclick="signup()" class="secondary">Sign Up</button>
-    </div>
-  </div>
-
-  <!-- Profile Modal -->
-  <div id="profileModal">
-    <div id="profileBox">
-      <h3>👤 Profile</h3>
-      <p><b>User:</b> <span id="profileUser"></span></p>
-      <button onclick="closeProfile()" class="danger">Close</button>
+      <input id="username" placeholder="Email (you@example.com)" type="email" />
+      <input id="password" placeholder="Password (min 6 chars)" type="password" />
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="login()">Login</button>
+        <button onclick="signup()" class="secondary">Sign Up</button>
+        <button onclick="guestMode()" class="danger">Continue Offline</button>
+      </div>
+      <p class="small">Make sure Email/Password sign-in is enabled and your domain is added to Firebase Authorized domains.</p>
     </div>
   </div>
 
   <header>
     <h1>🔐 Secret Cipher — Vowel Numbers</h1>
     <p id="welcomeUser"></p>
-    <button onclick="openProfile()" class="secondary">Profile</button>
-    <button onclick="logout()" class="danger">Logout</button>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+      <button onclick="openProfile()" class="secondary">Profile</button>
+      <button onclick="logout()" class="danger">Logout</button>
+    </div>
   </header>
 
   <main>
@@ -92,122 +87,498 @@
         <button onclick="genQR()" class="secondary">Generate QR</button>
         <button onclick="clearAll()" class="danger">Clear</button>
       </div>
-      <canvas id="qrCanvas" width="200" height="200"></canvas>
+
+      <div style="margin-top:18px;background:rgba(255,255,255,0.03);padding:12px;border-radius:10px">
+        <h3>🧩 Quiz</h3>
+        <div id="quiz-status">Not started</div>
+        <div id="quiz-container"></div>
+        <div style="margin-top:8px">
+          <button onclick="startQuiz()">Start Quiz</button>
+        </div>
+      </div>
+
+      <h4 style="margin-top:12px">🏆 Leaderboard</h4>
+      <div id="leaderboard"></div>
     </section>
+
     <aside>
       <h3>📜 History</h3>
       <div id="history"></div>
-      <button onclick="clearHistory()" class="danger">Clear History</button>
+      <div style="margin-top:8px">
+        <button onclick="downloadLocalBackup()">Export Local Backup</button>
+        <button onclick="clearHistory()" class="danger">Clear History</button>
+      </div>
     </aside>
   </main>
 
-  <footer style="text-align:center;padding:10px">© <span id="year"></span></footer>
+  <footer>© <span id="year"></span> Secret Cipher</footer>
   <div id="toast"></div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { 
-    getAuth, 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
-    signOut, 
-    onAuthStateChanged 
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  <!-- Firebase (modular) + App logic -->
+  <script type="module">
+  /* ===========================
+     Firebase + Firestore + Auth
+     ============================
+     Note: this file uses modular Firebase SDK imports (v10). If you prefer CDN <script> tags,
+     tell me and I can provide a non-module variant.
+  */
 
-  // 🔥 Firebase config
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, collection, getDocs, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ---------- YOUR FIREBASE CONFIG ----------
   const firebaseConfig = {
-    apiKey: "AIzaSyB0fDcEpw-p7DNu0UkqIGtC782y1Vdf08",
+    apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00",
     authDomain: "cipher-e6c22.firebaseapp.com",
     projectId: "cipher-e6c22",
-    storageBucket: "cipher-e6c22.firebasestorage.app",
+    storageBucket: "cipher-e6c22.appspot.com", // fixed to .appspot.com style
     messagingSenderId: "345358817477",
-    appId: "1:345358817477:web:45cb83f8c8462191983ac",
-    measurementId: "G-ENGQK77N8B"
+    appId: "1:345358817477:web:7ba4dd380d634b559038ac",
+    measurementId: "G-CN75P4JDPW"
   };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  // Sign up
-  async function signup() {
-    const email = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      toast("✅ Account created successfully!");
-    } catch (error) {
-      toast("❌ " + error.message);
+  // expose for debug if needed
+  window._firebase = { app, auth, db };
+
+  /* ======= Utility: Toast ======= */
+  function toast(m){
+    const el = document.getElementById("toast");
+    el.textContent = m;
+    el.classList.add("show");
+    setTimeout(()=>el.classList.remove("show"), 2400);
+  }
+
+  /* ======= Local backup helpers ======= */
+  function localKeyHistory(uid){ return `sc_history_${uid||"guest"}`; }
+  function localKeyScores(uid){ return `sc_scores_${uid||"guest"}`; }
+
+  function saveLocalHistory(uid, arr){
+    localStorage.setItem(localKeyHistory(uid), JSON.stringify(arr||[]));
+  }
+  function loadLocalHistory(uid){
+    return JSON.parse(localStorage.getItem(localKeyHistory(uid))||"[]");
+  }
+  function saveLocalScores(uid, arr){
+    localStorage.setItem(localKeyScores(uid), JSON.stringify(arr||[]));
+  }
+  function loadLocalScores(uid){
+    return JSON.parse(localStorage.getItem(localKeyScores(uid))||"[]");
+  }
+
+  /* ======= Auth: signup / login / logout (exposed) ======= */
+  async function signup(){
+    const email = (document.getElementById("username").value||"").trim();
+    const password = (document.getElementById("password").value||"").trim();
+    if(!email || !password){ return toast("Enter email & password"); }
+    try{
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      toast("Account created ✅");
+      // after create, Firestore doc will be created lazily when saving data
+    }catch(err){
+      console.error("signup err", err);
+      toast(err.message || "Signup failed");
     }
   }
 
-  // Login
-  async function login() {
-    const email = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    try {
+  async function login(){
+    const email = (document.getElementById("username").value||"").trim();
+    const password = (document.getElementById("password").value||"").trim();
+    if(!email || !password){ return toast("Enter email & password"); }
+    try{
       await signInWithEmailAndPassword(auth, email, password);
-      toast("✅ Logged in!");
-    } catch (error) {
-      toast("❌ " + error.message);
+      toast("Logged in ✅");
+    }catch(err){
+      console.error("login err", err);
+      toast(err.message || "Login failed");
     }
   }
 
-  // Logout
-  async function logout() {
-    await signOut(auth);
-    toast("🚪 Logged out!");
+  async function logout(){
+    try{
+      await signOut(auth);
+      toast("Logged out");
+      enterGuestMode(); // fall back to guest/local-only mode
+    }catch(err){
+      console.error("logout", err);
+      toast("Logout failed");
+    }
   }
 
-  // Auth state listener
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
+  // Guest / offline mode
+  function guestMode(){
+    // show UI but as guest; history stored under "guest"
+    window._guest = true;
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("welcomeUser").textContent = "Offline (Guest)";
+    renderHistoryLocal("guest");
+    renderLeaderboardLocal("guest");
+    toast("Guest mode: local only");
+  }
+
+  function enterGuestMode(){
+    window._guest = false;
+    // when logged out, show login screen by default
+    document.getElementById("loginScreen").style.display = "flex";
+    document.getElementById("welcomeUser").textContent = "";
+  }
+
+  /* ======= Firestore helpers for user data ======= */
+  function userDocRef(uid){
+    return doc(db, "users", uid);
+  }
+
+  // Save history entry to Firestore and local backup
+  async function addHist(type, inp, res){
+    // Add to local backup first
+    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+    let local = loadLocalHistory(uid);
+    local.unshift({type, inp, res, date: new Date().toLocaleString()});
+    local = local.slice(0, 50);
+    saveLocalHistory(uid, local);
+    renderHistoryLocal(uid);
+
+    // If logged in, also push to Firestore
+    if(auth.currentUser){
+      try{
+        const uRef = userDocRef(auth.currentUser.uid);
+        // use setDoc merge with arrayUnion via updateDoc if doc exists
+        await updateDoc(uRef, { history: arrayUnion({type, inp, res, date: new Date().toLocaleString()}) });
+      }catch(e){
+        // if doc doesn't exist yet, create it with setDoc
+        try{
+          await setDoc(userDocRef(auth.currentUser.uid), { history: loadLocalHistory(uid), scores: loadLocalScores(uid) || [] }, { merge: true });
+        }catch(err){
+          console.error("failed saving history to firestore", err);
+        }
+      }
+    }
+  }
+
+  // Load history either from Firestore (when logged in) or from local backup
+  async function renderHistory(){
+    if(auth.currentUser){
+      const uid = auth.currentUser.uid;
+      // Try to read Firestore document
+      try{
+        const snap = await getDoc(userDocRef(uid));
+        if(snap.exists()){
+          const data = snap.data();
+          const arr = data.history || [];
+          // also save a local backup copy
+          saveLocalHistory(uid, arr.slice(0,50));
+          // Render
+          document.getElementById("history").innerHTML = arr.length ? arr.map(x=>`<div class="history-item"><b>${x.type}</b>: ${x.res}<br><small>${x.date}</small></div>`).join("") : "No history";
+          return;
+        }
+      }catch(err){
+        console.error("fetch history err", err);
+      }
+    }
+    // fallback to local
+    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+    renderHistoryLocal(uid);
+  }
+
+  function renderHistoryLocal(uid){
+    const arr = loadLocalHistory(uid);
+    document.getElementById("history").innerHTML = arr.length ? arr.map(x=>`<div class="history-item"><b>${x.type}</b>: ${x.res}<br><small>${x.date}</small></div>`).join("") : "No history";
+  }
+
+  // Clear history both local and cloud (if logged in)
+  async function clearHistory(){
+    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+    // clear local
+    saveLocalHistory(uid, []);
+    renderHistoryLocal(uid);
+    // clear cloud
+    if(auth.currentUser){
+      try{
+        // naive approach: read docs under users/{uid}/history collection and delete - but we used array in user doc so set empty array
+        await setDoc(userDocRef(uid), { history: [] }, { merge: true });
+      }catch(e){ console.error("clear cloud history err", e); }
+    }
+    toast("History cleared");
+  }
+
+  /* ======= Quiz: local + cloud storage of scores ======= */
+  const quizQuestions = [
+    "The quick brown fox jumps over the lazy dog.",
+    "Knowledge is power, but wisdom is everything.",
+    "Success usually comes to those who are too busy to be looking for it.",
+    "Do not watch the clock. Do what it does. Keep going.",
+    "Difficult roads often lead to beautiful destinations.",
+    "Hard work beats talent when talent doesn’t work hard.",
+    "Great things never come from comfort zones.",
+    "Dream big and dare to fail.",
+    "The only limit to our realization of tomorrow is our doubts of today.",
+    "Opportunities don't happen, you create them."
+  ];
+  let quizIndex=0, quizScore=0, quizTimer=null, quizPool=[];
+
+  function startQuiz(){
+    if(!auth.currentUser && !window._guest){ toast("Please login or choose Guest mode to play"); return; }
+    quizIndex=0; quizScore=0;
+    quizPool = [...quizQuestions].sort(()=>Math.random()-0.5).slice(0,5);
+    showQuizQuestion();
+  }
+
+  function encSen(txt){
+    const map = {a:"1",e:"2",i:"3",o:"4",u:"5"};
+    let out="";
+    for(const ch of txt.toLowerCase()){
+      if(map[ch]) out+=map[ch];
+      else if(/[a-z]/.test(ch)) out+=ch+"a";
+      else out+=ch;
+    }
+    return out;
+  }
+
+  function showQuizQuestion(){
+    if(quizIndex>=quizPool.length){ finishQuiz(); return; }
+    const sentence = quizPool[quizIndex];
+    const encoded = encSen(sentence);
+    document.getElementById("quiz-container").innerHTML = `
+      <div style="padding:8px;background:rgba(255,255,255,0.03);border-radius:8px">
+        <b>Q${quizIndex+1}/${quizPool.length}</b>
+        <p style="margin:8px 0"><b>Decode this:</b><br>${encoded}</p>
+        <input id="quiz-answer" placeholder="Type decoded sentence" style="width:100%;padding:10px;border-radius:8px;border:0;background:rgba(255,255,255,0.03);color:#fff" />
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button onclick="submitQuizAnswer('${escapeForAttr(sentence)}')">Submit</button>
+          <button onclick="skipQuiz()">Next</button>
+          <div style="margin-left:auto" class="small">Time left: <span id="quiz-timer">60</span>s</div>
+        </div>
+      </div>
+    `;
+    startQuizTimer(60, ()=>submitQuizAnswer(sentence,true));
+  }
+
+  function escapeForAttr(s){
+    return s.replace(/'/g,"\\'").replace(/"/g,"&quot;");
+  }
+
+  function startQuizTimer(seconds, onTimeUp){
+    clearInterval(quizTimer);
+    let t = seconds;
+    document.getElementById("quiz-timer").textContent = t;
+    quizTimer = setInterval(()=> {
+      t--;
+      const el = document.getElementById("quiz-timer");
+      if(el) el.textContent = t;
+      if(t<=0){ clearInterval(quizTimer); onTimeUp(); }
+    }, 1000);
+  }
+
+  function submitQuizAnswer(correct, timedOut=false){
+    clearInterval(quizTimer);
+    const ans = (document.getElementById("quiz-answer") && document.getElementById("quiz-answer").value || "").trim();
+    if(!timedOut && ans.toLowerCase() === correct.toLowerCase()){ quizScore++; toast("✅ Correct"); }
+    else if(!timedOut){ toast("❌ Wrong"); }
+    else { toast("⏱ Time up!"); }
+    quizIndex++;
+    setTimeout(()=> showQuizQuestion(), 600);
+  }
+
+  function skipQuiz(){
+    clearInterval(quizTimer);
+    quizIndex++;
+    showQuizQuestion();
+  }
+
+  async function finishQuiz(){
+    // Save score locally & cloud
+    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+    // local scores
+    const localScores = loadLocalScores(uid);
+    localScores.unshift({score: quizScore, date: new Date().toLocaleString()});
+    saveLocalScores(uid, localScores.slice(0,50));
+    renderLeaderboardLocal(uid);
+    // cloud
+    if(auth.currentUser){
+      try{
+        await updateDoc(userDocRef(auth.currentUser.uid), { scores: arrayUnion({score: quizScore, date: new Date().toISOString()}) });
+      }catch(e){
+        // if doc missing, create
+        try{
+          await setDoc(userDocRef(auth.currentUser.uid), { scores: loadLocalScores(uid) }, { merge: true });
+        }catch(err){
+          console.error("save quiz to cloud err", err);
+        }
+      }
+    }
+    document.getElementById("quiz-container").innerHTML = `<div>Done! Score: ${quizScore}/${quizPool.length}</div>`;
+    toast("Quiz finished: " + quizScore + "/" + quizPool.length);
+  }
+
+  /* ======= Leaderboard rendering ======= */
+  async function renderLeaderboard(){
+    if(auth.currentUser){
+      try{
+        const snap = await getDoc(userDocRef(auth.currentUser.uid));
+        if(snap.exists()){
+          const data = snap.data();
+          const scores = data.scores || [];
+          document.getElementById("leaderboard").innerHTML = scores.length ? scores.slice(0,5).map((s,i)=>`#${i+1} → ${s.score} (${new Date(s.date).toLocaleDateString()})`).join("<br>") : "No scores";
+          return;
+        }
+      }catch(e){ console.error("render leaderboard err", e); }
+    }
+    renderLeaderboardLocal((auth.currentUser && auth.currentUser.uid) || "guest");
+  }
+
+  function renderLeaderboardLocal(uid){
+    const arr = loadLocalScores(uid);
+    document.getElementById("leaderboard").innerHTML = arr.length ? arr.slice(0,5).map((s,i)=>`#${i+1} → ${s.score} (${new Date(s.date).toLocaleDateString()})`).join("<br>") : "No scores";
+  }
+
+  /* ======= Cipher basic functions (exposed) ======= */
+  function encode(){
+    const txt = document.getElementById("input").value || "";
+    let out = "";
+    for(const ch of txt.toLowerCase()){
+      if("aeiou".includes(ch)) out += ({a:"1", e:"2", i:"3", o:"4", u:"5"})[ch];
+      else if(/[a-z]/.test(ch)) out += ch + "a";
+      else out += ch;
+    }
+    document.getElementById("output").value = out;
+    addHist("Encoded", txt, out);
+  }
+
+  function decode(){
+    const txt = document.getElementById("input").value || "";
+    let out = "";
+    for(let i=0;i<txt.length;i++){
+      const c = txt[i];
+      if("12345".includes(c)) out += ({"1":"a","2":"e","3":"i","4":"o","5":"u"})[c];
+      else if(/[A-Za-z]/.test(c) && txt[i+1]==="a"){ out += c; i++; }
+      else out += c;
+    }
+    document.getElementById("output").value = out;
+    addHist("Decoded", txt, out);
+  }
+
+  function smartDetect(){
+    const txt = document.getElementById("input").value || "";
+    const digits = (txt.match(/[12345]/g) || []).length;
+    const suffixes = (txt.match(/[a-z]a/g) || []).length;
+    if(digits > suffixes) decode(); else encode();
+  }
+
+  function copyResult(){
+    const out = document.getElementById("output").value || "";
+    if(!out) return toast("Nothing to copy");
+    navigator.clipboard.writeText(out).then(()=>toast("Copied"));
+  }
+
+  function clearAll(){ document.getElementById("input").value=""; document.getElementById("output").value=""; }
+
+  function genQR(){
+    const text = document.getElementById("output").value || "";
+    if(!text) return toast("Nothing to QR");
+    let c = document.createElement("canvas");
+    c.width = 200; c.height = 200;
+    let ctx = c.getContext("2d");
+    ctx.fillStyle = "#fff"; ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle = "#000";
+    for(let i=0;i<text.length;i++){
+      let x=(i%20)*10, y=Math.floor(i/20)*10;
+      if(text.charCodeAt(i)%2==0) ctx.fillRect(x,y,8,8);
+    }
+    // show in page
+    const existing = document.getElementById("qrCanvasDisplay");
+    if(existing) existing.replaceWith(c); else document.getElementById("quiz-container").insertAdjacentElement("afterend", c);
+    c.id = "qrCanvasDisplay";
+  }
+
+  // utility: export local backup as JSON
+  function downloadLocalBackup(){
+    const uid = (auth.currentUser && auth.currentUser.uid) || "guest";
+    const data = { history: loadLocalHistory(uid), scores: loadLocalScores(uid) };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `cipher-backup-${uid}.json`; a.click();
+  }
+
+  /* ======= Auth state listener: sync/load data ======= */
+  onAuthStateChanged(auth, async (user) => {
+    if(user){
+      // hide login
       document.getElementById("loginScreen").style.display = "none";
-      document.getElementById("welcomeUser").textContent = "Welcome " + user.email;
+      document.getElementById("welcomeUser").textContent = "Welcome " + (user.email || "");
+      // Merge local backup into cloud (simple strategy: push local array items to cloud if cloud is empty)
+      try{
+        const uRef = userDocRef(user.uid);
+        const snap = await getDoc(uRef);
+        const localHist = loadLocalHistory(user.uid);
+        const localScores = loadLocalScores(user.uid);
+        if(!snap.exists()){
+          // create doc with local backup
+          await setDoc(uRef, { history: localHist, scores: localScores });
+        } else {
+          const data = snap.data();
+          // if cloud has no history but local has, push local
+          if((data.history||[]).length === 0 && localHist.length>0) await updateDoc(uRef, { history: localHist });
+          if((data.scores||[]).length === 0 && localScores.length>0) await updateDoc(uRef, { scores: localScores });
+          // also update local to reflect cloud authoritative copy
+          saveLocalHistory(user.uid, data.history || localHist);
+          saveLocalScores(user.uid, data.scores || localScores);
+        }
+      }catch(err){
+        console.error("auth state sync err", err);
+      }
+      // render data
+      await renderHistory();
+      await renderLeaderboard();
     } else {
-      document.getElementById("loginScreen").style.display = "flex";
-      document.getElementById("welcomeUser").textContent = "";
+      // not logged in => show login screen (unless guest mode toggled)
+      if(!window._guest){
+        document.getElementById("loginScreen").style.display = "flex";
+        document.getElementById("welcomeUser").textContent = "";
+      }
+      renderHistory(); // will show local guest or empty
+      renderLeaderboard();
     }
   });
 
-  // Cipher logic
-  const vmap={a:"1",e:"2",i:"3",o:"4",u:"5"};
-  const vrev={"1":"a","2":"e","3":"i","4":"o","5":"u"};
-  function encode(){const txt=document.getElementById("input").value;let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}document.getElementById("output").value=out;}
-  function decode(){const txt=document.getElementById("input").value;let out="";for(let i=0;i<txt.length;i++){const c=txt[i];if(vrev[c])out+=vrev[c];else if(/[A-Za-z]/.test(c)&&txt[i+1]==="a"){out+=c;i++;}else out+=c;}document.getElementById("output").value=out;}
-  function smartDetect(){const txt=document.getElementById("input").value;if(/[1-5]/.test(txt))decode();else encode();}
-  function copyResult(){navigator.clipboard.writeText(document.getElementById("output").value);toast("Copied")}
-  function clearAll(){document.getElementById("input").value="";document.getElementById("output").value="";}
-  function genQR(){let text=document.getElementById("output").value;if(!text)return toast("Nothing to QR");let c=document.getElementById("qrCanvas");let ctx=c.getContext("2d");c.style.display="block";ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle="#000";for(let i=0;i<text.length;i++){let x=(i%20)*10;let y=Math.floor(i/20)*10;if(text.charCodeAt(i)%2==0)ctx.fillRect(x,y,8,8);}}
+  /* ======= On load: if user is already signed-in (persisted), UI will update via onAuthStateChanged ======= */
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-  // History (local only)
-  let history=[];
-  function addHist(type,inp,res){history.unshift({type,inp,res,date:new Date().toLocaleString()});history=history.slice(0,20);renderHistory();}
-  function renderHistory(){document.getElementById("history").innerHTML=history.map(x=>`<div class='history-item'><b>${x.type}</b>: ${x.res} <br><small>${x.date}</small></div>`).join("")||"No history";}
-  function clearHistory(){history=[];renderHistory();}
-
-  // Toast
-  function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500);}
-
-  // Profile
-  function openProfile(){if(auth.currentUser){document.getElementById("profileUser").textContent=auth.currentUser.email;document.getElementById("profileModal").style.display="flex";}}
-  function closeProfile(){document.getElementById("profileModal").style.display="none";}
-
-  // Footer year
-  document.getElementById("year").textContent=new Date().getFullYear();
-
-  // Expose functions to HTML
+  /* ======= Expose window functions for HTML onclick attributes ======= */
   window.signup = signup;
   window.login = login;
   window.logout = logout;
+  window.guestMode = guestMode;
   window.encode = encode;
   window.decode = decode;
   window.smartDetect = smartDetect;
   window.copyResult = copyResult;
   window.clearAll = clearAll;
   window.genQR = genQR;
+  window.addHist = addHist;
   window.clearHistory = clearHistory;
-  window.openProfile = openProfile;
-  window.closeProfile = closeProfile;
-</script>
+  window.startQuiz = startQuiz;
+  window.downloadLocalBackup = downloadLocalBackup;
+  window.openProfile = function(){ 
+    const user = auth.currentUser;
+    if(!user) return toast("Log in to open profile");
+    const nick = prompt("Set a nickname (saved locally):", localStorage.getItem("nickname_"+user.uid) || "");
+    if(nick !== null){ localStorage.setItem("nickname_"+user.uid, nick); toast("Nickname saved locally"); }
+  };
+
+  // helper to display local history immediately (when guest)
+  function renderHistoryLocal(uid){
+    const arr = loadLocalHistory(uid);
+    document.getElementById("history").innerHTML = arr.length ? arr.map(x=>`<div class="history-item"><b>${x.type}</b>: ${x.res}<br><small>${x.date}</small></div>`).join("") : "No history";
+  }
+
+  function renderLeaderboardLocal(uid){
+    const arr = loadLocalScores(uid);
+    document.getElementById("leaderboard").innerHTML = arr.length ? arr.slice(0,5).map((s,i)=>`#${i+1} → ${s.score} (${new Date(s.date).toLocaleDateString()})`).join("<br>") : "No scores";
+  }
+
+  </script>
 </body>
 </html>
