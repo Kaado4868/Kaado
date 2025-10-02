@@ -5,7 +5,6 @@
   <title>🔐 Secret Cipher — Vowel Numbers</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    /* Vibrant neon mixed background */
     :root{
       --glass: rgba(255,255,255,0.08);
       --card-glow: 0 8px 30px rgba(0,0,0,0.45);
@@ -17,535 +16,151 @@
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0;
-      font-family: Inter, "Segoe UI", Arial, sans-serif;
-      color:#fff;
-      min-height:100vh;
-      display:flex;flex-direction:column;
+      margin:0;font-family: Inter,"Segoe UI",Arial,sans-serif;color:#fff;
+      min-height:100vh;display:flex;flex-direction:column;
       background:
         radial-gradient(1200px 600px at 10% 10%, rgba(123,97,255,0.12), transparent 10%),
         radial-gradient(1000px 500px at 90% 90%, rgba(0,240,255,0.08), transparent 12%),
-        linear-gradient(135deg, var(--accent1), var(--accent2) 30%, var(--accent3) 60%, var(--accent4) 100%);
-      background-size: 300% 300%;
-      animation: bgShift 18s ease infinite;
+        linear-gradient(135deg,#0a0f1f,#0d1117 40%,#121826 100%);
+      background-size:300% 300%;animation:bgShift 18s ease infinite;
     }
-    @keyframes bgShift{
-      0%{background-position:0% 50%}
-      50%{background-position:100% 50%}
-      100%{background-position:0% 50%}
-    }
-    header{
-      padding:20px 18px;
-      text-align:center;
-      backdrop-filter: blur(6px);
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-    header h1{margin:0;font-size:20px;letter-spacing:0.4px}
-    header p{margin:6px 0 0 0;opacity:0.95;font-size:13px}
-
+    @keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    header{padding:20px;text-align:center;background:rgba(0,0,0,0.3)}
     main{flex:1;display:flex;gap:20px;padding:20px;flex-wrap:wrap;justify-content:center}
-    section,aside{
-      min-width:320px;flex:1;
-      border-radius:16px;padding:18px;background:var(--glass);
-      box-shadow:var(--card-glow);
-      backdrop-filter: blur(8px);
-      transition: transform .18s ease;
-    }
-    section:hover,aside:hover{transform: translateY(-6px);}
-
-    label{font-size:13px;opacity:0.9}
-    textarea{
-      width:100%;min-height:110px;border-radius:12px;border:0;padding:12px;margin:10px 0;
-      background: rgba(0,0,0,0.35); color: #fff; font-size:15px; resize:vertical;
-      box-shadow: inset 0 2px 10px rgba(0,0,0,0.25);
-    }
-    textarea::placeholder{color: rgba(255,255,255,0.6)}
-
+    section,aside{min-width:320px;flex:1;border-radius:16px;padding:18px;background:var(--glass);
+      box-shadow:var(--card-glow);backdrop-filter:blur(8px)}
+    textarea{width:100%;min-height:110px;border-radius:12px;border:0;padding:12px;margin:10px 0;
+      background:rgba(0,0,0,0.35);color:#fff;font-size:15px;resize:vertical}
     .controls{display:flex;gap:10px;flex-wrap:wrap}
-    .controls button{
-      flex:1;padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700;
-      color:#fff;box-shadow:0 8px 20px rgba(0,0,0,0.4);
-      transition: transform .12s ease, box-shadow .12s ease;
-      background-image: linear-gradient(90deg, rgba(255,95,139,0.95), rgba(123,97,255,0.95));
-    }
-    .controls button.secondary{background-image: linear-gradient(90deg,rgba(0,240,255,0.95),rgba(94,252,130,0.95)); color:#042;}
-    .controls button.danger{background-image: linear-gradient(90deg,#ff8a65,#e53935)}
-    .controls button:active{transform: translateY(1px) scale(.997)}
-    .controls button:hover{box-shadow:0 12px 28px rgba(0,0,0,0.55); transform: translateY(-2px) }
-
-    .small{font-size:13px;padding:8px 10px}
-
-    .history-item{padding:8px 6px;border-radius:8px;margin-bottom:8px;background:rgba(0,0,0,0.14);font-size:14px}
-    .history-controls{display:flex;gap:8px;margin-top:10px}
-    .footer{padding:12px;text-align:center;font-size:13px;background:rgba(0,0,0,0.03)}
-
-    #visualizer{margin-top:12px;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));font-weight:600;color:#fff}
-
-    /* Toast */
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:rgba(0,0,0,0.8);padding:10px 16px;border-radius:22px;color:#fff;opacity:0;transition:opacity .25s, transform .25s}
+    button{padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700;color:#fff;
+      background-image:linear-gradient(90deg,rgba(255,95,139,0.95),rgba(123,97,255,0.95));
+      box-shadow:0 8px 20px rgba(0,0,0,0.4)}
+    button.secondary{background-image:linear-gradient(90deg,#00c6ff,#0072ff)}
+    button.danger{background-image:linear-gradient(90deg,#ff8a65,#e53935)}
+    .history-item{padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(0,0,0,0.14);font-size:14px}
+    #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);
+      padding:10px 16px;border-radius:22px;opacity:0;transition:.25s}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
-
-    /* Quiz */
-    .quiz-card{margin-top:14px;background:linear-gradient(180deg, rgba(0,0,0,0.18), rgba(255,255,255,0.02));padding:12px;border-radius:10px}
-    .quiz-meta{display:flex;gap:10px;align-items:center;justify-content:space-between}
-    .timer{font-weight:800;color:#ffeb3b}
-
-    /* QR Canvas styling */
-    #qrCanvas{display:block;margin:12px auto;border-radius:8px;background:#fff;padding:4px}
-
-    /* small responsive */
-    @media (max-width:880px){main{padding:14px} .controls button{flex-basis:48%}}
+    /* login screen */
+    #loginScreen{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:99}
+    #loginBox{background:#1a1f2f;padding:20px;border-radius:12px;width:300px}
+    input{width:100%;padding:8px;margin:6px 0;border-radius:6px;border:0;background:rgba(255,255,255,0.1);color:#fff}
   </style>
 </head>
 <body>
+  <!-- Login -->
+  <div id="loginScreen">
+    <div id="loginBox">
+      <h2>🔑 Login / Sign Up</h2>
+      <input id="username" placeholder="Username">
+      <input id="password" type="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <button onclick="signup()" class="secondary">Sign Up</button>
+    </div>
+  </div>
+
   <header>
     <h1>🔐 Secret Cipher — Vowel Numbers</h1>
-    <p>Encode & Decode using vowel → numbers (1–5). Manual buttons only.</p>
+    <p id="welcomeUser"></p>
+    <button onclick="logout()" class="danger">Logout</button>
   </header>
 
   <main>
     <section>
       <h3>📝 Cipher Tool</h3>
-
-      <label for="input">Input</label>
-      <textarea id="input" placeholder="Type your message here..."></textarea>
-
-      <label for="output">Output</label>
-      <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
-
-      <div class="controls" style="margin-top:8px">
-        <button id="encodeBtn">Encode</button>
-        <button id="decodeBtn">Decode</button>
-        <button id="smartBtn" class="small">Smart Detect</button>
-        <button id="clearBtn" class="danger small">Clear</button>
-        <button id="copyBtn" class="secondary small">Copy Result</button>
-        <button id="shareBtn" class="small">Share (link)</button>
-        <button id="qrBtn" class="small">Generate Image</button>
+      <textarea id="input" placeholder="Type message..."></textarea>
+      <textarea id="output" readonly placeholder="Result..."></textarea>
+      <div class="controls">
+        <button onclick="encode()">Encode</button>
+        <button onclick="decode()">Decode</button>
+        <button onclick="smartDetect()">Smart Detect</button>
+        <button onclick="copyResult()" class="secondary">Copy</button>
+        <button onclick="clearAll()" class="danger">Clear</button>
       </div>
+      <div id="visualizer">🔄 Visualizer will show here</div>
 
-      <div id="visualizer" aria-live="polite">🔄 Visualizer will show transformations here.</div>
-
-      <!-- Canvas for simple visual image of result (not a real QR generator) -->
-      <canvas id="qrCanvas" width="240" height="240" style="display:none"></canvas>
-
-      <!-- QUIZ -->
-      <div class="quiz-card" id="quiz-wrap">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <h4 style="margin:0">🧩 Daily Quiz</h4>
-            <small>Decode 5 sentences — 60s each. Once per 24 hours.</small>
-          </div>
-          <div id="quiz-info" style="text-align:right">
-            <div id="quiz-timer" class="timer" style="display:none">60</div>
-            <div style="font-size:12px;margin-top:4px" id="quiz-status">Not started</div>
-          </div>
-        </div>
-
-        <div id="quiz-container" style="margin-top:12px">
-          <button id="startQuizBtn" class="small" style="background:linear-gradient(90deg,#ff9800,#ff5722);border:0;padding:10px;border-radius:8px;color:#fff;cursor:pointer">Start Quiz</button>
-        </div>
+      <!-- Quiz -->
+      <div style="margin-top:16px;background:rgba(0,0,0,0.25);padding:12px;border-radius:10px">
+        <h3>🧩 Quiz</h3>
+        <div id="quiz-status">Not started</div>
+        <div id="quiz-container"></div>
+        <button onclick="startQuiz()">Start Quiz</button>
       </div>
+      <h4>🏆 Leaderboard</h4>
+      <div id="leaderboard"></div>
     </section>
-
     <aside>
       <h3>📜 History</h3>
       <div id="history"></div>
-      <div class="history-controls">
-        <button id="copyHistoryBtn" class="small">Copy All</button>
-        <button id="clearHistoryBtn" class="danger small">Clear History</button>
-      </div>
-
-      <h3 style="margin-top:18px">📞 Contact</h3>
-      <p style="margin:6px 0 0 0;font-size:14px"><a href="mailto:abdulkadirbukar2006@gmail.com" style="color:inherit;text-decoration:underline">Email</a></p>
-      <p style="margin:6px 0 0 0;font-size:14px"><a href="https://wa.me/2347048684062" target="_blank" style="color:inherit;text-decoration:underline">WhatsApp</a></p>
+      <button onclick="clearHistory()" class="danger">Clear History</button>
     </aside>
   </main>
 
-  <div id="toast" role="status" aria-live="polite"></div>
+  <footer style="text-align:center;padding:10px">© <span id="year"></span></footer>
+  <div id="toast"></div>
 
-  <div class="footer">
-    Made with ❤️ Secret Cipher • <span id="year"></span>
-  </div>
+<script>
+  let accounts=JSON.parse(localStorage.getItem("accounts")||"{}");
+  let currentUser=null;
 
-  <script>
-    // Elements
-    const inputEl = document.getElementById('input');
-    const outputEl = document.getElementById('output');
-    const visualizer = document.getElementById('visualizer');
-    const toastEl = document.getElementById('toast');
-    const historyEl = document.getElementById('history');
-    const qrCanvas = document.getElementById('qrCanvas');
-    const quizContainer = document.getElementById('quiz-container');
-    const quizTimerEl = document.getElementById('quiz-timer');
-    const quizStatusEl = document.getElementById('quiz-status');
+  function getUser(){return accounts[currentUser];}
+  function save(){localStorage.setItem("accounts",JSON.stringify(accounts));}
 
-    // Buttons
-    document.getElementById('encodeBtn').addEventListener('click', encode);
-    document.getElementById('decodeBtn').addEventListener('click', decode);
-    document.getElementById('smartBtn').addEventListener('click', smartDetect);
-    document.getElementById('clearBtn').addEventListener('click', clearAll);
-    document.getElementById('copyBtn').addEventListener('click', copyResult);
-    document.getElementById('shareBtn').addEventListener('click', shareResult);
-    document.getElementById('qrBtn').addEventListener('click', genImage);
+  // login/signup/logout
+  function login(){
+    const u=document.getElementById("username").value.trim();
+    const p=document.getElementById("password").value.trim();
+    if(!u||!p)return toast("Fill fields");
+    if(!accounts[u])return toast("No such user");
+    if(accounts[u].password!==p)return toast("Wrong password");
+    currentUser=u;localStorage.setItem("currentUser",u);
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("welcomeUser").textContent="Welcome "+u;
+    renderHistory();renderLeaderboard();
+  }
+  function signup(){
+    const u=document.getElementById("username").value.trim();
+    const p=document.getElementById("password").value.trim();
+    if(!u||!p)return toast("Fill fields");
+    if(accounts[u])return toast("User exists");
+    accounts[u]={password:p,history:[],scores:[]};
+    save();toast("Account created");
+  }
+  function logout(){currentUser=null;localStorage.removeItem("currentUser");document.getElementById("loginScreen").style.display="flex";}
 
-    document.getElementById('copyHistoryBtn').addEventListener('click', copyHistory);
-    document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
+  // toast
+  function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
 
-    document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+  // cipher
+  const vmap={a:"1",e:"2",i:"3",o:"4",u:"5"};
+  const vrev={"1":"a","2":"e","3":"i","4":"o","5":"u"};
+  function encode(){const txt=document.getElementById("input").value;let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}document.getElementById("output").value=out;addHist("Encoded",txt,out);}
+  function decode(){const txt=document.getElementById("input").value;let out="";for(let i=0;i<txt.length;i++){const c=txt[i];if(vrev[c])out+=vrev[c];else if(/[A-Za-z]/.test(c)&&txt[i+1]==="a"){out+=c;i++;}else out+=c;}document.getElementById("output").value=out;addHist("Decoded",txt,out);}
+  function smartDetect(){const txt=document.getElementById("input").value;if(/[1-5]/.test(txt))decode();else encode();}
+  function copyResult(){navigator.clipboard.writeText(document.getElementById("output").value);toast("Copied")}
+  function clearAll(){document.getElementById("input").value="";document.getElementById("output").value="";}
 
-    // History storage
-    let history = JSON.parse(localStorage.getItem('cipherHistory') || '[]');
-    function renderHistory(){
-      if(!history.length){
-        historyEl.innerHTML = "<p style='opacity:.75'>No history yet.</p>";
-        return;
-      }
-      historyEl.innerHTML = history.map((h, i) => `
-        <div class="history-item">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div style="max-width:75%"><b>${h.type}</b> • ${new Date(h.ts).toLocaleString()}<div style="opacity:.9;margin-top:6px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.result}</div></div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <button class="small" onclick="useHistory(${i})">Use</button>
-              <button class="small" onclick="copyFromHistory(${i})">Copy</button>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-    function saveHistory(item){
-      history.unshift(item);
-      history = history.slice(0, 40);
-      localStorage.setItem('cipherHistory', JSON.stringify(history));
-      renderHistory();
-    }
+  // history
+  function addHist(type,inp,res){if(!currentUser)return;let u=getUser();u.history.unshift({type,inp,res,date:new Date().toLocaleString()});u.history=u.history.slice(0,20);save();renderHistory();}
+  function renderHistory(){if(!currentUser)return;let h=getUser().history||[];document.getElementById("history").innerHTML=h.map(x=>`<div class='history-item'><b>${x.type}</b>: ${x.res} <br><small>${x.date}</small></div>`).join("")||"No history";}
+  function clearHistory(){getUser().history=[];save();renderHistory();}
 
-    // Vowel numbers cipher only
-    const vowelMap = { a: '1', e: '2', i: '3', o: '4', u: '5' };
-    const vowelRev = { '1': 'a', '2': 'e', '3': 'i', '4': 'o', '5': 'u' };
+  // quiz
+  const qs=["The quick brown fox jumps over the lazy dog.","Knowledge is power, but wisdom is everything.","Dream big and dare to fail.","Great things never come from comfort zones.","Hard work beats talent when talent doesn’t work hard."];
+  let qi=0,score=0,timer=null,pool=[];
+  function startQuiz(){qi=0;score=0;pool=[...qs].sort(()=>Math.random()-0.5).slice(0,3);showQ();}
+  function showQ(){if(qi>=pool.length)return endQ();let s=pool[qi];let enc=encSen(s);document.getElementById("quiz-container").innerHTML=`<div><b>Q${qi+1}</b>: ${enc}</div><input id='ans'><button onclick="subAns('${s.replace(/'/g,"\\'")}')">Submit</button><div>⏱<span id='tim'>30</span></div>`;startT();}
+  function startT(){let t=30;document.getElementById("tim").textContent=t;clearInterval(timer);timer=setInterval(()=>{t--;document.getElementById("tim").textContent=t;if(t<=0){clearInterval(timer);subAns(null,true)}},1000);}
+  function subAns(correct,timeout=false){clearInterval(timer);let a=document.getElementById("ans").value;if(!timeout&&a.toLowerCase()===correct.toLowerCase()){score++;toast("✅")}else toast("❌");qi++;setTimeout(showQ,800);}
+  function endQ(){getUser().scores.push(score);save();renderLeaderboard();document.getElementById("quiz-container").innerHTML=`Done! Score: ${score}/${pool.length}`;}
+  function encSen(txt){let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}return out;}
 
-    function encode(){
-      const text = inputEl.value;
-      if(!text) return showToast('Type something to encode');
-      let out = '';
-      for(const ch of text){
-        if (vowelMap[ch]) out += vowelMap[ch];
-        else if (vowelMap[ch.toLowerCase()]) out += vowelMap[ch.toLowerCase()];
-        else if (/[A-Za-z]/.test(ch)) out += ch + 'a';
-        else out += ch;
-      }
-      outputEl.value = out;
-      saveHistory({ type: 'Encoded', input: text, result: out, ts: Date.now() });
-      visualize(text, out);
-      showToast('Encoded ✅');
-    }
+  // leaderboard
+  function renderLeaderboard(){if(!currentUser)return;let s=getUser().scores||[];s.sort((a,b)=>b-a);document.getElementById("leaderboard").innerHTML=s.slice(0,5).map((x,i)=>`#${i+1} → ${x}`).join("<br>")||"No scores";}
 
-    function decode(){
-      const text = inputEl.value;
-      if(!text) return showToast('Type encoded text to decode');
-      let out = '';
-      for(let i=0;i<text.length;i++){
-        const ch = text[i];
-        if (/[1-5]/.test(ch) && vowelRev[ch]) {
-          out += vowelRev[ch];
-        } else if (/[A-Za-z]/.test(ch) && text[i+1] === 'a') {
-          out += ch;
-          i++; // skip suffix
-        } else {
-          out += ch;
-        }
-      }
-      outputEl.value = out;
-      saveHistory({ type: 'Decoded', input: text, result: out, ts: Date.now() });
-      visualize(text, out);
-      showToast('Decoded ✅');
-    }
-
-    // Smart detect for this vowel-number cipher (manual button)
-    function smartDetect(){
-      const text = inputEl.value.trim();
-      if(!text) return showToast('Provide input for Smart Detect');
-      const hasDigits = /[1-5]/.test(text);
-      const hasSuffix = /[A-Za-z]a/.test(text);
-      if (hasDigits && !hasSuffix) {
-        decode();
-      } else if (hasSuffix && !hasDigits) {
-        encode();
-      } else if (hasDigits && hasSuffix) {
-        // ambiguous — prefer decode if digits present
-        decode();
-      } else {
-        // Neither digits nor suffix; treat as plain -> encode
-        encode();
-      }
-    }
-
-    // Visualizer: small animation (text -> result)
-    function visualize(inp, out){
-      visualizer.textContent = '🔄 ' + inp + '  →  ' + out;
-      visualizer.style.opacity = '0';
-      setTimeout(()=>visualizer.style.opacity='1',40);
-    }
-
-    function clearAll(){
-      inputEl.value = '';
-      outputEl.value = '';
-      visualizer.textContent = '';
-      qrCanvas.style.display = 'none';
-      showToast('Cleared');
-    }
-
-    // Copy & Share
-    function copyResult(){
-      const text = outputEl.value;
-      if(!text) return showToast('Nothing to copy');
-      navigator.clipboard.writeText(text).then(()=> showToast('Copied result ✅'), ()=> showToast('Copy failed'));
-    }
-    function shareResult(){
-      const text = outputEl.value;
-      if(!text) return showToast('Nothing to share');
-      const url = location.origin + location.pathname + '?msg=' + encodeURIComponent(text) + '&cipher=vowel';
-      // try native share
-      if(navigator.share){
-        navigator.share({title:'Secret Cipher message',text:'Decode this message',url}).then(()=>showToast('Shared'));
-      } else {
-        navigator.clipboard.writeText(url).then(()=>showToast('Share link copied ✅'), ()=>showToast('Failed to copy link'));
-      }
-    }
-
-    // Simple image generation of the encoded text (visual fallback for "QR")
-    function genImage(){
-      const text = outputEl.value;
-      if(!text) return showToast('Nothing to generate');
-      const ctx = qrCanvas.getContext('2d');
-      const size = 240;
-      qrCanvas.width = size; qrCanvas.height = size;
-      // background
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0,0,size,size);
-      // draw stylized blocks from char codes (not a real QR; visual representation)
-      const cols = 12, rows = 12;
-      const cell = Math.floor(size / cols);
-      ctx.fillStyle = '#000';
-      let ptr = 0;
-      for(let r=0;r<rows;r++){
-        for(let c=0;c<cols;c++){
-          const ch = text.charCodeAt(ptr % text.length);
-          const bit = (ch >> ( (r+c) % 8 )) & 1;
-          if(bit) ctx.fillRect(c*cell + 6, r*cell + 6, cell-10, cell-10);
-          ptr++;
-        }
-      }
-      // draw center text (clipped)
-      ctx.fillStyle = '#111';
-      ctx.font = '12px Inter, Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('Encoded', size/2, size - 16);
-      qrCanvas.style.display = 'block';
-      showToast('Image generated ✅ (download manually if needed)');
-    }
-
-    // History helpers
-    function copyFromHistory(i){
-      const text = history[i] && history[i].result;
-      if(!text) return showToast('Nothing to copy');
-      navigator.clipboard.writeText(text).then(()=> showToast('History copied ✅'), ()=> showToast('Copy failed'));
-    }
-    function copyHistory(){
-      if(!history.length) return showToast('No history');
-      const txt = history.map(h=>`${h.type}: ${h.result}`).join('\n');
-      navigator.clipboard.writeText(txt).then(()=> showToast('All history copied ✅'), ()=> showToast('Copy failed'));
-    }
-    function useHistory(i){
-      const rec = history[i];
-      if(!rec) return;
-      inputEl.value = rec.input;
-      outputEl.value = rec.result;
-      visualize(rec.input, rec.result);
-      showToast('Loaded from history');
-    }
-    function clearHistory(){
-      if(!confirm('Clear history?')) return;
-      history = [];
-      localStorage.removeItem('cipherHistory');
-      renderHistory();
-      showToast('History cleared');
-    }
-
-    // Toast
-    let toastTimer = null;
-    function showToast(msg){
-      toastEl.textContent = msg;
-      toastEl.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(()=> toastEl.classList.remove('show'), 2200);
-    }
-
-    // Share/load via URL ?msg=...
-    (function loadFromUrl(){
-      try{
-        const p = new URLSearchParams(location.search);
-        const m = p.get('msg');
-        if(m){
-          // when loading a shared encoded message, put encoded text into input for decoding
-          inputEl.value = m;
-          // do not auto decode — leave for user, but show hint
-          showToast('Loaded message from link. Press Decode.');
-        }
-      }catch(e){}
-    })();
-
-    // Render history initially
-    renderHistory();
-
-    // -------------------------
-    // Quiz logic (fixed timer)
-    // -------------------------
-    const quizSentences = [
-      "The quick brown fox jumps over the lazy dog.",
-      "Knowledge is power, but wisdom is everything.",
-      "Success usually comes to those who are too busy to be looking for it.",
-      "Do not watch the clock. Do what it does. Keep going.",
-      "Difficult roads often lead to beautiful destinations.",
-      "Hard work beats talent when talent doesn’t work hard.",
-      "Great things never come from comfort zones.",
-      "Dream big and dare to fail.",
-      "The only limit to our realization of tomorrow is our doubts of today.",
-      "Opportunities don't happen, you create them."
-    ];
-    let quizPool = [], quizIndex = 0, quizScore = 0, quizTimer = null, quizRemaining = 60;
-
-    function shuffleArray(a){
-      for(let i=a.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i],a[j]] = [a[j],a[i]];
-      }
-      return a;
-    }
-
-    function startQuiz(){
-      const last = localStorage.getItem('quizLastPlayed');
-      if(last && Date.now() - parseInt(last,10) < 24*60*60*1000){
-        quizContainer.innerHTML = '<div style="padding:8px">⛔ You already played in the last 24 hours. Come back later.</div>';
-        return;
-      }
-      quizPool = shuffleArray(quizSentences.slice()).slice(0,5);
-      quizIndex = 0; quizScore = 0;
-      quizStatusEl.textContent = 'In progress';
-      showQuestion();
-    }
-
-    function showQuestion(){
-      if(quizIndex >= quizPool.length){ endQuiz(); return; }
-      const sentence = quizPool[quizIndex];
-      const encoded = simpleVowelEncode(sentence);
-      quizContainer.innerHTML = `
-        <div style="margin-bottom:8px"><b>Question ${quizIndex+1}/${quizPool.length}</b></div>
-        <div style="background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;margin-bottom:8px">${encoded}</div>
-        <div style="margin-bottom:8px">Time left: <span id="q-timer" class="timer">60</span>s</div>
-        <input id="quiz-answer" placeholder="Type decoded sentence" style="width:100%;padding:8px;border-radius:8px;border:0;margin-bottom:8px;background:rgba(255,255,255,0.05);color:#fff" />
-        <div style="display:flex;gap:8px">
-          <button id="quiz-submit" class="small" style="flex:1;background:linear-gradient(90deg,#00c6ff,#0072ff);">Submit</button>
-          <button id="quiz-skip" class="small" style="flex:1;background:linear-gradient(90deg,#ff9800,#ff5722);">Skip</button>
-        </div>
-      `;
-      // add listeners
-      document.getElementById('quiz-submit').addEventListener('click', ()=>submitAnswer(sentence));
-      document.getElementById('quiz-skip').addEventListener('click', skipQuestion);
-      // start timer
-      startQuizTimer();
-    }
-
-    function startQuizTimer(){
-      clearInterval(quizTimer);
-      quizRemaining = 60;
-      const timerEl = document.getElementById('q-timer');
-      if(timerEl) timerEl.textContent = quizRemaining;
-      quizTimer = setInterval(()=>{
-        quizRemaining--;
-        const timerEl = document.getElementById('q-timer');
-        if(timerEl) timerEl.textContent = quizRemaining;
-        if(quizRemaining <= 0){
-          clearInterval(quizTimer);
-          // auto submit as wrong and continue
-          submitAnswer(null, true);
-        }
-      }, 1000);
-    }
-
-    function submitAnswer(correctSentence, timedOut = false){
-      clearInterval(quizTimer);
-      const inputBox = document.getElementById('quiz-answer');
-      const ans = inputBox ? inputBox.value.trim() : '';
-      if(!correctSentence || timedOut || !ans){
-        // treat as wrong
-        showToast('Time up / no answer ❌');
-      } else {
-        if(ans.toLowerCase() === correctSentence.toLowerCase()){
-          quizScore++;
-          showToast('Correct ✅');
-        } else {
-          showToast('Wrong ❌');
-        }
-      }
-      quizIndex++;
-      // small delay before next question
-      setTimeout(()=> showQuestion(), 600);
-    }
-
-    function skipQuestion(){
-      clearInterval(quizTimer);
-      quizIndex++;
-      showToast('Skipped');
-      setTimeout(()=> showQuestion(), 300);
-    }
-
-    function endQuiz(){
-      clearInterval(quizTimer);
-      quizStatusEl.textContent = 'Finished';
-      // save history (local)
-      const today = new Date().toISOString().split('T')[0];
-      let qh = JSON.parse(localStorage.getItem('quizHistory') || '[]');
-      qh.unshift({ date: today, score: quizScore, ts: Date.now() });
-      qh = qh.slice(0, 30);
-      localStorage.setItem('quizHistory', JSON.stringify(qh));
-      localStorage.setItem('quizLastPlayed', Date.now().toString());
-
-      // create leaderboard snippet
-      const best = Math.max(...qh.map(x => x.score), quizScore);
-      const rows = qh.slice(0,7).map(x => `📅 ${x.date} → ${x.score}/5`).join('<br>');
-      quizContainer.innerHTML = `
-        <div style="padding:8px">
-          <p style="margin:6px 0">🎉 Quiz finished — <b>${quizScore}/${quizPool.length}</b></p>
-          <p style="margin:6px 0">🔥 Best: <b>${best}/5</b></p>
-          <h4 style="margin:8px 0 6px 0">Past plays</h4>
-          <div style="font-size:13px;opacity:0.95">${rows || 'No history'}</div>
-          <div style="margin-top:12px"><button id="quiz-restart" class="small">Play Again (if allowed)</button></div>
-        </div>`;
-      document.getElementById('quiz-restart').addEventListener('click', ()=> {
-        // allow immediate restart only if 24h passed; otherwise show message
-        const last = localStorage.getItem('quizLastPlayed');
-        if(last && Date.now() - parseInt(last,10) < 24*60*60*1000){
-          showToast('You can only play once per 24 hours');
-        } else startQuiz();
-      });
-    }
-
-    // helper: encode used by quiz (same vowel-number)
-    function simpleVowelEncode(text){
-      let r = '';
-      for(const c of text){
-        if (vowelMap[c]) r += vowelMap[c];
-        else if (vowelMap[c.toLowerCase()]) r += vowelMap[c.toLowerCase()];
-        else if (/[A-Za-z]/.test(c)) r += c + 'a';
-        else r += c;
-      }
-      return r;
-    }
-
-    // finalize
-    document.getElementById('year').textContent = new Date().getFullYear();
-    renderHistory();
-  </script>
+  // init
+  document.getElementById("year").textContent=new Date().getFullYear();
+  let saved=localStorage.getItem("currentUser");if(saved&&accounts[saved]){currentUser=saved;document.getElementById("loginScreen").style.display="none";document.getElementById("welcomeUser").textContent="Welcome "+saved;renderHistory();renderLeaderboard();}
+</script>
 </body>
 </html>
