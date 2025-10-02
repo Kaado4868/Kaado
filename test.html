@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>🔐 Secret Cipher</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root {
+  --bg:#0d0d1a;--text:#fff;--glass:rgba(255,255,255,0.08);
+  --accent1:#ff5f8b;--accent2:#7b61ff;--accent3:#00f0ff;--accent4:#5efc82;
+  --danger1:#ff8a65;--danger2:#e53935;
+}
+body.light{--bg:#fafafa;--text:#111;--glass:rgba(0,0,0,0.06);}
+*{box-sizing:border-box;font-family:Inter,"Segoe UI",sans-serif;}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--text);}
+header{padding:14px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,0.1);}
+header h1{margin:0;font-size:18px}
+#themeToggle{cursor:pointer;padding:6px 10px;border-radius:8px;background:var(--glass);}
+main{flex:1;display:flex;flex-wrap:wrap;gap:20px;padding:20px;justify-content:center}
+section,aside{flex:1;min-width:320px;background:var(--glass);border-radius:14px;padding:16px;backdrop-filter:blur(8px);}
+textarea,input{width:100%;padding:10px;border-radius:10px;border:0;margin:6px 0;background:rgba(0,0,0,.25);color:var(--text);}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+button{flex:1;padding:10px;border:0;border-radius:10px;color:#fff;font-weight:600;cursor:pointer;
+  transition:transform .2s,box-shadow .2s;background-image:linear-gradient(90deg,var(--accent1),var(--accent2));
+  box-shadow:0 0 10px rgba(255,95,139,.6);}
+button.secondary{background-image:linear-gradient(90deg,var(--accent3),#0072ff);}
+button.danger{background-image:linear-gradient(90deg,var(--danger1),var(--danger2));}
+button:hover{transform:scale(1.05);animation:pulse 1.5s infinite}
+button:active{transform:scale(.97)}
+@keyframes pulse{0%,100%{box-shadow:0 0 10px rgba(255,255,255,.4)}50%{box-shadow:0 0 20px rgba(255,255,255,.8)}}
+.history-item{padding:6px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:6px;}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#000c;color:#fff;
+  padding:8px 14px;border-radius:18px;opacity:0;transition:.3s;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+.footer{text-align:center;padding:10px;font-size:13px;opacity:.8}
+.hidden{display:none}
+.modalOverlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);
+  display:none;align-items:center;justify-content:center;z-index:20}
+.modal{background:var(--bg);color:var(--text);padding:20px;border-radius:12px;max-width:320px;width:90%;}
+.modal h3{margin-top:0}
+</style>
+</head>
+<body>
+<header>
+  <h1>🔐 Secret Cipher</h1>
+  <div id="themeToggle">🌙</div>
+</header>
+
+<!-- Auth Screen -->
+<div id="authScreen">
+  <div style="max-width:320px;margin:40px auto;background:var(--glass);padding:20px;border-radius:12px;">
+    <div style="display:flex;gap:10px;margin-bottom:10px;">
+      <button id="loginTab">Login</button>
+      <button id="signupTab">Sign Up</button>
+      <button id="forgotTab">Forgot?</button>
+    </div>
+    <div id="loginForm">
+      <input id="loginUser" placeholder="Username">
+      <input id="loginPass" type="password" placeholder="6-digit Password">
+      <button id="loginBtn">Login</button>
+    </div>
+    <div id="signupForm" class="hidden">
+      <input id="signupUser" placeholder="Username">
+      <input id="signupPass" type="password" placeholder="6-digit Password">
+      <select id="secQuestion">
+        <option>What is your best color?</option>
+        <option>What is your pet's name?</option>
+        <option>What city were you born in?</option>
+      </select>
+      <input id="secAnswer" placeholder="Answer">
+      <button id="signupBtn">Create Account</button>
+    </div>
+    <div id="forgotForm" class="hidden">
+      <input id="forgotUser" placeholder="Username">
+      <div id="forgotQuestion" style="margin:6px 0"></div>
+      <input id="forgotAnswer" placeholder="Answer">
+      <input id="newPass" type="password" placeholder="New 6-digit Password">
+      <button id="resetBtn">Reset Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="appMain" class="hidden">
+<main>
+  <section>
+    <h3>📝 Cipher Tool</h3>
+    <textarea id="input" placeholder="Enter text..."></textarea>
+    <textarea id="output" readonly placeholder="Result..."></textarea>
+    <div class="controls">
+      <button id="encodeBtn">Encode</button>
+      <button id="decodeBtn">Decode</button>
+      <button id="smartBtn">Smart</button>
+      <button id="clearBtn" class="danger">Clear</button>
+      <button id="copyBtn" class="secondary">Copy</button>
+      <button id="qrBtn" class="secondary">QR</button>
+    </div>
+    <div id="visualizer"></div>
+    <canvas id="qrCanvas" width="240" height="240" style="display:none;margin-top:10px"></canvas>
+    <div style="margin-top:14px">
+      <h3>🧩 Quiz</h3>
+      <div id="quizBox"></div>
+    </div>
+  </section>
+  <aside>
+    <h3>📜 History</h3>
+    <div id="history"></div>
+    <h3>🏆 Leaderboard</h3>
+    <div id="leaderboard"></div>
+  </aside>
+</main>
+</div>
+
+<div id="toast"></div>
+<div class="footer">Made with ❤️ • <span id="year"></span></div>
+
+<script>
+let users=JSON.parse(localStorage.getItem("users")||"{}"),currentUser=null;
+
+// Switch Tabs
+loginTab.onclick=()=>{loginForm.classList.remove("hidden");signupForm.classList.add("hidden");forgotForm.classList.add("hidden");}
+signupTab.onclick=()=>{signupForm.classList.remove("hidden");loginForm.classList.add("hidden");forgotForm.classList.add("hidden");}
+forgotTab.onclick=()=>{forgotForm.classList.remove("hidden");loginForm.classList.add("hidden");signupForm.classList.add("hidden");}
+
+// Signup
+signupBtn.onclick=()=>{
+ const u=signupUser.value.trim(),p=signupPass.value.trim(),q=secQuestion.value,a=secAnswer.value.trim();
+ if(!u||!p||!a)return alert("Fill all fields");
+ if(p.length!==6||!/^[0-9]+$/.test(p))return alert("Password must be 6 digits");
+ if(users[u])return alert("Username exists");
+ users[u]={pass:p,q,a,nick:u,hist:[],scores:[]};
+ localStorage.setItem("users",JSON.stringify(users));alert("Account created ✅");loginTab.click();
+};
+
+// Login
+loginBtn.onclick=()=>{
+ const u=loginUser.value.trim(),p=loginPass.value.trim();
+ if(!users[u]||users[u].pass!==p)return alert("Invalid login");
+ currentUser=u;authScreen.classList.add("hidden");appMain.classList.remove("hidden");
+ renderHist();renderLeaderboard();showToast("Welcome "+(users[u].nick||u));
+};
+
+// Forgot
+forgotUser.onblur=()=>{if(users[forgotUser.value.trim()])forgotQuestion.textContent=users[forgotUser.value.trim()].q;}
+resetBtn.onclick=()=>{
+ const u=forgotUser.value.trim(),ans=forgotAnswer.value.trim(),np=newPass.value.trim();
+ if(!users[u])return alert("No user");if(users[u].a!==ans)return alert("Wrong answer");
+ if(np.length!==6||!/^[0-9]+$/.test(np))return alert("Password must be 6 digits");
+ users[u].pass=np;localStorage.setItem("users",JSON.stringify(users));
+ alert("Password reset ✅");loginTab.click();
+};
+
+// Cipher
+const vowelMap={a:"1",e:"2",i:"3",o:"4",u:"5"},vowelRev={"1":"a","2":"e","3":"i","4":"o","5":"u"};
+function encode(){let t=input.value;if(!t)return showToast("Type text");let out="";for(const ch of t){
+ if(vowelMap[ch])out+=vowelMap[ch];else if(vowelMap[ch.toLowerCase()])out+=vowelMap[ch.toLowerCase()];
+ else if(/[A-Za-z]/.test(ch))out+=ch+"a";else out+=ch;}
+ output.value=out;visualizer.textContent=t+" → "+out;saveHist("Encoded",out);}
+function decode(){let t=input.value;if(!t)return;let out="";for(let i=0;i<t.length;i++){let c=t[i];
+ if(vowelRev[c])out+=vowelRev[c];else if(/[A-Za-z]/.test(c)&&t[i+1]==="a"){out+=c;i++;}else out+=c;}
+ output.value=out;visualizer.textContent=t+" → "+out;saveHist("Decoded",out);}
+function smart(){/\d/.test(input.value)?decode():encode();}
+function clearAll(){input.value=output.value=visualizer.textContent="";showToast("Cleared")}
+function copyRes(){if(output.value)navigator.clipboard.writeText(output.value);showToast("Copied")}
+function genQR(){if(!output.value)return;const ctx=qrCanvas.getContext("2d");let s=240;qrCanvas.style.display="block";
+ ctx.fillStyle="#fff";ctx.fillRect(0,0,s,s);ctx.fillStyle="#000";let cols=12,cell=s/cols,ptr=0;
+ for(let r=0;r<cols;r++){for(let c=0;c<cols;c++){let ch=output.value.charCodeAt(ptr%output.value.length);
+ let bit=(ch>>((r+c)%8))&1;if(bit)ctx.fillRect(c*cell+4,r*cell+4,cell-8,cell-8);ptr++;}}showToast("QR ✅");}
+encodeBtn.onclick=encode;decodeBtn.onclick=decode;smartBtn.onclick=smart;clearBtn.onclick=clearAll;copyBtn.onclick=copyRes;qrBtn.onclick=genQR;
+
+// History
+function saveHist(type,res){if(!currentUser)return;users[currentUser].hist.unshift({type,res,ts:Date.now()});
+ users[currentUser].hist=users[currentUser].hist.slice(0,20);localStorage.setItem("users",JSON.stringify(users));renderHist();}
+function renderHist(){if(!currentUser)return;const h=users[currentUser].hist||[];
+ history.innerHTML=h.length?h.map(x=>`<div class="history-item">${x.type}: ${x.res}</div>`).join(""):"<p>Empty</p>";}
+
+// Toast
+function showToast(m){toast.textContent=m;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2000);}
+
+// Quiz + Leaderboard
+const quizSentences=["The quick brown fox jumps over the lazy dog.","Knowledge is power.","Success usually comes to those who are too busy.","Do not watch the clock. Do what it does.","Hard work beats talent."];
+let qIndex=0,qScore=0,qPool=[];
+function startQuiz(){qPool=quizSentences.sort(()=>.5-Math.random()).slice(0,3);qIndex=0;qScore=0;showQ();}
+function showQ(){if(qIndex>=qPool.length){endQuiz();return;}let s=qPool[qIndex],enc=encVowel(s);
+ quizBox.innerHTML=`<p>${enc}</p><input id="ans"><button id="submitQ">Submit</button>`;submitQ.onclick=()=>{let a=ans.value.trim();
+ if(a.toLowerCase()===s.toLowerCase()){qScore++;showToast("Correct ✅");}else showToast("Wrong ❌");qIndex++;showQ();}}
+function endQuiz(){users[currentUser].scores.unshift({score:qScore,ts:Date.now()});
+ users[currentUser].scores=users[currentUser].scores.slice(0,20);localStorage.setItem("users",JSON.stringify(users));
+ quizBox.innerHTML=`<p>Finished: ${qScore}/${qPool.length}</p><button onclick="startQuiz()">Play Again</button>`;renderLeaderboard();}
+function encVowel(t){let r="";for(const c of t){if(vowelMap[c])r+=vowelMap[c];else if(vowelMap[c.toLowerCase()])r+=vowelMap[c.toLowerCase()];
+ else if(/[A-Za-z]/.test(c))r+=c+"a";else r+=c;}return r;}
+function renderLeaderboard(){let all=[];for(const u in users){(users[u].scores||[]).forEach(s=>all.push({u,score:s.score,ts:s.ts}));}
+ all.sort((a,b)=>b.score-a.score||a.ts-b.ts);leaderboard.innerHTML=all.slice(0,5).map(x=>`<div>${x.u}: ${x.score}</div>`).join("")||"<p>Empty</p>";}
+quizBox.innerHTML=`<button onclick="startQuiz()">Start Quiz</button>`;
+
+// Theme
+function setTheme(t){document.body.classList.toggle("light",t==="light");themeToggle.textContent=t==="light"?"☀":"🌙";localStorage.setItem("theme",t);}
+themeToggle.onclick=()=>setTheme(document.body.classList.contains("light")?"dark":"light");
+setTheme(localStorage.getItem("theme")||"dark");
+
+year.textContent=new Date().getFullYear();
+</script>
+</body>
+</html>

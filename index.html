@@ -4,51 +4,128 @@
   <meta charset="utf-8" />
   <title>🔐 Secret Cipher — Vowel Numbers</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+
   <style>
-    :root{
-      --glass: rgba(255,255,255,0.08);
-      --card-glow: 0 8px 30px rgba(0,0,0,0.45);
-      --accent1: #ff5f8b;
-      --accent2: #7b61ff;
-      --accent3: #00f0ff;
-      --accent4: #5efc82;
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --text: #e6edf3;
+      --accent: #7b61ff;
+      --accent2: #00c6ff;
+      --danger: #e55353;
+      --success: #4caf50;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;font-family: Inter,"Segoe UI",Arial,sans-serif;color:#fff;
-      min-height:100vh;display:flex;flex-direction:column;
-      background:
-        radial-gradient(1200px 600px at 10% 10%, rgba(123,97,255,0.12), transparent 10%),
-        radial-gradient(1000px 500px at 90% 90%, rgba(0,240,255,0.08), transparent 12%),
-        linear-gradient(135deg,#0a0f1f,#0d1117 40%,#121826 100%);
-      background-size:300% 300%;animation:bgShift 18s ease infinite;
+
+    body {
+      margin: 0;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    @keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-    header{padding:20px;text-align:center;background:rgba(0,0,0,0.3)}
-    main{flex:1;display:flex;gap:20px;padding:20px;flex-wrap:wrap;justify-content:center}
-    section,aside{min-width:320px;flex:1;border-radius:16px;padding:18px;background:var(--glass);
-      box-shadow:var(--card-glow);backdrop-filter:blur(8px)}
-    textarea{width:100%;min-height:110px;border-radius:12px;border:0;padding:12px;margin:10px 0;
-      background:rgba(0,0,0,0.35);color:#fff;font-size:15px;resize:vertical}
-    .controls{display:flex;gap:10px;flex-wrap:wrap}
-    button{padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700;color:#fff;
-      background-image:linear-gradient(90deg,rgba(255,95,139,0.95),rgba(123,97,255,0.95));
-      box-shadow:0 8px 20px rgba(0,0,0,0.4)}
-    button.secondary{background-image:linear-gradient(90deg,#00c6ff,#0072ff)}
-    button.danger{background-image:linear-gradient(90deg,#ff8a65,#e53935)}
-    .history-item{padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(0,0,0,0.14);font-size:14px}
-    #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);
-      padding:10px 16px;border-radius:22px;opacity:0;transition:.25s}
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border-radius: 0 0 20px 20px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 20px;
+      justify-content: center;
+    }
+
+    section, aside {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      flex: 1;
+      min-width: 300px;
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    button {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      transition: 0.2s ease;
+    }
+    button:hover { opacity: 0.9; }
+    button.secondary { background: var(--accent2); }
+    button.success { background: var(--success); }
+    button.danger { background: var(--danger); }
+
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .history-item {
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 12px;
+      background: var(--card);
+      font-size: 13px;
+      color: #aaa;
+    }
+
     /* login screen */
-    #loginScreen{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:99}
-    #loginBox{background:#1a1f2f;padding:20px;border-radius:12px;width:300px}
-    input{width:100%;padding:8px;margin:6px 0;border-radius:6px;border:0;background:rgba(255,255,255,0.1);color:#fff}
-    /* profile modal */
-    #profileModal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:100}
-    #profileBox{background:#1a1f2f;padding:20px;border-radius:12px;width:320px}
-    canvas{margin-top:10px;display:none}
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+    }
+    #loginBox {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      text-align: center;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      padding: 10px 16px;
+      border-radius: 22px;
+      opacity: 0;
+      transition: .25s;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
   </style>
 </head>
 <body>
@@ -56,6 +133,7 @@
   <div id="loginScreen">
     <div id="loginBox">
       <h2>🔑 Login / Sign Up</h2>
+      <select id="userSelect" style="width:100%;margin:6px 0;display:none"></select>
       <input id="username" placeholder="Username">
       <input id="password" type="password" placeholder="Password">
       <button onclick="login()">Login</button>
@@ -63,33 +141,14 @@
     </div>
   </div>
 
-  <!-- Profile Modal -->
-  <div id="profileModal">
-    <div id="profileBox">
-      <h3>👤 Profile</h3>
-      <p><b>User:</b> <span id="profileUser"></span></p>
-      <label>Nickname</label>
-      <input id="newNick" placeholder="Enter nickname">
-      <button onclick="saveNick()" class="secondary">Save Nickname</button>
-      <hr>
-      <label>Change Password</label>
-      <input id="newPass" type="password" placeholder="New password">
-      <input id="confirmPass" type="password" placeholder="Confirm password">
-      <button onclick="changePass()" class="secondary">Change Password</button>
-      <hr>
-      <button onclick="exportData()">⬇ Export Data</button>
-      <input type="file" id="importFile" style="display:none" onchange="importData(event)">
-      <button onclick="document.getElementById('importFile').click()" class="secondary">⬆ Import Data</button>
-      <hr>
-      <button onclick="closeProfile()" class="danger">Close</button>
-    </div>
-  </div>
-
   <header>
     <h1>🔐 Secret Cipher — Vowel Numbers</h1>
     <p id="welcomeUser"></p>
-    <button onclick="openProfile()" class="secondary">Profile</button>
-    <button onclick="logout()" class="danger">Logout</button>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+      <button onclick="openProfile()" class="secondary">Profile</button>
+      <button onclick="switchAccount()" class="secondary">Switch Account</button>
+      <button onclick="logout()" class="danger">Logout</button>
+    </div>
   </header>
 
   <main>
@@ -102,22 +161,20 @@
         <button onclick="decode()">Decode</button>
         <button onclick="smartDetect()">Smart Detect</button>
         <button onclick="copyResult()" class="secondary">Copy</button>
-        <button onclick="genQR()" class="secondary">Generate QR</button>
         <button onclick="clearAll()" class="danger">Clear</button>
       </div>
-      <div id="visualizer">🔄 Visualizer will show here</div>
-      <canvas id="qrCanvas" width="200" height="200"></canvas>
 
       <!-- Quiz -->
-      <div style="margin-top:16px;background:rgba(0,0,0,0.25);padding:12px;border-radius:10px">
+      <div style="margin-top:16px;background:rgba(255,255,255,0.03);padding:12px;border-radius:10px">
         <h3>🧩 Quiz</h3>
         <div id="quiz-status">Not started</div>
         <div id="quiz-container"></div>
         <button onclick="startQuiz()">Start Quiz</button>
       </div>
-      <h4>🏆 Leaderboard</h4>
+      <h4 style="margin-top:12px">🏆 Leaderboard</h4>
       <div id="leaderboard"></div>
     </section>
+
     <aside>
       <h3>📜 History</h3>
       <div id="history"></div>
@@ -125,73 +182,69 @@
     </aside>
   </main>
 
-  <footer style="text-align:center;padding:10px">© <span id="year"></span></footer>
+  <footer>© <span id="year"></span> Secret Cipher</footer>
   <div id="toast"></div>
 
 <script>
-  let accounts=JSON.parse(localStorage.getItem("accounts")||"{}");
-  let currentUser=null;
+  let accounts = JSON.parse(localStorage.getItem("accounts")||"{}");
+  let currentUser = null;
 
-  function getUser(){return accounts[currentUser];}
-  function save(){localStorage.setItem("accounts",JSON.stringify(accounts));}
+  function getUser(){ return accounts[currentUser]; }
+  function save(){ localStorage.setItem("accounts",JSON.stringify(accounts)); }
 
-  // login/signup/logout
+  function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
+
   function login(){
     const u=document.getElementById("username").value.trim();
     const p=document.getElementById("password").value.trim();
-    if(!u||!p)return toast("Fill fields");
-    if(!accounts[u])return toast("No such user");
-    if(accounts[u].password!==p)return toast("Wrong password");
+    if(!u||!p) return toast("⚠️ Fill fields");
+    if(!accounts[u]) return toast("❌ No such user");
+    if(accounts[u].password!==p) return toast("❌ Wrong password");
     currentUser=u;localStorage.setItem("currentUser",u);
     document.getElementById("loginScreen").style.display="none";
     document.getElementById("welcomeUser").textContent="Welcome "+u+(accounts[u].nickname?(" ("+accounts[u].nickname+")"):"");
     renderHistory();renderLeaderboard();
+    toast("✅ Logged in");
   }
+
   function signup(){
     const u=document.getElementById("username").value.trim();
     const p=document.getElementById("password").value.trim();
-    if(!u||!p)return toast("Fill fields");
-    if(accounts[u])return toast("User exists");
+    if(!u||!p) return toast("⚠️ Fill fields");
+    if(accounts[u]) return toast("⚠️ User exists");
     accounts[u]={password:p,nickname:"",history:[],scores:[]};
-    save();toast("Account created");
+    save();
+    currentUser=u;localStorage.setItem("currentUser",u);
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("welcomeUser").textContent="Welcome "+u;
+    renderHistory();renderLeaderboard();
+    toast("✅ Account created");
+    document.getElementById("username").value="";
+    document.getElementById("password").value="";
   }
+
   function logout(){currentUser=null;localStorage.removeItem("currentUser");document.getElementById("loginScreen").style.display="flex";}
 
-  // Profile
+  function switchAccount(){
+    currentUser=null;localStorage.removeItem("currentUser");
+    document.getElementById("loginScreen").style.display="flex";
+    let usernames=Object.keys(accounts);
+    let dropdown=document.getElementById("userSelect");
+    if(usernames.length){
+      dropdown.style.display="block";
+      dropdown.innerHTML="<option value=''>-- Select User --</option>"+usernames.map(u=>`<option value=\"${u}\">${u}</option>`).join("");
+      dropdown.onchange=function(){document.getElementById("username").value=this.value;};
+    }
+  }
+
+  // profile modal functions (simple inline modal)
   function openProfile(){
-    if(!currentUser)return;
-    document.getElementById("profileUser").textContent=currentUser;
-    document.getElementById("newNick").value=getUser().nickname||"";
-    document.getElementById("profileModal").style.display="flex";
-  }
-  function closeProfile(){document.getElementById("profileModal").style.display="none";}
-  function saveNick(){getUser().nickname=document.getElementById("newNick").value;save();toast("Nickname saved");}
-  function changePass(){
-    let n=document.getElementById("newPass").value;
-    let c=document.getElementById("confirmPass").value;
-    if(!n||n!==c)return toast("Passwords do not match");
-    getUser().password=n;save();toast("Password changed");
+    if(!currentUser) return toast("Log in first");
+    const nick = getUser().nickname||"";
+    const newNick = prompt("Set nickname", nick);
+    if(newNick!==null){ getUser().nickname=newNick; save(); document.getElementById("welcomeUser").textContent="Welcome "+currentUser+(newNick?(" ("+newNick+")"):""); toast("Nickname saved"); }
   }
 
-  // export/import
-  function exportData(){
-    const blob=new Blob([JSON.stringify(accounts)],{type:"application/json"});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="cipher_accounts.json";
-    a.click();
-  }
-  function importData(e){
-    const file=e.target.files[0];if(!file)return;
-    const r=new FileReader();
-    r.onload=function(){try{accounts=JSON.parse(r.result);save();toast("Imported data OK");}catch{toast("Import failed")}};
-    r.readAsText(file);
-  }
-
-  // toast
-  function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
-
-  // cipher
   const vmap={a:"1",e:"2",i:"3",o:"4",u:"5"};
   const vrev={"1":"a","2":"e","3":"i","4":"o","5":"u"};
   function encode(){const txt=document.getElementById("input").value;let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}document.getElementById("output").value=out;addHist("Encoded",txt,out);}
@@ -200,33 +253,22 @@
   function copyResult(){navigator.clipboard.writeText(document.getElementById("output").value);toast("Copied")}
   function clearAll(){document.getElementById("input").value="";document.getElementById("output").value="";}
 
-  // QR generator (simple)
-  function genQR(){
-    let text=document.getElementById("output").value;if(!text)return toast("Nothing to QR");
-    let c=document.getElementById("qrCanvas");let ctx=c.getContext("2d");c.style.display="block";
-    ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle="#000";
-    for(let i=0;i<text.length;i++){let x=(i%20)*10;let y=Math.floor(i/20)*10; if(text.charCodeAt(i)%2==0)ctx.fillRect(x,y,8,8);}
-  }
-
-  // history
   function addHist(type,inp,res){if(!currentUser)return;let u=getUser();u.history.unshift({type,inp,res,date:new Date().toLocaleString()});u.history=u.history.slice(0,20);save();renderHistory();}
-  function renderHistory(){if(!currentUser)return;let h=getUser().history||[];document.getElementById("history").innerHTML=h.map(x=>`<div class='history-item'><b>${x.type}</b>: ${x.res} <br><small>${x.date}</small></div>`).join("")||"No history";}
-  function clearHistory(){getUser().history=[];save();renderHistory();}
+  function renderHistory(){if(!currentUser)return;let h=getUser().history||[];document.getElementById("history").innerHTML=h.length?h.map(x=>`<div class='history-item'><b>${x.type}</b>: ${x.res} <br><small>${x.date}</small></div>`).join(""):"No history";}
+  function clearHistory(){if(!currentUser)return;getUser().history=[];save();renderHistory();}
 
-  // quiz
   const qs=["The quick brown fox jumps over the lazy dog.","Knowledge is power, but wisdom is everything.","Dream big and dare to fail.","Great things never come from comfort zones.","Hard work beats talent when talent doesn’t work hard."];
   let qi=0,score=0,timer=null,pool=[];
-  function startQuiz(){qi=0;score=0;pool=[...qs].sort(()=>Math.random()-0.5).slice(0,3);showQ();}
-  function showQ(){if(qi>=pool.length)return endQ();let s=pool[qi];let enc=encSen(s);document.getElementById("quiz-container").innerHTML=`<div><b>Q${qi+1}</b>: ${enc}</div><input id='ans'><button onclick="subAns('${s.replace(/'/g,"\\'")}')">Submit</button><div>⏱<span id='tim'>30</span></div>`;startT();}
-  function startT(){let t=30;document.getElementById("tim").textContent=t;clearInterval(timer);timer=setInterval(()=>{t--;document.getElementById("tim").textContent=t;if(t<=0){clearInterval(timer);subAns(null,true)}},1000);}
-  function subAns(correct,timeout=false){clearInterval(timer);let a=document.getElementById("ans").value;if(!timeout&&a.toLowerCase()===correct.toLowerCase()){score++;toast("✅")}else toast("❌");qi++;setTimeout(showQ,800);}
-  function endQ(){getUser().scores.push(score);save();renderLeaderboard();document.getElementById("quiz-container").innerHTML=`Done! Score: ${score}/${pool.length}`;}
+  function startQuiz(){if(!currentUser){toast("Log in to play quiz");return;}qi=0;score=0;pool=[...qs].sort(()=>Math.random()-0.5).slice(0,3);showQ();}
+  function showQ(){if(qi>=pool.length)return endQ();let s=pool[qi];let enc=encSen(s);document.getElementById("quiz-container").innerHTML=`<div><b>Q${qi+1}</b>: ${enc}</div><input id='ans'><button onclick="subAns('${s.replace(/'/g,\"\\\\'\")}')">Submit</button><div>⏱<span id='tim'>60</span></div><button onclick="skipQ()">Next</button>`;startT();document.getElementById("quiz-status").textContent=`Question ${qi+1} of ${pool.length}`;}
+  function startT(){let t=60;document.getElementById("tim").textContent=t;clearInterval(timer);timer=setInterval(()=>{t--;document.getElementById("tim").textContent=t;if(t<=0){clearInterval(timer);subAns(null,true)}},1000);}
+  function subAns(correct,timeout=false){clearInterval(timer);let a=document.getElementById("ans").value; if(!timeout&&a.toLowerCase()===correct.toLowerCase()){score++;toast("✅ Correct")}else if(!timeout){toast("❌ Wrong");}qi++;setTimeout(showQ,500);}
+  function skipQ(){clearInterval(timer);qi++;showQ();}
+  function endQ(){getUser().scores.push(score);save();renderLeaderboard();document.getElementById("quiz-container").innerHTML=`Done! Score: ${score}/${pool.length}`;document.getElementById("quiz-status").textContent='Completed';}
   function encSen(txt){let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}return out;}
 
-  // leaderboard
-  function renderLeaderboard(){if(!currentUser)return;let s=getUser().scores||[];s.sort((a,b)=>b-a);document.getElementById("leaderboard").innerHTML=s.slice(0,5).map((x,i)=>`#${i+1} → ${x}`).join("<br>")||"No scores";}
+  function renderLeaderboard(){if(!currentUser)return;let s=getUser().scores||[];s.sort((a,b)=>b-a);document.getElementById("leaderboard").innerHTML=s.length?s.slice(0,5).map((x,i)=>`#${i+1} → ${x}`).join("<br>"):"No scores";}
 
-  // init
   document.getElementById("year").textContent=new Date().getFullYear();
   let saved=localStorage.getItem("currentUser");if(saved&&accounts[saved]){currentUser=saved;document.getElementById("loginScreen").style.display="none";document.getElementById("welcomeUser").textContent="Welcome "+saved;renderHistory();renderLeaderboard();}
 </script>
