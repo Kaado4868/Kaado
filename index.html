@@ -4,21 +4,54 @@
   <meta charset="UTF-8">
   <title>🔐 Secret Cipher</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0b5ed7">
+
+  <!-- App icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
   <style>
+    :root {
+      --bg: #e0e5ec;
+      --text: #222;
+      --card: rgba(255, 255, 255, 0.7);
+      --shadow: rgba(0,0,0,0.2);
+      --primary: linear-gradient(135deg, #6a11cb, #2575fc);
+      --danger: linear-gradient(135deg, #ff416c, #ff4b2b);
+      --success: linear-gradient(135deg, #11998e, #38ef7d);
+    }
+    [data-theme="dark"] {
+      --bg: #0f111a;
+      --text: #f5f5f5;
+      --card: rgba(20, 20, 30, 0.8);
+      --shadow: rgba(0,0,0,0.6);
+    }
+
     body {
-      font-family: Arial, sans-serif;
       margin: 0; padding: 0;
-      background: #f7f9fc;
-      color: #333;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.4s, color 0.4s;
     }
+
     header {
-      background: #0b5ed7;
-      color: white;
-      padding: 15px 20px;
       text-align: center;
+      padding: 20px;
+      background: var(--primary);
+      color: white;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 4px 15px var(--shadow);
+      position: relative;
     }
+
+    h1 { margin: 0; font-size: 1.8em; }
+    p { opacity: 0.9; }
+
     main {
       display: flex;
       flex-wrap: wrap;
@@ -27,86 +60,109 @@
       margin: 20px auto;
       padding: 0 15px;
     }
+
     section, aside {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    section {
       flex: 1;
-      min-width: 300px;
+      min-width: 280px;
+      border-radius: 16px;
+      padding: 20px;
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px var(--shadow);
+      transition: background 0.4s;
     }
-    aside {
-      width: 300px;
-      flex-shrink: 0;
-    }
-    label { font-size: 13px; font-weight: bold; margin-top: 10px; display: block; }
+    aside { max-width: 320px; }
+
+    label { font-size: 13px; font-weight: bold; margin: 10px 0; display: block; }
+
     textarea {
-      width: 100%; min-height: 100px;
-      margin: 5px 0 15px 0;
-      padding: 10px;
-      font-size: 14px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      width: 100%; min-height: 120px;
+      margin: 8px 0 15px 0;
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      resize: vertical;
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(5px);
+      box-shadow: inset 2px 2px 6px rgba(0,0,0,0.1);
+      transition: background 0.3s;
     }
+
     .controls {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 15px;
     }
+
     button {
-      padding: 10px 15px;
+      flex: 1;
+      padding: 12px 15px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      background: #0b5ed7;
       color: white;
       font-size: 14px;
-      transition: 0.2s;
+      font-weight: 600;
+      background: var(--primary);
+      box-shadow: 0 4px 12px var(--shadow);
+      transition: transform 0.2s, opacity 0.2s;
     }
-    button:hover { opacity: 0.9; }
-    button.danger { background: #e55353; }
-    button.success { background: #198754; }
+    button:hover { transform: translateY(-2px); opacity: 0.9; }
+    button:active { transform: scale(0.97); }
+
+    button.danger { background: var(--danger); }
+    button.success { background: var(--success); }
+
     .history-item {
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
       padding: 8px 0;
       font-size: 13px;
     }
+
     footer {
       text-align: center;
       padding: 15px;
-      margin-top: 20px;
+      margin-top: 30px;
       font-size: 13px;
-      background: #f0f0f0;
+      opacity: 0.8;
     }
-    a { color: #0b5ed7; text-decoration: none; }
-    a:hover { text-decoration: underline; }
+
+    /* Dark Mode Toggle */
+    .toggle-theme {
+      position: absolute;
+      top: 15px; right: 20px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
 
     /* Update toast */
     #update-toast {
       display:none; 
-      position:fixed; 
-      bottom:20px; 
-      left:50%; 
-      transform:translateX(-50%);
-      background:#333; 
-      color:#fff; 
-      padding:10px 20px; 
-      border-radius:8px; 
-      box-shadow:0 4px 8px rgba(0,0,0,0.2); 
-      z-index:9999; 
-      font-family:sans-serif;
+      position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+      background:#333; color:#fff;
+      padding:12px 20px; border-radius:10px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      z-index:9999; font-size:14px;
+      animation: slideUp 0.4s ease;
     }
     #update-toast button {
       margin-left:10px; 
-      background:#4CAF50; 
-      color:#fff; 
-      border:none; 
-      padding:5px 10px; 
-      border-radius:5px; 
-      cursor:pointer;
+      background:#4CAF50; border:none;
+      padding:5px 10px; border-radius:6px;
+      color:white; cursor:pointer;
+    }
+    @keyframes slideUp {
+      from { transform:translate(-50%, 50px); opacity:0; }
+      to { transform:translate(-50%, 0); opacity:1; }
     }
   </style>
 </head>
@@ -114,6 +170,7 @@
   <header>
     <h1>🔐 Secret Cipher</h1>
     <p>Type → Encode → Decode → Share</p>
+    <button class="toggle-theme" onclick="toggleTheme()">🌙</button>
   </header>
 
   <main>
@@ -123,12 +180,12 @@
       <textarea id="input" placeholder="Type your message here..."></textarea>
       
       <div class="controls">
-        <button onclick="encode()">Encode</button>
-        <button onclick="decode()">Decode</button>
-        <button onclick="smartDetect()">Smart Detect</button>
-        <button class="danger" onclick="clearAll()">Clear</button>
-        <button class="success" onclick="copyResult()">Copy</button>
-        <button onclick="shareResult()">Share</button>
+        <button onclick="encode()">🔒 Encode</button>
+        <button onclick="decode()">🔓 Decode</button>
+        <button onclick="smartDetect()">🤖 Smart Detect</button>
+        <button class="danger" onclick="clearAll()">🗑 Clear</button>
+        <button class="success" onclick="copyResult()">📋 Copy</button>
+        <button onclick="shareResult()">📤 Share</button>
       </div>
       
       <label for="output">Output</label>
@@ -137,7 +194,7 @@
 
     <!-- History + Contact -->
     <aside>
-      <h3>Recent History</h3>
+      <h3>📜 Recent History</h3>
       <div id="history"></div>
       <div style="margin-top:10px; display:flex; gap:10px;">
         <button onclick="copyHistory()">Copy All</button>
@@ -159,7 +216,7 @@
 
   <!-- Toast for updates -->
   <div id="update-toast">
-    A new version is available!
+    🔄 A new version is available!
     <button onclick="refreshApp()">Refresh</button>
   </div>
 
@@ -217,32 +274,21 @@
       saveHistory({type:"Decoded", input:text, result});
     }
 
-    // renamed to smartDetect
     function smartDetect() {
       const text = inputEl.value.trim();
       if (!text) return;
-
       const digitCount = (text.match(/[12345]/g) || []).length;
       const vowelCount = (text.match(/[aeiou]/gi) || []).length;
-
-      if (digitCount > vowelCount) {
-        decode();
-      } else {
-        encode();
-      }
+      if (digitCount > vowelCount) decode();
+      else encode();
     }
 
-    function clearAll() {
-      inputEl.value = "";
-      outputEl.value = "";
-    }
-
+    function clearAll() { inputEl.value = ""; outputEl.value = ""; }
     function copyResult() {
       if (!outputEl.value) return alert("Nothing to copy");
       navigator.clipboard.writeText(outputEl.value);
       alert("Copied to clipboard ✅");
     }
-
     function shareResult() {
       if (!outputEl.value) return alert("Nothing to share");
       if (navigator.share) {
@@ -251,34 +297,41 @@
         window.open(`https://wa.me/?text=${encodeURIComponent(outputEl.value)}`, "_blank");
       }
     }
-
     function copyHistory() {
       if (!history.length) return alert("No history");
       const all = history.map(h => `${h.type}: ${h.result}`).join("\n");
       navigator.clipboard.writeText(all);
       alert("History copied ✅");
     }
-
     function clearHistory() {
       if (!confirm("Clear history?")) return;
-      history = [];
-      localStorage.removeItem("cipherHistory");
-      renderHistory();
+      history = []; localStorage.removeItem("cipherHistory"); renderHistory();
     }
-
-    function useHistory(i) {
-      inputEl.value = history[i].result;
-      smartDetect(); // updated to smartDetect
-    }
+    function useHistory(i) { inputEl.value = history[i].result; smartDetect(); }
 
     document.getElementById("year").textContent = new Date().getFullYear();
     renderHistory();
 
-    // PWA update toast
-    function refreshApp() {
-      window.location.reload();
+    // 🌙 Dark Mode Toggle
+    function toggleTheme() {
+      let current = document.body.getAttribute("data-theme");
+      if (current === "dark") {
+        document.body.removeAttribute("data-theme");
+        localStorage.setItem("theme", "light");
+        document.querySelector(".toggle-theme").textContent = "🌙";
+      } else {
+        document.body.setAttribute("data-theme","dark");
+        localStorage.setItem("theme", "dark");
+        document.querySelector(".toggle-theme").textContent = "☀️";
+      }
+    }
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.setAttribute("data-theme","dark");
+      document.querySelector(".toggle-theme").textContent = "☀️";
     }
 
+    // 🔄 Service Worker update toast
+    function refreshApp() { window.location.reload(); }
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js').then(reg => {
         reg.addEventListener('updatefound', () => {
