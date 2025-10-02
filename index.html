@@ -1,45 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>🔐 Secret Cipher</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-
+  <meta charset="UTF-8">
+  <title>🔐 Secret Cipher — Vowel Numbers</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    :root {
-      --glass: rgba(255,255,255,0.08);
-      --card-glow: 0 8px 30px rgba(0,0,0,0.45);
-      --accent1: #ff5f8b;
-      --accent2: #7b61ff;
-      --accent3: #00f0ff;
-      --accent4: #5efc82;
-    }
     body {
-      margin: 0; font-family: Inter, "Segoe UI", Arial, sans-serif; color: #fff;
-      background: linear-gradient(135deg,#0a0f1f,#0d1117 40%,#121826 100%);
-      min-height: 100vh; display: flex; flex-direction: column;
+      margin:0;font-family: Inter,Segoe UI,Arial,sans-serif;color:#fff;
+      background:linear-gradient(135deg,#0d1117,#121826);
+      display:flex;flex-direction:column;min-height:100vh;
     }
-    header { padding: 20px; text-align: center; background: rgba(0,0,0,0.3); }
-    main { flex:1; display:flex; gap:20px; padding:20px; flex-wrap:wrap; justify-content:center; }
-    section, aside { min-width:320px; flex:1; border-radius:16px; padding:18px; background:var(--glass);
-      box-shadow:var(--card-glow); backdrop-filter:blur(8px); }
-    textarea { width:100%; min-height:110px; border-radius:12px; border:0; padding:12px; margin:10px 0;
-      background:rgba(0,0,0,0.35); color:#fff; font-size:15px; }
-    .controls { display:flex; gap:10px; flex-wrap:wrap; }
-    button { padding:10px 12px; border-radius:10px; border:0; cursor:pointer; font-weight:700; color:#fff;
-      background-image:linear-gradient(90deg,rgba(255,95,139,0.95),rgba(123,97,255,0.95)); }
-    button.secondary { background-image:linear-gradient(90deg,#00c6ff,#0072ff); }
-    button.danger { background-image:linear-gradient(90deg,#ff8a65,#e53935); }
-    .history-item { padding:8px; border-radius:8px; margin-bottom:8px; background:rgba(0,0,0,0.14); font-size:14px; }
-    footer { text-align:center; padding:10px; }
-    #toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8);
-      padding:10px 16px; border-radius:22px; opacity:0; transition:.25s; }
-    #toast.show { opacity:1; transform:translateX(-50%) translateY(-6px); }
+    header {text-align:center;padding:20px;background:#1f2937;}
+    main {flex:1;display:flex;flex-wrap:wrap;gap:20px;padding:20px;}
+    section,aside {
+      flex:1;min-width:300px;padding:18px;border-radius:12px;
+      background:rgba(255,255,255,0.05);backdrop-filter:blur(8px);
+      box-shadow:0 4px 12px rgba(0,0,0,0.4);
+    }
+    textarea,input {
+      width:100%;padding:10px;border-radius:8px;border:0;
+      margin:6px 0;background:rgba(255,255,255,0.1);color:#fff;
+    }
+    button {
+      border:0;padding:10px 14px;margin:5px;border-radius:8px;
+      font-weight:bold;cursor:pointer;transition:0.2s;
+    }
+    button:hover {opacity:0.9}
+    .btn.login{background:#6366f1;color:#fff;}
+    .btn.signup{background:#10b981;color:#fff;}
+    .btn.logout{background:#ef4444;color:#fff;}
+    .google-btn {
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      background:#fff;color:#444;width:100%;padding:10px;
+      border-radius:6px;font-weight:500;cursor:pointer;
+    }
+    .google-btn img{width:20px;height:20px}
+    .history-item {padding:6px;background:rgba(0,0,0,0.25);border-radius:6px;margin-bottom:6px;font-size:14px;}
+    footer{text-align:center;padding:10px;background:#111827;font-size:13px;}
 
-    /* login modal */
-    #loginScreen { position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:99; }
-    #loginBox { background:#1a1f2f; padding:20px; border-radius:12px; width:300px; }
-    input { width:100%; padding:8px; margin:6px 0; border-radius:6px; border:0; background:rgba(255,255,255,0.1); color:#fff; }
+    /* Login popup */
+    #loginScreen {
+      position:fixed;inset:0;background:rgba(0,0,0,0.9);
+      display:flex;align-items:center;justify-content:center;z-index:99;
+    }
+    #loginBox {
+      background:#1e293b;padding:20px;border-radius:10px;width:300px;text-align:center;
+    }
+    .btn-row {display:flex;gap:10px;justify-content:center}
+    #toast {position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+      background:#000;padding:10px 16px;border-radius:20px;opacity:0;transition:.3s;}
+    #toast.show{opacity:1}
   </style>
 </head>
 <body>
@@ -49,16 +59,23 @@
       <h2>🔑 Login / Sign Up</h2>
       <input id="username" placeholder="Email">
       <input id="password" type="password" placeholder="Password">
-      <button onclick="login()">Login</button>
-      <button onclick="signup()" class="secondary">Sign Up</button>
-      <button onclick="guestMode()" class="danger">Continue as Guest</button>
+      <div class="btn-row">
+        <button onclick="login()" class="btn login">Login</button>
+        <button onclick="signup()" class="btn signup">Sign Up</button>
+      </div>
+      <p>or</p>
+      <button onclick="loginWithGoogle()" class="google-btn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg">
+        <span>Sign in with Google</span>
+      </button>
+      <p><a href="#" onclick="forgotPassword()">Forgot password?</a></p>
     </div>
   </div>
 
   <header>
-    <h1>🔐 Secret Cipher</h1>
+    <h1>🔐 Secret Cipher — Vowel Numbers</h1>
     <p id="welcomeUser"></p>
-    <button onclick="logout()" class="danger">Logout</button>
+    <button onclick="logout()" class="btn logout">Logout</button>
   </header>
 
   <main>
@@ -66,29 +83,22 @@
       <h3>📝 Cipher Tool</h3>
       <textarea id="input" placeholder="Type message..."></textarea>
       <textarea id="output" readonly placeholder="Result..."></textarea>
-      <div class="controls">
-        <button onclick="encode()">Encode</button>
-        <button onclick="decode()">Decode</button>
-        <button onclick="smartDetect()">Smart Detect</button>
-        <button onclick="copyResult()" class="secondary">Copy</button>
-        <button onclick="clearAll()" class="danger">Clear</button>
+      <div>
+        <button onclick="encode()" class="btn login">Encode</button>
+        <button onclick="decode()" class="btn signup">Decode</button>
+        <button onclick="smartDetect()" class="btn">Smart Detect</button>
+        <button onclick="copyResult()" class="btn">Copy</button>
+        <button onclick="clearAll()" class="btn logout">Clear</button>
       </div>
-
-      <!-- Quiz -->
-      <div style="margin-top:16px; background:rgba(0,0,0,0.25); padding:12px; border-radius:10px">
-        <h3>🧩 Quiz</h3>
-        <div id="quiz-container">Not started</div>
-        <button onclick="startQuiz()">Start Quiz</button>
-      </div>
-
-      <h4>🏆 Leaderboard</h4>
-      <div id="leaderboard"></div>
+      <h3>🧩 Quiz</h3>
+      <div id="quiz-status">Not started</div>
+      <div id="quiz-container"></div>
+      <button onclick="startQuiz()" class="btn signup">Start Quiz</button>
     </section>
-
     <aside>
       <h3>📜 History</h3>
       <div id="history"></div>
-      <button onclick="clearHistory()" class="danger">Clear History</button>
+      <button onclick="clearHistory()" class="btn logout">Clear</button>
     </aside>
   </main>
 
@@ -96,133 +106,94 @@
   <div id="toast"></div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+           signOut, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } 
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+  // Firebase config (replace with your real values)
   const firebaseConfig = {
     apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00",
     authDomain: "cipher-e6c22.firebaseapp.com",
     projectId: "cipher-e6c22",
     storageBucket: "cipher-e6c22.appspot.com",
     messagingSenderId: "345358817477",
-    appId: "1:345358817477:web:7ba4dd380d634b559038ac",
-    measurementId: "G-CN75P4JDPW"
+    appId: "1:345358817477:web:7ba4dd380d634b559038ac"
   };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
 
-  const inputEl=document.getElementById("input");
-  const outputEl=document.getElementById("output");
-  const historyEl=document.getElementById("history");
-
-  function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
-
-  // ---------------- AUTH ----------------
-  async function signup(){
-    const email=document.getElementById("username").value.trim();
-    const pass=document.getElementById("password").value.trim();
-    try{
-      await createUserWithEmailAndPassword(auth,email,pass);
-      toast("Account created ✅");
-    }catch(e){toast(e.message);}
+  // Toast
+  function toast(msg){
+    const t=document.getElementById("toast");
+    t.textContent=msg;t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),2000);
   }
 
-  async function login(){
-    const email=document.getElementById("username").value.trim();
-    const pass=document.getElementById("password").value.trim();
-    try{
-      await signInWithEmailAndPassword(auth,email,pass);
-      toast("Logged in ✅");
-    }catch(e){toast(e.message);}
-  }
+  // Auth
+  window.login = function(){
+    const email=document.getElementById("username").value;
+    const pass=document.getElementById("password").value;
+    signInWithEmailAndPassword(auth,email,pass)
+      .catch(e=>toast(e.message));
+  };
+  window.signup = function(){
+    const email=document.getElementById("username").value;
+    const pass=document.getElementById("password").value;
+    createUserWithEmailAndPassword(auth,email,pass)
+      .then(()=>toast("Account created"))
+      .catch(e=>toast(e.message));
+  };
+  window.logout = function(){
+    signOut(auth);
+  };
+  window.forgotPassword = function(){
+    const email=document.getElementById("username").value;
+    if(!email)return toast("Enter email first");
+    sendPasswordResetEmail(auth,email).then(()=>toast("📩 Reset email sent"));
+  };
+  window.loginWithGoogle = function(){
+    signInWithPopup(auth,provider).catch(e=>toast(e.message));
+  };
 
-  async function logout(){
-    await signOut(auth);
-    toast("Logged out");
-  }
-
-  function guestMode(){
-    localStorage.setItem("guestMode","true");
-    document.getElementById("loginScreen").style.display="none";
-    document.getElementById("welcomeUser").textContent="Welcome Guest";
-  }
-
-  onAuthStateChanged(auth,(user)=>{
+  onAuthStateChanged(auth,user=>{
     if(user){
       document.getElementById("loginScreen").style.display="none";
-      document.getElementById("welcomeUser").textContent="Welcome "+user.email;
-      loadUserData();
-    }else if(!localStorage.getItem("guestMode")){
+      document.getElementById("welcomeUser").textContent="Welcome "+(user.displayName||user.email);
+    }else{
       document.getElementById("loginScreen").style.display="flex";
+      document.getElementById("welcomeUser").textContent="";
     }
   });
 
-  // ---------------- DATA ----------------
-  async function addHist(type,inp,res){
-    history.unshift({type,inp,res,date:new Date().toLocaleString()});
-    history=history.slice(0,20);
-    renderHistory();
-    localStorage.setItem("cipherHistory",JSON.stringify(history));
-
-    if(auth.currentUser){
-      const ref=doc(db,"users",auth.currentUser.uid);
-      await setDoc(ref,{history:arrayUnion({type,inp,res,date:new Date().toISOString()})},{merge:true});
-    }
-  }
-
-  async function loadUserData(){
-    if(!auth.currentUser)return;
-    const ref=doc(db,"users",auth.currentUser.uid);
-    const snap=await getDoc(ref);
-    if(snap.exists()){
-      const data=snap.data();
-      if(data.history){
-        history=data.history;
-        renderHistory();
-      }
-      if(data.scores){
-        leaderboard=data.scores;
-        renderLeaderboard();
-      }
-    }
-  }
-
-  // ---------------- CIPHER ----------------
-  let history=JSON.parse(localStorage.getItem("cipherHistory")||"[]");
-  let leaderboard=[];
+  // Cipher
   const vmap={a:"1",e:"2",i:"3",o:"4",u:"5"};
   const vrev={"1":"a","2":"e","3":"i","4":"o","5":"u"};
+  function encode(){let txt=document.getElementById("input").value,out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}document.getElementById("output").value=out;addHist("Encoded",txt,out);}
+  function decode(){let txt=document.getElementById("input").value,out="";for(let i=0;i<txt.length;i++){const c=txt[i];if(vrev[c])out+=vrev[c];else if(/[A-Za-z]/.test(c)&&txt[i+1]==="a"){out+=c;i++;}else out+=c;}document.getElementById("output").value=out;addHist("Decoded",txt,out);}
+  function smartDetect(){const txt=document.getElementById("input").value;if(/[1-5]/.test(txt))decode();else encode();}
+  function copyResult(){navigator.clipboard.writeText(document.getElementById("output").value);toast("Copied")}
+  function clearAll(){document.getElementById("input").value="";document.getElementById("output").value="";}
 
-  function encode(){const txt=inputEl.value;let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}outputEl.value=out;addHist("Encoded",txt,out);}
-  function decode(){const txt=inputEl.value;let out="";for(let i=0;i<txt.length;i++){const c=txt[i];if(vrev[c])out+=vrev[c];else if(/[A-Za-z]/.test(c)&&txt[i+1]==="a"){out+=c;i++;}else out+=c;}outputEl.value=out;addHist("Decoded",txt,out);}
-  function smartDetect(){const txt=inputEl.value;if(/[1-5]/.test(txt))decode();else encode();}
-  function copyResult(){navigator.clipboard.writeText(outputEl.value);toast("Copied")}
-  function clearAll(){inputEl.value="";outputEl.value="";}
-  function renderHistory(){historyEl.innerHTML=history.map(h=>`<div class='history-item'><b>${h.type}</b>: ${h.res}<br><small>${h.date}</small></div>`).join("")||"No history";}
-  function clearHistory(){history=[];localStorage.removeItem("cipherHistory");renderHistory();}
-
-  // ---------------- QUIZ ----------------
-  const qs=["The quick brown fox jumps over the lazy dog.","Knowledge is power.","Dream big and dare to fail."];
-  let qi=0,score=0,pool=[];
-  function startQuiz(){qi=0;score=0;pool=[...qs].sort(()=>Math.random()-0.5).slice(0,3);showQ();}
-  function showQ(){if(qi>=pool.length)return endQ();let s=pool[qi];let enc=encSen(s);document.getElementById("quiz-container").innerHTML=`<div><b>Q${qi+1}</b>: ${enc}</div><input id='ans'><button onclick="subAns('${s.replace(/'/g,"\\'")}')">Submit</button>`;}
-  function subAns(correct){let a=document.getElementById("ans").value;if(a.toLowerCase()===correct.toLowerCase()){score++;toast("✅")}else toast("❌");qi++;showQ();}
-  function endQ(){leaderboard.unshift(score);leaderboard=leaderboard.slice(0,5);renderLeaderboard();document.getElementById("quiz-container").innerHTML=`Done! Score: ${score}/${pool.length}`;if(auth.currentUser){const ref=doc(db,"users",auth.currentUser.uid);setDoc(ref,{scores:arrayUnion(score)},{merge:true});}}
-  function encSen(txt){let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}return out;}
-  function renderLeaderboard(){document.getElementById("leaderboard").innerHTML=leaderboard.map((x,i)=>`#${i+1} → ${x}`).join("<br>")||"No scores";}
-
-  // init
-  document.getElementById("year").textContent=new Date().getFullYear();
+  // History
+  function addHist(type,inp,res){let h=JSON.parse(localStorage.getItem("history")||"[]");h.unshift({type,res,date:new Date().toLocaleString()});localStorage.setItem("history",JSON.stringify(h));renderHistory();}
+  function renderHistory(){let h=JSON.parse(localStorage.getItem("history")||"[]");document.getElementById("history").innerHTML=h.map(x=>`<div class='history-item'><b>${x.type}</b>: ${x.res}<br><small>${x.date}</small></div>`).join("")||"No history";}
+  function clearHistory(){localStorage.removeItem("history");renderHistory();}
   renderHistory();
 
-  // Expose functions globally
-  window.signup=signup; window.login=login; window.logout=logout; window.guestMode=guestMode;
-  window.encode=encode; window.decode=decode; window.smartDetect=smartDetect;
-  window.copyResult=copyResult; window.clearAll=clearAll;
-  window.startQuiz=startQuiz; window.clearHistory=clearHistory;
+  // Quiz
+  const qs=["The quick brown fox jumps over the lazy dog.","Knowledge is power, but wisdom is everything.","Dream big and dare to fail."];
+  let qi=0,score=0,timer;
+  window.startQuiz=function(){qi=0;score=0;nextQ();}
+  function nextQ(){if(qi>=qs.length)return endQ();let s=qs[qi];let enc=encSen(s);document.getElementById("quiz-container").innerHTML=`<div><b>Q${qi+1}</b>: ${enc}</div><input id='ans'><button onclick="subAns('${s.replace(/'/g,"\\'")}')">Submit</button><div>⏱ <span id='tim'>30</span></div>`;startT();}
+  function encSen(txt){let out="";for(const c of txt){if(vmap[c])out+=vmap[c];else if(vmap[c.toLowerCase()])out+=vmap[c.toLowerCase()];else if(/[A-Za-z]/.test(c))out+=c+"a";else out+=c;}return out;}
+  function startT(){let t=30;clearInterval(timer);timer=setInterval(()=>{t--;document.getElementById("tim").textContent=t;if(t<=0){clearInterval(timer);subAns(null,true)}},1000);}
+  window.subAns=function(correct,timeout=false){clearInterval(timer);let a=document.getElementById("ans").value;if(!timeout&&a.toLowerCase()===correct.toLowerCase()){score++;toast("✅ Correct")}else toast("❌ Wrong");qi++;setTimeout(nextQ,800);}
+  function endQ(){document.getElementById("quiz-container").innerHTML=`Done! Score: ${score}/${qs.length}`;}
+
+  document.getElementById("year").textContent=new Date().getFullYear();
 </script>
 </body>
 </html>
