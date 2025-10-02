@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🔐 Secret Cipher</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🔐 Secret Cipher</h1>
+    <p>Type → Encode → Decode → Share</p>
+  </header>
+
+  <main>
+    <!-- Cipher panel -->
+    <section>
+      <label for="input">Input</label>
+      <textarea id="input" placeholder="Type your message here..."></textarea>
+      
+      <div class="controls">
+        <button onclick="encode()">Encode</button>
+        <button onclick="decode()">Decode</button>
+        <button onclick="autoDetect()" title="Automatically detects whether to encode or decode">
+          Smart Detect
+        </button>
+        <button class="danger" onclick="clearAll()">Clear</button>
+        <button class="success" onclick="copyResult()">Copy</button>
+        <button onclick="shareResult()">Share</button>
+      </div>
+      
+      <label for="output">Output</label>
+      <textarea id="output" placeholder="Result will appear here..." readonly></textarea>
+    </section>
+
+    <!-- History + Contact -->
+    <aside>
+      <h3>Recent History</h3>
+      <div id="history"></div>
+      <div style="margin-top:10px; display:flex; gap:10px;">
+        <button onclick="copyHistory()">Copy All</button>
+        <button class="danger" onclick="clearHistory()">Clear</button>
+      </div>
+      
+      <h3 style="margin-top:20px;">📞 Contact</h3>
+      <p><strong>Email:</strong> 
+        <a href="mailto:abdulkadirbukar2006@gmail.com">abdulkadirbukar2006@gmail.com</a></p>
+      <p><strong>Phone:</strong> 
+        <a href="tel:+2347048684062">07048684062</a></p>
+      <p><a href="https://wa.me/2347048684062" target="_blank">Message on WhatsApp</a></p>
+    </aside>
+  </main>
+
+  <footer>
+    Made with ❤️ Secret Cipher • <span id="year"></span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
