@@ -1,35 +1,96 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Quiz - Secret Cipher</title>
+  <meta charset="utf-8">
+  <title>Login — Secret Cipher</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>🧩 Cipher Quiz</h1>
-    <nav>
-      <a href="index.html">Cipher</a>
-      <a href="quiz.html">Quiz</a>
-      <a href="login.html">Login</a>
-    </nav>
+    <div class="brand"><h1>Secret Cipher</h1></div>
+    <nav><a href="index.html" class="btn ghost">Home</a></nav>
   </header>
 
-  <main>
-    <section id="quiz-section">
-      <h2>Challenge</h2>
-      <p id="questionText">Press Start to begin.</p>
-      <input type="text" id="quizAnswer" placeholder="Type answer...">
-      <div class="btn-row">
-        <button onclick="submitQuiz()">Submit</button>
-        <button onclick="nextQuiz()">Skip</button>
+  <main class="center">
+    <section class="card" style="width:360px">
+      <h3>🔑 Sign In / Sign Up</h3>
+
+      <label class="small">Email</label>
+      <input id="email" type="email" placeholder="you@example.com">
+
+      <label class="small">Password</label>
+      <input id="password" type="password" placeholder="password">
+
+      <div class="controls" style="margin-top:14px">
+        <button id="btnSignIn" class="btn">Sign In</button>
+        <button id="btnSignUp" class="ghost">Sign Up</button>
+        <button id="btnGuest" class="ghost">Continue as Guest</button>
       </div>
-      <p>Progress: <span id="quizProgress">0/25</span></p>
-      <p>Time left: <span id="quizTimer">60</span>s</p>
-      <button onclick="startQuiz()">Start Quiz</button>
+
+      <div style="margin-top:10px">
+        <button id="btnReset" class="ghost">Forgot password</button>
+      </div>
     </section>
   </main>
 
-  <script src="quiz.js"></script>
+  <footer>© <span id="year"></span> Secret Cipher</footer>
+  <div id="toast"></div>
+
+  <script type="module">
+  import { auth } from './firebase.js';
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+  const emailEl = document.getElementById("email");
+  const passEl = document.getElementById("password");
+  const toastEl = document.getElementById("toast");
+  function toast(msg,t=2000){ toastEl.textContent = msg; toastEl.classList.add("show"); setTimeout(()=>toastEl.classList.remove("show"),t); }
+
+  // if already signed-in, go back home
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      // If user arrived here to play quiz, redirect back to quiz
+      // Otherwise go to index by default
+      const dest = sessionStorage.getItem('afterLogin') || 'index.html';
+      sessionStorage.removeItem('afterLogin');
+      window.location.href = dest;
+    }
+  });
+
+  document.getElementById("btnSignIn").addEventListener('click', async ()=>{
+    const email = (emailEl.value||"").trim();
+    const pass = (passEl.value||"").trim();
+    if(!email || !pass) return toast("Fill fields");
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      toast("Signed in ✅");
+      // redirect handled by onAuthStateChanged
+    } catch(e){ toast(e.message || "Sign-in failed"); console.error(e); }
+  });
+
+  document.getElementById("btnSignUp").addEventListener('click', async ()=>{
+    const email = (emailEl.value||"").trim();
+    const pass = (passEl.value||"").trim();
+    if(!email || !pass) return toast("Fill fields");
+    try {
+      await createUserWithEmailAndPassword(auth, email, pass);
+      toast("Account created ✅");
+    } catch(e){ toast(e.message || "Sign-up failed"); console.error(e); }
+  });
+
+  document.getElementById("btnGuest").addEventListener('click', async ()=>{
+    try { await signInAnonymously(auth); toast("Guest mode ✅"); }
+    catch(e){ toast("Guest sign-in failed"); console.error(e); }
+  });
+
+  document.getElementById("btnReset").addEventListener('click', async ()=>{
+    const email = (emailEl.value||"").trim();
+    if(!email) return toast("Enter email");
+    try { await sendPasswordResetEmail(auth, email); toast("Reset sent"); } catch(e){ toast("Reset failed"); console.error(e); }
+  });
+
+  // If user clicked Quiz while not logged in, preserve destination
+  // (nav on index sets sessionStorage('afterLogin') = 'quiz.html' before redirect)
+  </script>
 </body>
 </html>
