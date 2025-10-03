@@ -1,55 +1,44 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Secret Cipher — Dark Neon</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Secret Cipher</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>Secret Cipher</h1>
-  <nav>
-    <a href="quiz.html" class="btn ghost">Quiz</a>
-    <a href="login.html" class="btn ghost" id="btnSignIn">Sign in</a>
-    <button id="btnLogout" class="btn warn hidden">Logout</button>
-  </nav>
-</header>
+  <header>
+    <h1>🔒 Secret Cipher</h1>
+    <nav>
+      <a href="index.html">Cipher</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="login.html" id="loginNav">Login</a>
+      <button id="logoutBtn" style="display:none;">Logout</button>
+    </nav>
+  </header>
 
-<main class="main">
-  <section class="card">
-    <h3>📝 Cipher Tool</h3>
-    <label>Input</label>
-    <textarea id="input" placeholder="Type your message..."></textarea>
-    <div class="controls">
-      <button onclick="encode()">Encode</button>
-      <button onclick="decode()">Decode</button>
-      <button onclick="smartDetect()">Smart Detect</button>
-      <button onclick="copyOutput()">Copy</button>
-      <button onclick="clearAll()">Clear</button>
-    </div>
-    <label style="margin-top:12px">Output</label>
-    <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
-  </section>
+  <main>
+    <section id="cipher-section">
+      <h2>✏️ Cipher Tool</h2>
+      <textarea id="cipherInput" placeholder="Type message..."></textarea>
+      <div class="btn-row">
+        <button onclick="encode()">Encode</button>
+        <button onclick="decode()">Decode</button>
+        <button onclick="smartDetect()">Smart Detect</button>
+        <button onclick="copyOutput()">Copy</button>
+        <button onclick="clearInput()">Clear</button>
+      </div>
+      <textarea id="cipherOutput" placeholder="Result..."></textarea>
+    </section>
 
-  <aside class="card">
-    <h3>📜 History</h3>
-    <div id="historyList" style="max-height:320px;overflow:auto;margin-top:8px"></div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn ghost" onclick="copyHistory()">Copy All</button>
-      <button class="btn ghost" onclick="clearHistory()">Clear</button>
-    </div>
-  </aside>
-</main>
+    <section id="history-section">
+      <h2>📜 History</h2>
+      <ul id="historyList"></ul>
+      <button onclick="clearHistory()">Clear History</button>
+    </section>
+  </main>
 
-<footer>© <span id="year"></span> Secret Cipher</footer>
-
-<script src="cipher.js"></script>
-<script src="auth.js"></script>
-<script src="app.js"></script>
-<script>
-document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+  <script src="cipher.js"></script>
+  <script src="app.js"></script>
+  <script src="auth.js"></script>
 </body>
 </html>

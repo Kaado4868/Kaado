@@ -1,13 +1,4 @@
-// ===== Quiz Logic (Local Only) =====
-const $ = (id) => document.getElementById(id);
-const toastEl = document.getElementById("toast");
-function toast(msg, t = 2000) {
-  toastEl.textContent = msg;
-  toastEl.classList.add("show");
-  setTimeout(() => toastEl.classList.remove("show"), t);
-}
-
-// Questions pool (25)
+// Questions
 const QUESTIONS = [
   "The quick brown fox jumps over the lazy dog.",
   "Knowledge is power, but wisdom is everything.",
@@ -36,10 +27,8 @@ const QUESTIONS = [
   "Value the people who value you; pay attention to where you spend your time."
 ];
 
-let pool = [], qi = 0, score = 0, timer = null, timeLeft = 60;
-
 const vowelMap = { a: "1", e: "2", i: "3", o: "4", u: "5" };
-function encSentence(s) {
+function encodeSentence(s) {
   let out = "";
   for (const ch of s.toLowerCase()) {
     if (vowelMap[ch]) out += vowelMap[ch];
@@ -49,48 +38,64 @@ function encSentence(s) {
   return out;
 }
 
+let pool = [], qi = 0, score = 0, timer = null, remaining = 60;
+const TOTAL = 25;
+
+const questionText = document.getElementById("questionText");
+const quizAnswer = document.getElementById("quizAnswer");
+const quizProgress = document.getElementById("quizProgress");
+const quizTimer = document.getElementById("quizTimer");
+
 window.startQuiz = function () {
-  pool = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 5);
+  pool = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, TOTAL);
   qi = 0; score = 0;
   showQuestion();
 };
 
 function showQuestion() {
   if (qi >= pool.length) return endQuiz();
-  const s = pool[qi];
-  $("questionText").innerHTML = "<b>Decode this:</b><br>" + encSentence(s);
-  $("quizAnswer").value = "";
-  $("quizProgress").textContent = (qi + 1) + "/" + pool.length;
-  timeLeft = 60; $("quizTimer").textContent = timeLeft;
+  const q = pool[qi];
+  questionText.innerHTML = `<b>Decode this:</b><br><br> ${encodeSentence(q)}`;
+  quizAnswer.value = "";
+  quizProgress.textContent = `${qi + 1}/${TOTAL}`;
+  remaining = 60;
+  quizTimer.textContent = remaining;
+
   clearInterval(timer);
   timer = setInterval(() => {
-    timeLeft--;
-    $("quizTimer").textContent = timeLeft;
-    if (timeLeft <= 0) { clearInterval(timer); toast("⏱ Time's up"); nextQuiz(); }
+    remaining--;
+    quizTimer.textContent = remaining;
+    if (remaining <= 0) {
+      clearInterval(timer);
+      nextQuiz();
+    }
   }, 1000);
 }
 
 window.submitQuiz = function () {
   clearInterval(timer);
-  const ans = ($("quizAnswer").value || "").trim();
-  const corr = pool[qi];
-  if (ans.toLowerCase() === corr.toLowerCase()) { score++; toast("✅ Correct"); }
-  else toast("❌ Wrong — " + corr);
-  qi++; setTimeout(showQuestion, 600);
+  const ans = quizAnswer.value.trim().toLowerCase();
+  const correct = pool[qi].toLowerCase();
+
+  if (ans === correct) {
+    score++;
+    alert("✅ Correct!");
+  } else {
+    alert("❌ Wrong! Correct answer: " + pool[qi]);
+  }
+
+  qi++;
+  setTimeout(showQuestion, 500);
 };
 
 window.nextQuiz = function () {
   clearInterval(timer);
-  qi++; showQuestion();
-};
-window.endQuiz = function () {
-  clearInterval(timer);
-  endQuiz();
+  qi++;
+  showQuestion();
 };
 
-function endQuiz() {
-  $("questionText").textContent = "Finished — Score: " + score + "/" + pool.length;
-  const arr = JSON.parse(localStorage.getItem("cipher_scores") || "[]");
-  arr.unshift({ score, date: new Date().toISOString() });
-  localStorage.setItem("cipher_scores", JSON.stringify(arr.slice(0, 20)));
-}
+window.endQuiz = function () {
+  clearInterval(timer);
+  questionText.innerHTML = `🎉 Finished! <br> Score: ${score}/${TOTAL}`;
+  quizProgress.textContent = `${TOTAL}/${TOTAL}`;
+};
