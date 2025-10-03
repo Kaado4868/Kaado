@@ -1,52 +1,146 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Secret Cipher Quiz</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Quiz - Secret Cipher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>🧩 Cipher Quiz</h1>
-  <nav>
-    <a href="index.html" class="btn ghost">Back</a>
-  </nav>
-</header>
+  <header>
+    <h1>🧩 Cipher Quiz</h1>
+    <nav>
+      <a href="index.html">Cipher</a>
+      <a href="quiz.html">Quiz</a>
+      <a href="login.html">Login</a>
+    </nav>
+  </header>
 
-<main class="main">
-  <section class="card" style="grid-column:1/-1">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <h3>Daily Quiz</h3>
-        <div class="small">25 challenges • 60s each • once per 24h</div>
+  <main>
+    <section id="quiz-section">
+      <h2>Challenge</h2>
+      <p id="questionText">Press Start to begin.</p>
+      <input type="text" id="quizAnswer" placeholder="Type answer...">
+      <div class="btn-row">
+        <button onclick="submitQuiz()">Submit</button>
+        <button onclick="nextQuiz()">Skip</button>
       </div>
-      <div class="small">Time left: <span id="quizTimer">60</span>s</div>
-    </div>
+      <p>Progress: <span id="quizProgress">0/25</span></p>
+      <p>Time left: <span id="quizTimer">60</span>s</p>
+      <button onclick="startQuiz()">Start Quiz</button>
+    </section>
+  </main>
 
-    <div class="question-box">
-      <div id="questionText">Press Start</div>
-      <input id="quizAnswer" placeholder="Type decoded sentence" style="margin-top:10px" />
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn" onclick="submitQuiz()">Submit</button>
-        <button class="btn ghost" onclick="nextQuiz()">Next</button>
-        <button class="btn ghost" onclick="endQuiz()">End</button>
-      </div>
-    </div>
+  <script>
+  // === QUIZ LOGIC ===
+  const QUESTIONS = [
+    "The quick brown fox jumps over the lazy dog.",
+    "Knowledge is power, but wisdom is everything.",
+    "Success usually comes to those who are too busy to be looking for it.",
+    "Do not watch the clock. Do what it does. Keep going.",
+    "Difficult roads often lead to beautiful destinations.",
+    "Hard work beats talent when talent doesn’t work hard.",
+    "Great things never come from comfort zones.",
+    "Dream big and dare to fail.",
+    "The only limit to our realization of tomorrow is our doubts of today.",
+    "Opportunities don't happen, you create them.",
+    "If you want something you've never had, you must be willing to do something you've never done.",
+    "Life is 10% what happens to us and 90% how we react to it.",
+    "It always seems impossible until it's done.",
+    "Don't wait. The time will never be just right.",
+    "Act as if what you do makes a difference. It does.",
+    "The harder you fall, the higher you bounce.",
+    "Small steps every day add up to big results over time.",
+    "Creativity is intelligence having fun.",
+    "Be kind whenever possible. It is always possible.",
+    "Change your thoughts and you change your world.",
+    "A smooth sea never made a skilled sailor.",
+    "The secret of getting ahead is getting started.",
+    "Turn your wounds into wisdom and lessons into strength.",
+    "Perseverance is not a long race; it is many short races one after another.",
+    "Value the people who value you; pay attention to where you spend your time."
+  ];
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-      <div class="small">Question <span id="quizProgress">0</span>/25</div>
-      <button class="btn" id="startQuizBtn" onclick="startQuiz()">Start</button>
-    </div>
-  </section>
-</main>
+  // Cipher rules
+  const vowelMap = { a: "1", e: "2", i: "3", o: "4", u: "5" };
+  function encodeSentence(s) {
+    let out = "";
+    for (const ch of s.toLowerCase()) {
+      if (vowelMap[ch]) out += vowelMap[ch];
+      else if (/[a-z]/.test(ch)) out += ch + "a";
+      else out += ch;
+    }
+    return out;
+  }
 
-<footer>© <span id="year"></span> Secret Cipher</footer>
+  // Quiz state
+  let pool = [], qi = 0, score = 0, timer = null, remaining = 60;
+  const TOTAL = 25;
 
-<script src="Quiz.js"></script>
-<script>
-document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+  // Elements
+  const questionText = document.getElementById("questionText");
+  const quizAnswer = document.getElementById("quizAnswer");
+  const quizProgress = document.getElementById("quizProgress");
+  const quizTimer = document.getElementById("quizTimer");
+
+  // Start quiz
+  function startQuiz() {
+    pool = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, TOTAL);
+    qi = 0; score = 0;
+    showQuestion();
+  }
+
+  // Show question
+  function showQuestion() {
+    if (qi >= pool.length) return endQuiz();
+    const q = pool[qi];
+    questionText.innerHTML = `<b>Decode this:</b><br><br> ${encodeSentence(q)}`;
+    quizAnswer.value = "";
+    quizProgress.textContent = `${qi + 1}/${TOTAL}`;
+    remaining = 60;
+    quizTimer.textContent = remaining;
+
+    clearInterval(timer);
+    timer = setInterval(() => {
+      remaining--;
+      quizTimer.textContent = remaining;
+      if (remaining <= 0) {
+        clearInterval(timer);
+        nextQuiz();
+      }
+    }, 1000);
+  }
+
+  // Submit answer
+  function submitQuiz() {
+    clearInterval(timer);
+    const ans = quizAnswer.value.trim().toLowerCase();
+    const correct = pool[qi].toLowerCase();
+
+    if (ans === correct) {
+      score++;
+      alert("✅ Correct!");
+    } else {
+      alert("❌ Wrong! Correct answer: " + pool[qi]);
+    }
+
+    qi++;
+    setTimeout(showQuestion, 500);
+  }
+
+  // Skip / Next
+  function nextQuiz() {
+    clearInterval(timer);
+    qi++;
+    showQuestion();
+  }
+
+  // End quiz
+  function endQuiz() {
+    clearInterval(timer);
+    questionText.innerHTML = `🎉 Finished! <br> Score: ${score}/${TOTAL}`;
+    quizProgress.textContent = `${TOTAL}/${TOTAL}`;
+  }
+  </script>
 </body>
 </html>
