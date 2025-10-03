@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Secret Cipher — Debugged</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#071026;
+    --bg2:#0b1020;
+    --card: rgba(255,255,255,0.03);
+    --accent-grad: linear-gradient(90deg,#7b61ff,#00d2ff);
+    --accent2-grad: linear-gradient(90deg,#ff5f8b,#7b61ff);
+    --success:#22c55e;
+    --danger:#ef4444;
+    --muted: rgba(255,255,255,0.65);
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:Poppins,Arial,Helvetica,system-ui;min-height:100vh;
+    background: linear-gradient(180deg,var(--bg1),var(--bg2)); color:#eaf3ff;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(255,255,255,0.02);backdrop-filter:blur(6px)}
+  .brand h1{margin:0;font-family:Orbitron,Arial;font-size:18px}
+  .nav{display:flex;gap:8px;align-items:center}
+  .btn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+  .btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.06)}
+  .btn-primary{background:var(--accent-grad);color:#fff}
+  .btn-warn{background:var(--danger);color:#fff}
+  main{max-width:1024px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:1fr 340px;gap:18px}
+  @media(max-width:920px){ main{grid-template-columns:1fr; padding:16px } }
+  .card{background:var(--card);padding:16px;border-radius:var(--radius);box-shadow:0 8px 26px rgba(2,6,23,0.5)}
+  textarea,input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:8px}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .small{font-size:13px;color:var(--muted)}
+  footer{text-align:center;padding:12px;color:var(--muted)}
+  #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:#0b1220;color:#fff;padding:10px 14px;border-radius:16px;opacity:0;pointer-events:none;transition:all .22s}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(-8px);pointer-events:auto}
+  .history-item{padding:8px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.005));margin-bottom:8px;font-size:14px}
+  .muted-block{opacity:0.8;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>🔐 Secret Cipher</h1>
+    <div class="small">Vowel Numbers — Debugged</div>
+  </div>
+
+  <div class="nav" id="navBar">
+    <button class="btn btn-ghost" id="navCipher">Cipher</button>
+    <button class="btn btn-ghost" id="navQuiz">Quiz</button>
+    <button class="btn btn-ghost" id="navLogin">Login</button>
+    <button class="btn btn-warn hidden" id="btnLogout">Logout</button>
+  </div>
+</header>
+
+<main>
+  <!-- Main tool column -->
+  <section class="card" id="cipherCard">
+    <h3>📝 Cipher Tool</h3>
+    <label class="small">Input</label>
+    <textarea id="input" placeholder="Type your message..."></textarea>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="btnEncode">Encode</button>
+      <button class="btn btn-ghost" id="btnDecode">Decode</button>
+      <button class="btn btn-ghost" id="btnSmart">Smart Detect</button>
+      <button class="btn btn-ghost" id="btnCopy">Copy</button>
+      <button class="btn btn-ghost" id="btnClear">Clear</button>
+    </div>
+
+    <label class="small">Output</label>
+    <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
+  </section>
+
+  <!-- Sidebar -->
+  <aside class="card">
+    <h4>📜 Recent History</h4>
+    <div id="historyList" style="max-height:360px; overflow:auto; margin-top:8px"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-ghost" id="btnCopyHistory">Copy All</button>
+      <button class="btn btn-ghost" id="btnClearHistory">Clear</button>
+    </div>
+
+    <div style="margin-top:16px">
+      <h4>📞 Contact</h4>
+      <div class="muted-block">Email: <a href="mailto:abdulkadirbukar2006@gmail.com">abdulkadirbukar2006@gmail.com</a></div>
+      <div class="muted-block">Phone: <a href="tel:+2347048684062">07048684062</a></div>
+    </div>
+  </aside>
+
+  <!-- Quiz column (below main on small screens) -->
+  <section class="card" id="quizCard" style="grid-column:1 / -1; display:none;">
+    <h3>🧩 Daily Quiz</h3>
+    <div class="small">5 random challenges • 60s each • Locked for guests</div>
+
+    <div id="quizArea" style="margin-top:12px">
+      <div id="quizBox" class="muted-block">Sign in to start the quiz.</div>
+      <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
+        <div class="small">Progress: <span id="quizProgress">0/5</span></div>
+        <div class="small">Time left: <span id="quizTimer">0</span>s</div>
+        <div style="margin-left:auto;">
+          <button class="btn btn-primary" id="btnStartQuiz">Start</button>
+          <button class="btn btn-ghost" id="btnNextQuiz">Next</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Login card (hidden) -->
+  <section class="card" id="loginCard" style="display:none; grid-column:1 / -1;">
+    <h3>🔑 Login / Sign up</h3>
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-primary" id="btnLogin">Login</button>
+      <button class="btn btn-ghost" id="btnSignup">Sign up</button>
+      <button class="btn btn-ghost" id="btnGuest">Continue as Guest</button>
+    </div>
+    <div style="margin-top:8px">
+      <button class="btn btn-ghost" id="btnForgot">Forgot password</button>
+    </div>
+  </section>
+</main>
+
+<footer>© <span id="yearEl"></span> Secret Cipher</footer>
+<div id="toast"></div>
+
+<script type="module">
+/*
+  Final debugged single-file app:
+  - Proper DOM references (no implicit globals)
+  - Firebase auth imports + friendly errors
+  - Quiz binding uses DOM-created elements + event listeners (no stale inline handlers)
+  - Timer cleared reliably to avoid stacking intervals
+  - Guest mode: cipher only; quiz locked to signed-in users
+  - Local history saved to localStorage ("cipherHistory")
+*/
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+/* ---------- Firebase config (kept per your earlier code) ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00",
+  authDomain: "cipher-e6c22.firebaseapp.com",
+  projectId: "cipher-e6c22",
+  storageBucket: "cipher-e6c22.appspot.com",
+  messagingSenderId: "345358817477",
+  appId: "1:345358817477:web:7ba4dd380d634b559038ac",
+  measurementId: "G-CN75P4JDPW"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/* ---------- Element references ---------- */
+const el = id => document.getElementById(id);
+const navCipher = el('navCipher');
+const navQuiz = el('navQuiz');
+const navLogin = el('navLogin');
+const btnLogout = el('btnLogout');
+const cipherCard = el('cipherCard');
+const quizCard = el('quizCard');
+const loginCard = el('loginCard');
+
+const inputEl = el('input');
+const outputEl = el('output');
+const btnEncode = el('btnEncode');
+const btnDecode = el('btnDecode');
+const btnSmart = el('btnSmart');
+const btnCopy = el('btnCopy');
+const btnClear = el('btnClear');
+
+const historyList = el('historyList');
+const btnCopyHistory = el('btnCopyHistory');
+const btnClearHistory = el('btnClearHistory');
+
+const quizBox = el('quizBox');
+const quizProgress = el('quizProgress');
+const quizTimer = el('quizTimer');
+const btnStartQuiz = el('btnStartQuiz');
+const btnNextQuiz = el('btnNextQuiz');
+
+const btnLogin = el('btnLogin');
+const btnSignup = el('btnSignup');
+const btnGuest = el('btnGuest');
+const btnForgot = el('btnForgot');
+const emailInput = el('email');
+const passwordInput = el('password');
+
+const yearEl = el('yearEl');
+const toastEl = el('toast');
+
+/* ---------- Utilities ---------- */
+function toast(msg, ms = 2300){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'), ms);
+}
+function showSection(which){
+  // hide all top-level cards except cipher always visible?
+  cipherCard.style.display = 'block';
+  quizCard.style.display = 'none';
+  loginCard.style.display = 'none';
+  if(which === 'quiz') quizCard.style.display = 'block';
+  if(which === 'login') loginCard.style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------- Local history (persisted) ---------- */
+const HISTORY_KEY = 'cipherHistoryV1';
+function loadHistory(){ try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch(e){ return []; } }
+function saveHistoryArr(arr){ localStorage.setItem(HISTORY_KEY, JSON.stringify(arr)); }
+let historyArr = loadHistory();
+function renderHistory(){
+  if(!historyArr.length){ historyList.innerHTML = '<div class="muted-block">No history yet.</div>'; return; }
+  historyList.innerHTML = historyArr.slice(0,50).map(h=>`<div class="history-item"><strong>${h.type}</strong><div style="margin-top:6px">${escapeHtml(h.text)}</div><div class="small">${h.date}</div></div>`).join('');
+}
+function addHistory(type, text){
+  historyArr.unshift({ type, text, date: new Date().toLocaleString() });
+  historyArr = historyArr.slice(0,50);
+  saveHistoryArr(historyArr);
+  renderHistory();
+}
+function escapeHtml(s){ return s ? s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])) : ''; }
+
+/* ---------- Cipher logic ---------- */
+const vowelMap = { a:'1', e:'2', i:'3', o:'4', u:'5' };
+const revMap = { '1':'a','2':'e','3':'i','4':'o','5':'u' };
+
+function encodeText(inText){
+  const t = inText || '';
+  let out = '';
+  for(const ch of t.toLowerCase()){
+    if(vowelMap[ch]) out += vowelMap[ch];
+    else if(/[a-z]/.test(ch)) out += ch + 'a';
+    else out += ch;
+  }
+  return out;
+}
+function decodeText(inText){
+  const t = inText || '';
+  let out = '';
+  for(let i=0;i<t.length;i++){
+    const c = t[i];
+    if(revMap[c]) out += revMap[c];
+    else if(/[a-z]/i.test(c) && t[i+1] === 'a'){ out += c; i++; }
+    else out += c;
+  }
+  return out;
+}
+
+btnEncode.addEventListener('click', ()=> {
+  const res = encodeText(inputEl.value);
+  outputEl.value = res;
+  addHistory('Encoded', res);
+});
+btnDecode.addEventListener('click', ()=> {
+  const res = decodeText(inputEl.value);
+  outputEl.value = res;
+  addHistory('Decoded', res);
+});
+btnSmart.addEventListener('click', ()=> {
+  const txt = inputEl.value || '';
+  if(!txt.trim()){ toast('Input is empty'); return; }
+  const digitCount = (txt.match(/[1-5]/g) || []).length;
+  const vowelCount = (txt.match(/[aeiou]/gi) || []).length;
+  // prefer decode when there are noticeably more encoded digits than plain vowels/suffixes
+  if(digitCount >= vowelCount) {
+    outputEl.value = decodeText(txt);
+    addHistory('Smart-Decoded', outputEl.value);
+  } else {
+    outputEl.value = encodeText(txt);
+    addHistory('Smart-Encoded', outputEl.value);
+  }
+});
+btnCopy.addEventListener('click', async ()=> {
+  const v = outputEl.value || '';
+  if(!v){ toast('Nothing to copy'); return; }
+  await navigator.clipboard.writeText(v);
+  toast('Copied to clipboard ✅');
+});
+btnClear.addEventListener('click', ()=> {
+  inputEl.value = '';
+  outputEl.value = '';
+});
+
+/* ---------- History controls ---------- */
+btnCopyHistory.addEventListener('click', async ()=>{
+  if(!historyArr.length){ toast('No history'); return; }
+  await navigator.clipboard.writeText(historyArr.map(h=>`${h.type}: ${h.text}`).join('\n'));
+  toast('History copied');
+});
+btnClearHistory.addEventListener('click', ()=>{
+  if(!confirm('Clear history?')) return;
+  historyArr = [];
+  saveHistoryArr(historyArr);
+  renderHistory();
+  toast('History cleared');
+});
+
+/* ---------- Quiz logic ---------- */
+const QUESTIONS = [
+  "The quick brown fox jumps over the lazy dog.",
+  "Knowledge is power, but wisdom is everything.",
+  "Success usually comes to those who are too busy to be looking for it.",
+  "Do not watch the clock. Do what it does. Keep going.",
+  "Difficult roads often lead to beautiful destinations.",
+  "Hard work beats talent when talent doesn’t work hard.",
+  "Great things never come from comfort zones.",
+  "Dream big and dare to fail.",
+  "The only limit to our realization of tomorrow is our doubts of today.",
+  "Opportunities don't happen, you create them.",
+  "If you want something you've never had, you must be willing to do something you've never done.",
+  "Life is 10% what happens to us and 90% how we react to it.",
+  "It always seems impossible until it's done.",
+  "Don't wait. The time will never be just right.",
+  "Act as if what you do makes a difference. It does.",
+  "The harder you fall, the higher you bounce.",
+  "Small steps every day add up to big results over time.",
+  "Creativity is intelligence having fun.",
+  "Be kind whenever possible. It is always possible.",
+  "Change your thoughts and you change your world.",
+  "A smooth sea never made a skilled sailor.",
+  "The secret of getting ahead is getting started.",
+  "Turn your wounds into wisdom and lessons into strength.",
+  "Perseverance is not a long race; it is many short races one after another.",
+  "Value the people who value you; pay attention to where you spend your time."
+];
+
+let quizPool = [];
+let qIndex = 0;
+let qScore = 0;
+let qTimer = null;
+let qRemaining = 60;
+let currentAnswer = '';
+
+function shuffle(a){ return a.sort(()=>Math.random()-0.5); }
+function resetQuizState(){
+  clearInterval(qTimer);
+  quizBox.textContent = 'Sign in to start Quiz.';
+  quizProgress.textContent = '0/5';
+  quizTimer.textContent = '0';
+  btnStartQuiz.disabled = false;
+  btnNextQuiz.disabled = true;
+}
+
+function renderQuizQuestion(){
+  // clear previous timer
+  clearInterval(qTimer);
+  if(qIndex >= quizPool.length){
+    quizBox.innerHTML = `<div><strong>🎉 Finished!</strong><p>Your score: ${qScore}/${quizPool.length}</p></div>`;
+    quizProgress.textContent = `${quizPool.length}/${quizPool.length}`;
+    quizTimer.textContent = '0';
+    btnStartQuiz.disabled = false;
+    btnNextQuiz.disabled = true;
+    // store local score (optional)
+    const scores = JSON.parse(localStorage.getItem('cipherScores')||'[]');
+    scores.unshift({score:qScore, date: new Date().toISOString()});
+    localStorage.setItem('cipherScores', JSON.stringify(scores.slice(0,50)));
+    return;
+  }
+
+  const question = quizPool[qIndex];
+  currentAnswer = question;
+  // build DOM elements (to avoid stale inline handlers)
+  quizBox.innerHTML = '';
+  const qDiv = document.createElement('div');
+  qDiv.innerHTML = `<div style="margin-bottom:8px"><strong>Decode:</strong><div style="margin-top:8px">${escapeHtml(encodeText(question))}</div></div>`;
+  const answerInput = document.createElement('input');
+  answerInput.type = 'text';
+  answerInput.id = 'quizAnswer';
+  answerInput.placeholder = 'Type decoded sentence';
+  answerInput.style.marginTop = '8px';
+  const btnSubmit = document.createElement('button');
+  btnSubmit.className = 'btn btn-primary';
+  btnSubmit.textContent = 'Submit';
+  btnSubmit.style.marginLeft = '8px';
+  btnSubmit.addEventListener('click', ()=> {
+    submitQuizAnswer(answerInput.value || '');
+  });
+
+  // next button is handled separately via btnNextQuiz
+  quizBox.appendChild(qDiv);
+  quizBox.appendChild(answerInput);
+  quizBox.appendChild(btnSubmit);
+
+  quizProgress.textContent = `${qIndex+1}/${quizPool.length}`;
+  // timer
+  qRemaining = 60;
+  quizTimer.textContent = `${qRemaining}`;
+  btnStartQuiz.disabled = true;
+  btnNextQuiz.disabled = false;
+  clearInterval(qTimer);
+  qTimer = setInterval(()=>{
+    qRemaining--;
+    quizTimer.textContent = `${qRemaining}`;
+    if(qRemaining <= 0){
+      clearInterval(qTimer);
+      toast('⏰ Time up');
+      qIndex++;
+      renderQuizQuestion();
+    }
+  }, 1000);
+}
+
+function submitQuizAnswer(ans){
+  clearInterval(qTimer);
+  const normalized = (ans || '').trim().toLowerCase();
+  const correctNorm = (currentAnswer || '').trim().toLowerCase();
+  if(normalized === correctNorm){
+    qScore++;
+    toast('✅ Correct');
+  } else {
+    toast('❌ Wrong — correct: ' + currentAnswer);
+  }
+  qIndex++;
+  // small delay for user to read toast
+  setTimeout(()=> renderQuizQuestion(), 350);
+}
+
+btnStartQuiz.addEventListener('click', ()=>{
+  // start only if signed in
+  if(!auth.currentUser){
+    toast('Login required for Quiz');
+    showSection('login');
+    return;
+  }
+  quizPool = shuffle([...QUESTIONS]).slice(0,5);
+  qIndex = 0; qScore = 0;
+  renderQuizQuestion();
+});
+btnNextQuiz.addEventListener('click', ()=>{
+  clearInterval(qTimer);
+  qIndex++;
+  renderQuizQuestion();
+});
+
+/* ---------- Auth: login/signup/logout/forgot ---------- */
+function friendlyErr(code){
+  if(!code) return 'Unknown error';
+  return code.replace('auth/', '').replaceAll('-', ' ');
+}
+
+btnLogin.addEventListener('click', async ()=>{
+  const email = emailInput.value.trim();
+  const pw = passwordInput.value;
+  if(!email || !pw){ toast('Enter email & password'); return; }
+  try{
+    await signInWithEmailAndPassword(auth, email, pw);
+    toast('Logged in');
+    showSection('cipher');
+  } catch(e){
+    toast('Login failed: ' + friendlyErr(e.code));
+  }
+});
+
+btnSignup.addEventListener('click', async ()=>{
+  const email = emailInput.value.trim();
+  const pw = passwordInput.value;
+  if(!email || !pw){ toast('Enter email & password'); return; }
+  try{
+    await createUserWithEmailAndPassword(auth, email, pw);
+    toast('Account created');
+    showSection('cipher');
+  } catch(e){
+    toast('Signup failed: ' + friendlyErr(e.code));
+  }
+});
+
+btnForgot.addEventListener('click', async ()=>{
+  const email = emailInput.value.trim();
+  if(!email){ toast('Enter your email to reset'); return; }
+  try{
+    await sendPasswordResetEmail(auth, email);
+    toast('Password reset link sent to email');
+  } catch(e){
+    toast('Reset failed: ' + friendlyErr(e.code));
+  }
+});
+
+btnGuest.addEventListener('click', ()=>{
+  toast('Guest mode — Quiz locked');
+  showSection('cipher');
+});
+
+/* logout logic */
+btnLogout.addEventListener('click', async ()=>{
+  if(!confirm('Logout?')) return;
+  // clear state quickly
+  resetQuizState();
+  inputEl.value = ''; outputEl.value = '';
+  showSection('login');
+  try {
+    await signOut(auth);
+    toast('Logged out');
+  } catch(e){
+    toast('Logout failed');
+  }
+});
+
+/* auth state listener */
+onAuthStateChanged(auth, user => {
+  if(user){
+    navLogin.style.display = 'none';
+    btnLogout.classList.remove('hidden');
+    // show cipher view by default
+    showSection('cipher');
+  } else {
+    navLogin.style.display = 'inline-block';
+    btnLogout.classList.add('hidden');
+    showSection('login');
+    resetQuizState();
+  }
+});
+
+/* ---------- Helper: reset quiz, cipher ---------- */
+function resetQuizState(){
+  clearInterval(qTimer);
+  quizBox.textContent = 'Sign in to start Quiz.';
+  quizProgress.textContent = '0/5';
+  quizTimer.textContent = '0';
+  btnStartQuiz.disabled = false;
+  btnNextQuiz.disabled = true;
+}
+
+/* ---------- Init UI wiring ---------- */
+navCipher.addEventListener('click', ()=> showSection('cipher'));
+navQuiz.addEventListener('click', ()=> {
+  // navQuiz tries to open quiz - same as Start Quiz button behavior
+  if(!auth.currentUser){
+    toast('Login required for Quiz');
+    showSection('login');
+    return;
+  }
+  showSection('quiz');
+});
+navLogin.addEventListener('click', ()=> showSection('login'));
+
+yearEl.textContent = new Date().getFullYear();
+renderHistory();
+resetQuizState();
+
+/* ---------- optional: register service worker if available ---------- */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker?.register('/service-worker.js').catch(()=>{/* ignore */});
+}
+
+</script>
+</body>
+</html>
