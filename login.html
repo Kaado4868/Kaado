@@ -1,33 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Login - Secret Cipher</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  body { font-family:Poppins,Arial;background:#0b1020;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0 }
-  .card { background:#161b2e;padding:20px;border-radius:12px;width:300px }
-  input { width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;background:#111;color:#fff }
-  .btn { width:100%;padding:10px;margin-top:8px;border:none;border-radius:8px;font-weight:600;cursor:pointer }
-  .btn.primary { background:#7b61ff;color:#fff }
-  .btn.danger { background:#ef4444;color:#fff }
-  .link { display:block;text-align:center;margin-top:8px;font-size:13px;color:#7b61ff;cursor:pointer }
-  #toast { position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222;padding:10px 14px;border-radius:999px;opacity:0;transition:0.2s;color:#fff }
-  #toast.show { opacity:1; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Secret Cipher — Login</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="card">
-  <h2>Sign In</h2>
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button id="btnLogin" class="btn primary">Login</button>
-  <button id="btnSignup" class="btn">Sign Up</button>
-  <button id="btnGuest" class="btn">Continue as Guest</button>
-  <div id="forgotPass" class="link">Forgot password?</div>
-</div>
+<header>
+  <div class="brand">
+    <h1>🔑 Login</h1>
+  </div>
+  <a href="index.html" class="btn ghost">← Back</a>
+</header>
+
+<main class="main">
+  <section class="card" style="max-width:400px;margin:auto">
+    <h3>Sign In / Sign Up</h3>
+    <input id="loginEmail" placeholder="Email">
+    <input id="loginPass" type="password" placeholder="Password">
+    <div class="controls">
+      <button class="btn" onclick="login()">Login</button>
+      <button class="btn ghost" onclick="signup()">Sign Up</button>
+    </div>
+    <div class="controls">
+      <button class="btn warn" onclick="resetPassword()">Forgot Password</button>
+      <button class="btn ghost" onclick="continueGuest()">Continue as Guest</button>
+    </div>
+  </section>
+</main>
+
+<footer>© <span id="year"></span> Secret Cipher</footer>
 <div id="toast"></div>
-<script type="module" src="auth.js"></script>
+
+<script src="auth.js"></script>
 </body>
 </html>

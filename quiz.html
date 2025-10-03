@@ -10,37 +10,41 @@
 <body>
 <header>
   <div class="brand">
-    <h1>Secret Cipher</h1>
-    <div class="small">Quiz Mode</div>
+    <h1>🧩 Cipher Quiz</h1>
   </div>
   <a href="index.html" class="btn ghost">← Back</a>
 </header>
 
 <main class="main">
-  <section class="card">
-    <h3>🧩 Cipher Quiz</h3>
-    <div class="small">5 challenges • 60s each</div>
+  <section id="quizSection" class="card" style="max-width:700px;margin:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h3>Daily Quiz</h3>
+        <div class="small">5 random challenges • 60s each</div>
+      </div>
+      <div class="small">Time left: <span id="quizTimer">60</span>s</div>
+    </div>
 
-    <div class="question-box" style="margin-top:12px">
+    <div class="question-box">
       <div id="questionText">Press Start</div>
       <input id="quizAnswer" placeholder="Type decoded sentence" style="margin-top:10px" />
       <div style="display:flex;gap:8px;margin-top:10px">
         <button class="btn" onclick="submitQuiz()">Submit</button>
         <button class="btn ghost" onclick="nextQuiz()">Next</button>
-        <button class="btn ghost" onclick="endQuiz()">End</button>
+        <button class="btn warn" onclick="endQuiz()">End</button>
       </div>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
       <div class="small">Question <span id="quizProgress">0</span>/5</div>
-      <div class="small">Time left: <span id="quizTimer">60</span>s</div>
       <button class="btn" id="startQuizBtn" onclick="startQuiz()">Start</button>
     </div>
   </section>
 </main>
 
 <footer>© <span id="year"></span> Secret Cipher</footer>
+<div id="toast"></div>
 
-<script src="Quiz.js"></script>
+<script src="quiz.js"></script>
 </body>
 </html>

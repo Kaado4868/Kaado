@@ -1,46 +1,169 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+// ===== App Logic (Cipher + History + Leaderboard) =====
 
-// Firebase config (merged)
-const firebaseConfig = {
-  apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00",
-  authDomain: "cipher-e6c22.firebaseapp.com",
-  projectId: "cipher-e6c22",
-  storageBucket: "cipher-e6c22.appspot.com",
-  messagingSenderId: "345358817477",
-  appId: "1:345358817477:web:7ba4dd380d634b559038ac",
-  measurementId: "G-CN75P4JDPW"
+// Small helpers
+const $ = (id) => document.getElementById(id);
+const toastEl = document.getElementById("toast");
+function toast(msg, t = 2200) {
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  setTimeout(() => toastEl.classList.remove("show"), t);
+}
+
+// Cipher
+const vowelMap = { a: "1", e: "2", i: "3", o: "4", u: "5" };
+const revMap = { "1": "a", "2": "e", "3": "i", "4": "o", "5": "u" };
+
+window.encode = function () {
+  const txt = $("input").value || "";
+  let out = "";
+  for (const ch of txt.toLowerCase()) {
+    if (vowelMap[ch]) out += vowelMap[ch];
+    else if (/[a-z]/.test(ch)) out += ch + "a";
+    else out += ch;
+  }
+  $("output").value = out;
+  addHistory("Encoded", txt, out);
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
 
-// helpers
-const $ = (id)=>document.getElementById(id);
-function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
+window.decode = function () {
+  const txt = $("input").value || "";
+  let out = "";
+  for (let i = 0; i < txt.length; i++) {
+    const c = txt[i];
+    if (revMap[c]) out += revMap[c];
+    else if (/[a-z]/i.test(c) && txt[i + 1] === "a") {
+      out += c;
+      i++;
+    } else out += c;
+  }
+  $("output").value = out;
+  addHistory("Decoded", txt, out);
+};
 
-// auth state
-onAuthStateChanged(auth,(user)=>{
-  if(user){ $("userLabel").textContent=user.email||"Guest"; $("btnSignIn").classList.add("hidden"); $("btnLogout").classList.remove("hidden"); }
-  else{ $("userLabel").textContent="Not signed in"; $("btnSignIn").classList.remove("hidden"); $("btnLogout").classList.add("hidden"); }
-});
-$("btnLogout").onclick=()=>{ if(confirm("Logout?")) signOut(auth).then(()=>toast("Logged out")); };
+window.smartDetect = function () {
+  const txt = ($("input").value || "").trim();
+  if (!txt) return toast("No input");
+  const digitCount = (txt.match(/[12345]/g) || []).length;
+  const suffixCount = (txt.match(/[a-z]a/g) || []).length;
+  if (digitCount > suffixCount) window.decode();
+  else window.encode();
+};
 
-// cipher
-const vmap={a:"1",e:"2",i:"3",o:"4",u:"5"}; const rev={"1":"a","2":"e","3":"i","4":"o","5":"u"};
-window.encode=()=>{let txt=$("input").value.toLowerCase(),out="";for(let c of txt){if(vmap[c])out+=vmap[c];else if(/[a-z]/.test(c))out+=c+"a";else out+=c} $("output").value=out;};
-window.decode=()=>{let txt=$("input").value,out="";for(let i=0;i<txt.length;i++){let c=txt[i];if(rev[c])out+=rev[c];else if(/[a-z]/i.test(c)&&txt[i+1]==="a"){out+=c;i++;}else out+=c} $("output").value=out;};
-window.smartDetect=()=>{let t=$("input").value;if(/[1-5]/.test(t))window.decode();else window.encode();};
-window.copyOutput=()=>{navigator.clipboard.writeText($("output").value);toast("Copied");};
-window.clearAll=()=>{$("input").value="";$("output").value="";};
+window.copyOutput = function () {
+  const out = $("output").value || "";
+  if (!out) return toast("Nothing to copy");
+  navigator.clipboard.writeText(out).then(() => toast("Copied ✅"));
+};
 
-// quiz
-const QUESTIONS=["The quick brown fox jumps over the lazy dog.","Knowledge is power, but wisdom is everything.","Dream big and dare to fail.","Great things never come from comfort zones.","Hard work beats talent when talent doesn’t work hard.","The secret of getting ahead is getting started.","Do not watch the clock. Do what it does. Keep going.","Small steps every day add up to big results.","Creativity is intelligence having fun.","Be kind whenever possible. It is always possible."];
-let qi=0,score=0,pool=[],timer=null,remain=60;
-function encodeSentence(s){let out="";for(let c of s.toLowerCase()){if(vmap[c])out+=vmap[c];else if(/[a-z]/.test(c))out+=c+"a";else out+=c}return out;}
-window.startQuiz=()=>{if(!auth.currentUser)return toast("Login required");pool=[...QUESTIONS].sort(()=>Math.random()-0.5).slice(0,5);qi=0;score=0;nextQ();};
-function nextQ(){if(qi>=pool.length)return finish();const s=pool[qi];$("quizContainer").innerHTML=`<div><b>Q${qi+1}</b>: ${encodeSentence(s)}</div><input id="ans"><button onclick="submitQ('${s.replace(/'/g,"\\'")}')">Submit</button>`;remain=60;clearInterval(timer);timer=setInterval(()=>{remain--;if(remain<=0){clearInterval(timer);nextQ();}document.getElementById("quizTimer").textContent=remain;},1000);}
-window.submitQ=(corr)=>{clearInterval(timer);const a=document.getElementById("ans").value;if(a.toLowerCase()===corr.toLowerCase()){score++;toast("Correct");}else toast("Wrong → "+corr);qi++;setTimeout(nextQ,800);};
-function finish(){$("quizContainer").innerHTML=`Finished! Score ${score}/${pool.length}`;localStorage.setItem("quizLast",Date.now());}
-$("year").textContent=new Date().getFullYear();
+window.clearAll = function () {
+  $("input").value = "";
+  $("output").value = "";
+};
+
+// ====== History ======
+function historyKey() {
+  return "cipher_history";
+}
+function scoresKey() {
+  return "cipher_scores";
+}
+
+function loadHistory() {
+  return JSON.parse(localStorage.getItem(historyKey()) || "[]");
+}
+function saveHistory(arr) {
+  localStorage.setItem(historyKey(), JSON.stringify(arr));
+}
+function renderHistory() {
+  const arr = loadHistory();
+  const el = $("historyList");
+  if (!arr.length) {
+    el.innerHTML = "<div class='small'>No history yet</div>";
+    return;
+  }
+  el.innerHTML = arr
+    .map(
+      (h) =>
+        `<div class="history-item"><b>${h.type}</b><div>${h.res}</div><small>${h.date}</small></div>`
+    )
+    .join("");
+}
+function addHistory(type, inp, res) {
+  let arr = loadHistory();
+  arr.unshift({ type, input: inp, res, date: new Date().toLocaleString() });
+  arr = arr.slice(0, 50);
+  saveHistory(arr);
+  renderHistory();
+}
+window.copyHistory = function () {
+  const arr = loadHistory();
+  if (!arr.length) return toast("No history");
+  navigator.clipboard
+    .writeText(arr.map((h) => `${h.type}: ${h.res}`).join("\n"))
+    .then(() => toast("Copied ✅"));
+};
+window.exportBackup = function () {
+  const data = { history: loadHistory(), scores: loadScores() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "cipher-backup.json";
+  a.click();
+};
+window.importBackup = function () {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "application/json";
+  inp.onchange = async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const txt = await f.text();
+    try {
+      const data = JSON.parse(txt);
+      if (data.history) saveHistory(data.history);
+      if (data.scores) saveScores(data.scores);
+      renderHistory();
+      renderLeaderboard();
+      toast("Imported ✅");
+    } catch {
+      toast("Invalid file ❌");
+    }
+  };
+  inp.click();
+};
+window.clearHistory = function () {
+  if (!confirm("Clear history?")) return;
+  localStorage.removeItem(historyKey());
+  renderHistory();
+};
+
+// ====== Leaderboard (local) ======
+function loadScores() {
+  return JSON.parse(localStorage.getItem(scoresKey()) || "[]");
+}
+function saveScores(arr) {
+  localStorage.setItem(scoresKey(), JSON.stringify(arr));
+}
+function renderLeaderboard() {
+  const arr = loadScores();
+  if (!arr.length) {
+    $("leaderboard").innerHTML = "<div class='small'>No scores yet</div>";
+    return;
+  }
+  $("leaderboard").innerHTML = arr
+    .slice(0, 5)
+    .map(
+      (s, i) =>
+        `#${i + 1} → ${s.score} (${new Date(s.date).toLocaleDateString()})`
+    )
+    .join("<br>");
+}
+
+// ====== Init ======
+(function init() {
+  $("year").textContent = new Date().getFullYear();
+  renderHistory();
+  renderLeaderboard();
+})();
