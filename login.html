@@ -1,31 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Secret Cipher — Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login — Secret Cipher</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 <header>
   <div class="brand">
-    <h1>🔑 Login</h1>
+    <h1>Secret Cipher</h1>
+    <div class="small">Login / Sign Up</div>
   </div>
   <a href="index.html" class="btn ghost">← Back</a>
 </header>
 
 <main class="main">
   <section class="card" style="max-width:400px;margin:auto">
-    <h3>Sign In / Sign Up</h3>
+    <h2>🔑 Login / Sign Up</h2>
     <input id="loginEmail" placeholder="Email">
     <input id="loginPass" type="password" placeholder="Password">
     <div class="controls">
       <button class="btn" onclick="login()">Login</button>
       <button class="btn ghost" onclick="signup()">Sign Up</button>
-    </div>
-    <div class="controls">
-      <button class="btn warn" onclick="resetPassword()">Forgot Password</button>
+      <button class="btn ghost" onclick="resetPassword()">Forgot Password</button>
       <button class="btn ghost" onclick="continueGuest()">Continue as Guest</button>
     </div>
   </section>

@@ -1,43 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Secret Cipher — Quiz</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz — Secret Cipher</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 <header>
   <div class="brand">
-    <h1>🧩 Cipher Quiz</h1>
+    <h1>Secret Cipher</h1>
+    <div class="small">Daily Quiz</div>
   </div>
   <a href="index.html" class="btn ghost">← Back</a>
 </header>
 
 <main class="main">
-  <section id="quizSection" class="card" style="max-width:700px;margin:auto">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <h3>Daily Quiz</h3>
-        <div class="small">5 random challenges • 60s each</div>
-      </div>
-      <div class="small">Time left: <span id="quizTimer">60</span>s</div>
-    </div>
-
-    <div class="question-box">
+  <section class="card" style="max-width:700px;margin:auto">
+    <h2>🧩 Daily Cipher Quiz</h2>
+    <p>Decode 5 random challenges. You have 60s for each.</p>
+    <div id="quiz-box">
       <div id="questionText">Press Start</div>
-      <input id="quizAnswer" placeholder="Type decoded sentence" style="margin-top:10px" />
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn" onclick="submitQuiz()">Submit</button>
-        <button class="btn ghost" onclick="nextQuiz()">Next</button>
-        <button class="btn warn" onclick="endQuiz()">End</button>
+      <input id="quizAnswer" placeholder="Type decoded sentence">
+      <div>
+        <span>⏱ Time left: <span id="quizTimer">60</span>s</span>
+        <span style="float:right">Q <span id="quizProgress">0</span>/5</span>
       </div>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-      <div class="small">Question <span id="quizProgress">0</span>/5</div>
-      <button class="btn" id="startQuizBtn" onclick="startQuiz()">Start</button>
+      <div class="controls">
+        <button class="btn" onclick="startQuiz()">Start</button>
+        <button class="btn ghost" onclick="submitQuiz()">Submit</button>
+        <button class="btn ghost" onclick="nextQuiz()">Next</button>
+        <button class="btn ghost" onclick="endQuiz()">End</button>
+      </div>
     </div>
   </section>
 </main>

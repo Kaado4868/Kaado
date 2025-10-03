@@ -1,27 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Secret Cipher — Modern</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Secret Cipher</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 <header>
   <div class="brand">
     <h1>Secret Cipher</h1>
-    <div class="small">Vowel Numbers — modernized</div>
+    <div class="small">Vowel Numbers — Modernized</div>
   </div>
-  <a href="quiz.html" class="btn ghost">🧩 Take Quiz</a>
+  <div>
+    <a href="login.html" class="btn">🔑 Login</a>
+    <a href="quiz.html" class="btn">🧩 Quiz</a>
+    <button id="btnLogout" class="btn warn">Logout</button>
+  </div>
 </header>
 
 <main class="main">
-  <section id="tool" class="card">
+  <section class="card">
     <h3>📝 Cipher Tool</h3>
-    <label class="small">Input</label>
+    <label>Input</label>
     <textarea id="input" placeholder="Type your message..."></textarea>
-
     <div class="controls">
       <button class="btn" onclick="encode()">Encode</button>
       <button class="btn ghost" onclick="decode()">Decode</button>
@@ -29,24 +31,20 @@
       <button class="btn ghost" onclick="copyOutput()">Copy</button>
       <button class="btn ghost" onclick="clearAll()">Clear</button>
     </div>
-
-    <label class="small" style="margin-top:12px">Output</label>
+    <label>Output</label>
     <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
   </section>
 
   <aside class="card">
-    <h4>📜 Recent History</h4>
-    <div id="historyList" style="max-height:360px;overflow:auto;margin-top:8px"></div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn ghost" onclick="copyHistory()">Copy All</button>
-      <button class="btn ghost" onclick="clearHistory()">Clear</button>
-    </div>
+    <h4>📜 History</h4>
+    <div id="historyList"></div>
   </aside>
 </main>
 
 <footer>© <span id="year"></span> Secret Cipher</footer>
+<div id="toast"></div>
 
-<script src="cipher.js"></script>
 <script src="app.js"></script>
+<script src="auth.js"></script>
 </body>
 </html>
