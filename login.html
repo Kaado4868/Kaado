@@ -1,96 +1,32 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Login — Secret Cipher</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="brand"><h1>Secret Cipher</h1></div>
-    <nav><a href="index.html" class="btn ghost">Home</a></nav>
-  </header>
+<header>
+  <h1>🔑 Login</h1>
+</header>
 
-  <main class="center">
-    <section class="card" style="width:360px">
-      <h3>🔑 Sign In / Sign Up</h3>
+<main class="main">
+  <section class="card">
+    <h3>Sign In / Sign Up</h3>
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <div class="controls">
+      <button class="btn" id="btnLogin">Login</button>
+      <button class="btn ghost" id="btnSignup">Sign Up</button>
+    </div>
+    <button class="btn ghost" id="btnGuest">Continue as Guest</button>
+    <button class="btn ghost" id="btnReset">Forgot Password</button>
+  </section>
+</main>
 
-      <label class="small">Email</label>
-      <input id="email" type="email" placeholder="you@example.com">
-
-      <label class="small">Password</label>
-      <input id="password" type="password" placeholder="password">
-
-      <div class="controls" style="margin-top:14px">
-        <button id="btnSignIn" class="btn">Sign In</button>
-        <button id="btnSignUp" class="ghost">Sign Up</button>
-        <button id="btnGuest" class="ghost">Continue as Guest</button>
-      </div>
-
-      <div style="margin-top:10px">
-        <button id="btnReset" class="ghost">Forgot password</button>
-      </div>
-    </section>
-  </main>
-
-  <footer>© <span id="year"></span> Secret Cipher</footer>
-  <div id="toast"></div>
-
-  <script type="module">
-  import { auth } from './firebase.js';
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-
-  const emailEl = document.getElementById("email");
-  const passEl = document.getElementById("password");
-  const toastEl = document.getElementById("toast");
-  function toast(msg,t=2000){ toastEl.textContent = msg; toastEl.classList.add("show"); setTimeout(()=>toastEl.classList.remove("show"),t); }
-
-  // if already signed-in, go back home
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      // If user arrived here to play quiz, redirect back to quiz
-      // Otherwise go to index by default
-      const dest = sessionStorage.getItem('afterLogin') || 'index.html';
-      sessionStorage.removeItem('afterLogin');
-      window.location.href = dest;
-    }
-  });
-
-  document.getElementById("btnSignIn").addEventListener('click', async ()=>{
-    const email = (emailEl.value||"").trim();
-    const pass = (passEl.value||"").trim();
-    if(!email || !pass) return toast("Fill fields");
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      toast("Signed in ✅");
-      // redirect handled by onAuthStateChanged
-    } catch(e){ toast(e.message || "Sign-in failed"); console.error(e); }
-  });
-
-  document.getElementById("btnSignUp").addEventListener('click', async ()=>{
-    const email = (emailEl.value||"").trim();
-    const pass = (passEl.value||"").trim();
-    if(!email || !pass) return toast("Fill fields");
-    try {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      toast("Account created ✅");
-    } catch(e){ toast(e.message || "Sign-up failed"); console.error(e); }
-  });
-
-  document.getElementById("btnGuest").addEventListener('click', async ()=>{
-    try { await signInAnonymously(auth); toast("Guest mode ✅"); }
-    catch(e){ toast("Guest sign-in failed"); console.error(e); }
-  });
-
-  document.getElementById("btnReset").addEventListener('click', async ()=>{
-    const email = (emailEl.value||"").trim();
-    if(!email) return toast("Enter email");
-    try { await sendPasswordResetEmail(auth, email); toast("Reset sent"); } catch(e){ toast("Reset failed"); console.error(e); }
-  });
-
-  // If user clicked Quiz while not logged in, preserve destination
-  // (nav on index sets sessionStorage('afterLogin') = 'quiz.html' before redirect)
-  </script>
+<div id="toast"></div>
+<script type="module" src="firebase-init.js"></script>
+<script src="login.js"></script>
 </body>
 </html>

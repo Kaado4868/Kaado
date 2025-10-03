@@ -1,161 +1,60 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Secret Cipher</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b5ed7">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" fill="#7b61ff"/></svg>
-      <div><h1>Secret Cipher</h1><div class="small">Vowel Numbers — modernized</div></div>
+<header>
+  <div class="brand">
+    <h1>🔐 Secret Cipher</h1>
+  </div>
+  <div class="nav-buttons">
+    <a href="index.html" class="btn ghost">Home</a>
+    <a href="quiz.html" class="btn ghost">Quiz</a>
+    <a href="login.html" class="btn ghost" id="btnSignIn">Sign in / Sign up</a>
+    <button id="btnLogout" class="btn warn hidden">Logout</button>
+  </div>
+</header>
+
+<main class="main">
+  <section id="tool" class="card">
+    <h3>📝 Cipher Tool</h3>
+    <label class="small">Input</label>
+    <textarea id="input" placeholder="Type your message..."></textarea>
+
+    <div class="controls">
+      <button class="btn" onclick="encode()">Encode</button>
+      <button class="btn ghost" onclick="decode()">Decode</button>
+      <button class="btn ghost" onclick="smartDetect()">Smart Detect</button>
+      <button class="btn ghost" onclick="copyOutput()">Copy</button>
+      <button class="btn ghost" onclick="clearAll()">Clear</button>
     </div>
 
-    <nav>
-      <a href="index.html" class="btn ghost">Cipher</a>
-      <a href="quiz.html" class="btn ghost" id="navQuiz">Quiz</a>
-      <a href="login.html" class="btn ghost" id="navLogin">Sign in</a>
-      <button id="btnLogout" class="btn warn hidden">Logout</button>
-    </nav>
-  </header>
+    <label class="small">Output</label>
+    <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
+  </section>
 
-  <main class="main">
-    <section class="card">
-      <h2>📝 Cipher Tool</h2>
-      <label class="small">Input</label>
-      <textarea id="input" placeholder="Type your message..."></textarea>
+  <aside class="card">
+    <h4>📜 History</h4>
+    <div id="historyList"></div>
+    <div class="controls">
+      <button class="btn ghost" onclick="copyHistory()">Copy All</button>
+      <button class="btn ghost" onclick="exportBackup()">Export</button>
+      <button class="btn ghost" onclick="importBackup()">Import</button>
+      <button class="btn warn" onclick="clearHistory()">Clear</button>
+    </div>
+  </aside>
+</main>
 
-      <div class="controls">
-        <button onclick="encode()">Encode</button>
-        <button class="ghost" onclick="decode()">Decode</button>
-        <button class="ghost" onclick="smartDetect()">Smart Detect</button>
-        <button class="ghost" onclick="copyOutput()">Copy</button>
-        <button class="ghost" onclick="clearAll()">Clear</button>
-      </div>
+<footer>© <span id="year"></span> Secret Cipher</footer>
+<div id="toast"></div>
 
-      <label class="small" style="margin-top:12px">Output</label>
-      <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
-    </section>
-
-    <aside class="card">
-      <h3>📜 Recent History</h3>
-      <div id="history"></div>
-      <div style="margin-top:10px; display:flex; gap:10px;">
-        <button class="ghost" onclick="copyHistory()">Copy All</button>
-        <button class="ghost" onclick="clearHistory()">Clear</button>
-      </div>
-
-      <h4 style="margin-top:20px;">📞 Contact</h4>
-      <p class="small">Email: <a href="mailto:abdulkadirbukar2006@gmail.com">abdulkadirbukar2006@gmail.com</a></p>
-      <p class="small">Phone: <a href="tel:+2347048684062">07048684062</a></p>
-    </aside>
-  </main>
-
-  <footer>Made with ❤️ Secret Cipher • <span id="year"></span></footer>
-  <div id="toast"></div>
-
-  <script type="module">
-  /* ---------------- FIREBASE CONFIG + INIT ---------------- */
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00",
-    authDomain: "cipher-e6c22.firebaseapp.com",
-    projectId: "cipher-e6c22",
-    storageBucket: "cipher-e6c22.appspot.com",
-    messagingSenderId: "345358817477",
-    appId: "1:345358817477:web:7ba4dd380d634b559038ac",
-    measurementId: "G-CN75P4JDPW"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  /* ---------------- UI ELEMENTS ---------------- */
-  const inputEl = document.getElementById("input");
-  const outputEl = document.getElementById("output");
-  const historyEl = document.getElementById("history");
-  const navLogin = document.getElementById("navLogin");
-  const btnLogout = document.getElementById("btnLogout");
-
-  let historyArr = JSON.parse(localStorage.getItem("cipherHistory") || "[]");
-
-  /* ---------------- RENDER HISTORY ---------------- */
-  function renderHistory(){
-    historyEl.innerHTML = historyArr.length
-      ? historyArr.map(h=>`<div class="history-item"><b>${h.type}</b>: ${h.result}<br><small>${h.date}</small></div>`).join("")
-      : "<p class='small'>No history yet.</p>";
-  }
-  function saveHistoryItem(item){
-    historyArr.unshift(item);
-    historyArr = historyArr.slice(0,20);
-    localStorage.setItem("cipherHistory", JSON.stringify(historyArr));
-    renderHistory();
-  }
-
-  /* ---------------- CIPHER LOGIC ---------------- */
-  function encodeInternal(text){
-    const map = {a:"1", e:"2", i:"3", o:"4", u:"5"};
-    let r="";
-    for (let ch of text.toLowerCase()){
-      if (map[ch]) r+=map[ch];
-      else if (/[a-z]/.test(ch)) r+=ch+"a";
-      else r+=ch;
-    }
-    return r;
-  }
-  function decodeInternal(text){
-    const rev = {"1":"a","2":"e","3":"i","4":"o","5":"u"};
-    let r="";
-    for (let i=0;i<text.length;i++){
-      const c=text[i];
-      if (rev[c]) r+=rev[c];
-      else if (/[a-z]/i.test(c)&&text[i+1]==="a"){ r+=c; i++; }
-      else r+=c;
-    }
-    return r;
-  }
-
-  window.encode = function(){ const txt=inputEl.value||""; const out=encodeInternal(txt); outputEl.value=out; saveHistoryItem({type:"Encoded",result:out,date:new Date().toLocaleString()}); }
-  window.decode = function(){ const txt=inputEl.value||""; const out=decodeInternal(txt); outputEl.value=out; saveHistoryItem({type:"Decoded",result:out,date:new Date().toLocaleString()}); }
-  window.smartDetect = function(){ const txt=(inputEl.value||"").trim(); if(!txt) return; const digits=(txt.match(/[12345]/g)||[]).length; const suff=(txt.match(/[a-z]a/g)||[]).length; if(digits>suff) window.decode(); else window.encode(); }
-  window.copyOutput = function(){ if(!outputEl.value) return showToast("Nothing to copy"); navigator.clipboard.writeText(outputEl.value).then(()=>showToast("Copied ✅")); }
-  window.clearAll = function(){ inputEl.value=""; outputEl.value=""; }
-
-  /* ---------------- HISTORY CONTROLS ---------------- */
-  window.copyHistory = function(){ if(!historyArr.length) return showToast("No history"); navigator.clipboard.writeText(historyArr.map(h=>`${h.type}: ${h.result}`).join("\\n")).then(()=>showToast("History copied ✅")); }
-  window.clearHistory = function(){ if(!confirm("Clear history?")) return; historyArr=[]; localStorage.removeItem("cipherHistory"); renderHistory(); }
-
-  /* ---------------- TOAST ---------------- */
-  const toastEl = document.getElementById("toast");
-  function showToast(msg,t=1800){ toastEl.textContent=msg; toastEl.classList.add("show"); setTimeout(()=>toastEl.classList.remove("show"),t); }
-
-  /* ---------------- AUTH STATE ---------------- */
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      navLogin.classList.add("hidden");
-      btnLogout.classList.remove("hidden");
-      navLogin.textContent = user.isAnonymous ? "Guest" : (user.email || "User");
-    } else {
-      navLogin.classList.remove("hidden");
-      btnLogout.classList.add("hidden");
-      navLogin.textContent = "Sign in";
-    }
-  });
-
-  btnLogout.addEventListener("click", async ()=>{
-    if(!confirm("Logout?")) return;
-    try{ await signOut(auth); showToast("Logged out"); }
-    catch(e){ console.error(e); showToast("Logout failed"); }
-  });
-
-  /* ---------------- INIT ---------------- */
-  document.getElementById("year").textContent=new Date().getFullYear();
-  renderHistory();
-  </script>
+<script type="module" src="firebase-init.js"></script>
+<script src="cipher.js"></script>
 </body>
 </html>
