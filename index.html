@@ -139,13 +139,27 @@ footer {
 <section id="cipher" class="card">
   <h3>📝 Cipher Tool</h3>
   <textarea id="input" placeholder="Type your message..."></textarea>
-  <div class="controls">
-    <button class="btn" onclick="encode()">Encode</button>
-    <button class="btn ghost" onclick="decode()">Decode</button>
-    <button class="btn ghost" onclick="smartDetect()">Smart Detect</button>
-    <button class="btn ghost" onclick="copyOutput()">Copy</button>
-    <button class="btn danger" onclick="clearAll()">Clear</button>
-  </div>
+ <div class="controls">
+  <button class="btn animate-glow" onclick="encode()">
+    🔒 Encode
+  </button>
+
+  <button class="btn animate-glow" onclick="decode()">
+    🔓 Decode
+  </button>
+
+  <button class="btn ghost animate-glow" onclick="smartDetect()">
+    🧠 Smart Detect
+  </button>
+
+  <button class="btn ghost" onclick="copyOutput()">
+    📋 Copy Output
+  </button>
+
+  <button class="btn danger" onclick="clearAll()">
+    🗑️ Clear All
+  </button>
+</div>
   <textarea id="output" readonly placeholder="Result will appear here..."></textarea>
   <h4>📜 History</h4>
   <div id="history"></div>
