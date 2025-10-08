@@ -55,8 +55,19 @@ textarea:focus,input:focus {
   box-shadow:0 0 8px rgba(0,210,255,0.5);
 }
 .controls {
-  display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;
-  justify-content:flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;   /* centers all buttons */
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  width: 100%;
+}
+
+.controls .btn {
+  flex: 1 1 160px; /* buttons stay equal and wrap on small screens */
+  max-width: 200px;
+  text-align: center;
 }
 
 /* 🎯 BUTTONS — Bigger, Rounded, Glow Effects */
