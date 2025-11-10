@@ -1,0 +1,94 @@
+/* Basic styling for the page */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #2e51a2;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+h1, h2, h3 {
+    margin-top: 0;
+}
+
+/* Create a two-column layout */
+.container {
+    display: grid;
+    /* This creates two columns: 
+       - 2fr means "2 parts of the available space"
+       - 1fr means "1 part of the available space"
+       This makes the left column (recommendations) twice as wide as the right (news).
+    */
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Styling for your recommendation posts */
+.recommendations .post {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.recommendations .post h3 {
+    color: #2e51a2;
+}
+
+/* Styling for the automated news section */
+.news {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Styling for each news item that we fetch */
+.news-item {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+}
+
+.news-item img {
+    max-width: 100%; /* Makes sure images don't overflow */
+    border-radius: 5px;
+}
+
+.news-item a {
+    text-decoration: none;
+    color: #d9534f; /* A nice red for links */
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.news-item a:hover {
+    text-decoration: underline;
+}
+
+.news-item p {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+}
+
+.news-credit {
+    font-size: 0.8em;
+    text-align: center;
+    color: #777;
+    margin-top: 20px;
+}

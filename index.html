@@ -1,515 +1,182 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Secret Cipher</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --glass-bg: rgba(255,255,255,0.86);
-    --muted:#607088;
-    --gold1:#fff0d1;
-    --gold2:#ffbf4d;
-    --accent: linear-gradient(90deg,var(--gold1),var(--gold2));
-    --radius:12px;
-    --shadow: 0 12px 30px rgba(18,24,40,0.06);
-    --text:#0b1320;
-  }
-  html,body{height:100%;margin:0;font-family:Poppins,Arial;background:linear-gradient(180deg,#f7fafc,#eef2f7);color:var(--text)}
-  header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
-  .brand{display:flex;gap:12px;align-items:center}
-  .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--gold1),var(--gold2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#123}
-  nav{display:flex;gap:8px;align-items:center}
-  nav button{background:transparent;border:0;padding:8px 10px;border-radius:8px;color:var(--muted);cursor:pointer}
-  nav button.locked{opacity:.5;cursor:not-allowed}
-  .wrap{max-width:980px;margin:18px auto;padding:0 12px}
-  .grid{display:grid;gap:18px}
-  @media(min-width:880px){ .grid{grid-template-columns:380px 1fr} }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Anime News Hub</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>My Anime News Hub</h1>
+      <p>Your daily source for news and recommendations</p>
 
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.82));padding:16px;border-radius:12px;border:1px solid rgba(0,0,0,0.04);box-shadow:var(--shadow)}
-  h2{margin:0 0 8px 0;font-family:Orbitron}
-  label{display:block;font-size:13px;color:var(--muted);margin-top:10px}
-  input,textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.04);background:transparent;font-size:15px;color:var(--text)}
-  textarea{min-height:120px}
-  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-  .btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:8px;border:0;font-weight:700;cursor:pointer;background:var(--accent);color:#123}
-  .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--muted)}
-  .btn.small{padding:6px 10px;font-size:13px}
-  .btn.google{background:#fff;color:#222;border:1px solid rgba(0,0,0,0.04)}
-  .history{max-height:220px;overflow:auto;background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));padding:8px;border-radius:8px;margin-top:12px}
-  .history-item{font-size:14px;padding:8px;border-bottom:1px dashed rgba(0,0,0,0.04);color:var(--muted)}
-  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0c1a23;color:#fff;padding:10px 14px;border-radius:14px;opacity:0;pointer-events:none;transition:.18s}
-  #toast.show{opacity:1;pointer-events:auto;transform:translate(-50%,-6px)}
-  .hidden{display:none!important}
-</style>
-</head>
-<body>
-<header>
-  <div class="brand">
-    <div class="logo">SC</div>
-    <div>
-      <div style="font-weight:700">Secret Cipher</div>
-      <div style="font-size:13px;color:var(--muted)"</div>
+      <nav class="navbar">
+        <span class="nav-branding">Anime Trendz</span>
+
+        <button
+          class="menu-toggle"
+          aria-expanded="false"
+          aria-controls="nav-links"
+        >
+          &#9776;
+        </button>
+
+        <div class="nav-links" id="nav-links">
+          <ul>
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="#recommendations-section">My Recommendations</a></li>
+            <li><a href="#schedule-section">Weekly Schedule</a></li>
+            <li><a href="#top-rated-section">Top All-Time</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <div class="container">
+      <main class="recommendations" id="recommendations-section">
+        <h2>My Recommendations</h2>
+
+        <article class="post">
+          <img src="one-piece.jpg" alt="Poster for One Piece" />
+          <div class="post-content">
+            <h3>Recommendation: 'One Piece'</h3>
+            <p>
+              If you want a "long story," this is the king of them all. It's an
+              epic adventure about pirates, dreams, and freedom. It may be long,
+              but the world-building and emotional moments are unmatched.
+            </p>
+            <p><em>Posted: Nov 10, 2025</em></p>
+          </div>
+        </article>
+
+        <article class="post">
+          <img src="hxh.jpg" alt="Poster for Hunter x Hunter (2011)" />
+          <div class="post-content">
+            <h3>Recommendation: 'Hunter x Hunter (2011)'</h3>
+            <p>
+              A perfect long-running series. It starts as a typical adventure
+              but quickly evolves into one of the most complex and intelligent
+              shonen anime ever made. The power system ('Nen') is brilliant.
+            </p>
+            <p><em>Posted: Nov 10, 2025</em></p>
+          </div>
+        </article>
+
+        <article class="post">
+          <img src="monster.jpg" alt="Poster for Monster" />
+          <div class="post-content">
+            <h3>Recommendation: 'Monster'</h3>
+            <p>
+              For a different kind of "long story," this is a mature,
+              psychological thriller. A brilliant doctor's life gets entangled
+              with a sociopath he once saved. It's a slow-burn mystery with
+              incredible depth.
+            </p>
+            <p><em>Posted: Nov 10, 2025</em></p>
+          </div>
+        </article>
+
+        <article class="post">
+          <img
+            src="frieren.jpg"
+            alt="Poster for Frieren: Beyond Journey's End"
+          />
+          <div class="post-content">
+            <h3>Recommendation: 'Frieren: Beyond Journey's End'</h3>
+            <p>
+              If you're looking for a beautiful, fantasy series with a lot of
+              heart...
+            </p>
+            <p><em>Posted: Nov 10, 2025</em></p>
+          </div>
+        </article>
+
+        <article class="post">
+          <img src="jujutsu.jpg" alt="Poster for Jujutsu Kaisen" />
+          <div class="post-content">
+            <h3>Recommendation: 'Jujutsu Kaisen'</h3>
+            <p>For fans of action, this is the one to watch...</p>
+            <p><em>Posted: Nov 9, 2025</em></p>
+          </div>
+        </article>
+        <section class="top-rated-section" id="top-rated-section">
+          <h2>Top All-Time Anime</h2>
+          <div id="top-rated-grid">
+            <p>Loading top-rated anime...</p>
+          </div>
+        </section>
+
+        <section class="upcoming-section" id="upcoming-section">
+          <h2>Upcoming Next Season</h2>
+          <div id="upcoming-grid">
+            <p>Loading upcoming anime...</p>
+          </div>
+        </section>
+      </main>
+
+      <aside class="news">
+        <h2>Daily Recommendation</h2>
+        <div id="daily-rec-container">
+          <p>Loading recommendation...</p>
+        </div>
+
+        <h2 id="schedule-section">Weekly Schedule</h2>
+        <div class="calendar-tabs">
+          <button data-day="monday">Mon</button>
+          <button data-day="tuesday">Tue</button>
+          <button data-day="wednesday">Wed</button>
+          <button data-day="thursday">Thu</button>
+          <button data-day="friday">Fri</button>
+          <button data-day="saturday">Sat</button>
+          <button data-day="sunday">Sun</button>
+        </div>
+        <div id="calendar-container">
+          <p>Loading today's schedule...</p>
+        </div>
+
+        <h2>This Season's Anime</h2>
+        <div id="seasonal-container">
+          <p>Loading this season's shows...</p>
+        </div>
+
+        <h2>Top Trending Anime</h2>
+        <div id="trending-container">
+          <p>Loading trending...</p>
+        </div>
+
+        <h2>Latest Anime News</h2>
+        <div id="news-container">
+          <p>Loading latest news...</p>
+        </div>
+        <p class="news-credit">
+          News powered by
+          <a href="https://www.animenewsnetwork.com/" target="_blank"
+            >Anime News Network</a
+          >
+        </p>
+      </aside>
     </div>
-  </div>
 
-  <nav>
-    <button id="nav-login" class="active">Login</button>
-    <button id="nav-cipher" class="locked">Cipher</button>
-    <button id="nav-quiz" class="locked">Quiz</button>
-    <div id="userBadge" style="margin-left:10px;color:var(--muted);font-size:13px">Not signed</div>
-  </nav>
-</header>
-
-<main class="wrap">
-  <div class="grid">
-    <!-- Login card -->
-    <section id="loginCard" class="card" data-page="login">
-      <h2>🔐 Login / Sign Up</h2>
-      <label>Email</label>
-      <input id="email" type="email" autocomplete="email" placeholder="you@example.com">
-      <label>Password</label>
-      <div style="position:relative">
-        <input id="password" type="password" autocomplete="current-password" placeholder="Password">
-        <button id="pwdToggle" style="position:absolute;right:8px;top:8px;border:0;background:transparent;cursor:pointer;color:var(--muted)">👁</button>
+    <footer>
+      <div class="footer-content">
+        <div class="footer-links">
+          <h4>Site Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#">Reviews</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-info">
+          <p>&copy; 2025 My Anime News Hub. All rights reserved.</p>
+          <p>Built with HTML, CSS, and the Jikan API.</p>
+        </div>
       </div>
-
-      <div class="row">
-        <button id="btnSignup" class="btn small">Sign Up</button>
-        <button id="btnLogin" class="btn small">Login</button>
-        <button id="btnLogout" class="btn small ghost">Logout</button>
-      </div>
-
-      <div class="row" style="margin-top:8px">
-        <button id="btnGoogle" class="btn google small"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="height:16px" alt=""> Google</button>
-        <input id="resetEmail" type="email" placeholder="Reset email (optional)">
-        <button id="btnReset" class="btn small ghost">Reset</button>
-      </div>
-
-      <p id="userStatus" style="margin-top:12px;color:var(--muted)">Not logged in</p>
-    </section>
-
-    <!-- Right column (hidden while on login) -->
-    <div id="rightColumn">
-      <section id="cipherCard" class="card hidden" data-page="cipher">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h2>📝 Cipher</h2>
-          <div>
-            <div id="modeLabel" style="font-size:13px;color:var(--muted)">Vowel-number</div>
-            <button id="logoutTop" class="btn small ghost" style="margin-left:8px">Logout</button>
-          </div>
-        </div>
-
-        <label>Message</label>
-        <textarea id="cipherInput" placeholder="Type or paste..."></textarea>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-          <div style="font-size:13px;color:var(--muted)"><span id="charCount">0</span> chars</div>
-          <div style="font-size:13px;color:var(--muted)">Autosave on</div>
-        </div>
-
-        <div class="row" style="margin-top:12px">
-          <button id="btnEncode" class="btn small">Encode</button>
-          <button id="btnDecode" class="btn small">Decode</button>
-          <button id="btnSmart" class="btn small">Smart Detect</button>
-        </div>
-
-        <div class="row" style="margin-top:10px">
-          <button id="btnCopy" class="btn small ghost">Copy</button>
-          <button id="btnClear" class="btn small ghost">Clear</button>
-          <button id="btnExport" class="btn small ghost">Export</button>
-          <label class="btn small ghost" style="cursor:pointer">Import<input id="importFile" type="file" accept="application/json" style="display:none"></label>
-        </div>
-
-        <label style="margin-top:12px">Result</label>
-        <textarea id="cipherOutput" readonly placeholder="Result will appear here"></textarea>
-
-        <h4 style="margin-top:12px">History</h4>
-        <div id="history" class="history"></div>
-      </section>
-
-      <section id="quizCard" class="card hidden" data-page="quiz" style="margin-top:18px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h2>🧠 Quiz</h2>
-          <div style="font-size:13px;color:var(--muted)">Time left: <span id="quizTimer">0</span>s</div>
-        </div>
-
-        <div id="quizArea" style="margin-top:12px">
-          <div id="quizQuestion" style="font-weight:600;margin-bottom:8px;color:#123">Press Start</div>
-          <input id="quizAnswer" type="text" placeholder="Decoded answer">
-
-          <div class="row" style="margin-top:10px">
-            <button id="btnStartQuiz" class="btn small">Start</button>
-            <button id="btnSubmit" class="btn small ghost">Submit</button>
-            <button id="btnNext" class="btn small ghost">Next</button>
-            <button id="btnEndQuiz" class="btn small ghost">End</button>
-          </div>
-
-          <div style="margin-top:12px;display:flex;justify-content:space-between">
-            <div class="muted">Progress: <span id="quizProgress">0</span>/<span id="quizTotal">0</span></div>
-            <div class="muted">Score: <span id="quizScore">0</span></div>
-          </div>
-
-          <div style="margin-top:12px">
-            <button id="btnSaveScore" class="btn small ghost">Save Score</button>
-            <button id="btnShareScore" class="btn small ghost">Share Score</button>
-          </div>
-
-          <h4 style="margin-top:12px">Leaderboard</h4>
-          <div id="leaderboard" class="history"></div>
-        </div>
-      </section>
-    </div>
-  </div>
-</main>
-
-<div id="toast" role="status" aria-live="polite"></div>
-
-<script>
-/*
-  Robust auth/button wiring:
-   - buttons always wired on DOMContentLoaded
-   - we initialize firebase asynchronously; if it loads, the authAPI uses Firebase
-   - if firebase fails to load, we fallback to a simple local auth (so Sign Up/Login still work for testing)
-   - navigateTo hides / shows pages with display:none to avoid layout gaps
-*/
-
-const $ = id => document.getElementById(id);
-const toastEl = $('toast');
-function toast(msg, ms=1500){ if(!toastEl) return; toastEl.textContent = msg; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'), ms); }
-
-// pages hide/show using display to prevent blank spaces
-function navigateTo(page){
-  // page is 'login', 'cipher', 'quiz'
-  // show login by default
-  const pages = { login: $('loginCard'), cipher: $('cipherCard'), quiz: $('quizCard') };
-  Object.keys(pages).forEach(k=>{
-    const el = pages[k];
-    if(!el) return;
-    if(k === page) { el.style.display = ''; }
-    else { el.style.display = 'none'; }
-  });
-  // if page is login hide right column entirely
-  const right = $('rightColumn');
-  if(page === 'login') right.style.display = 'none';
-  else right.style.display = '';
-  // update nav active classes
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  const navMap = { login: 'nav-login', cipher: 'nav-cipher', quiz: 'nav-quiz' };
-  const btn = document.getElementById(navMap[page]);
-  if(btn) btn.classList.add('active');
-}
-
-// initial nav state
-navigateTo('login');
-$('nav-login').addEventListener('click', ()=>navigateTo('login'));
-$('nav-cipher').addEventListener('click', ()=>{ if(!authAPI.isAuthenticated()) { toast('Login required'); return; } navigateTo('cipher'); });
-$('nav-quiz').addEventListener('click', ()=>{ if(!authAPI.isAuthenticated()) { toast('Login required'); return; } navigateTo('quiz'); });
-
-// small UX
-$('pwdToggle').addEventListener('click', ()=>{ const p=$('password'); p.type = p.type === 'password' ? 'text' : 'password'; $('pwdToggle').textContent = p.type === 'password' ? '👁' : '🙈'; });
-
-// default empty values
-let firebaseAvailable = false;
-
-// authAPI will be replaced with Firebase-backed functions when firebase is ready
-const authAPI = {
-  // stub methods while initializing
-  signup: async () => toast('Initializing auth...'),
-  login: async () => toast('Initializing auth...'),
-  googleLogin: async () => toast('Initializing auth...'),
-  logout: async () => toast('Initializing auth...'),
-  forgotPassword: async () => toast('Initializing auth...'),
-  isAuthenticated: () => false,
-  currentUser: null
-};
-
-// attach UI buttons to call authAPI (these handlers will call the currently-wired implementations)
-document.addEventListener('DOMContentLoaded', ()=>{
-  // login button wiring
-  $('btnSignup').addEventListener('click', async ()=>{
-    const email = $('email').value.trim(), pw = $('password').value;
-    if(!email || !pw) { toast('Email + password required'); return; }
-    try{ await authAPI.signup(email,pw); } catch(e){ console.error(e); toast(e.message || 'Sign up error'); }
-  });
-
-  $('btnLogin').addEventListener('click', async ()=>{
-    const email = $('email').value.trim(), pw = $('password').value;
-    if(!email || !pw) { toast('Email + password required'); return; }
-    try{ await authAPI.login(email,pw); } catch(e){ console.error(e); toast(e.message || 'Login error'); }
-  });
-
-  $('btnGoogle').addEventListener('click', async ()=>{
-    try{ await authAPI.googleLogin(); } catch(e){ console.error(e); toast(e.message || 'Google login error'); }
-  });
-
-  $('btnLogout').addEventListener('click', async ()=>{ try{ await authAPI.logout(); }catch(e){console.error(e); toast('Logout error');} });
-
-  $('btnReset').addEventListener('click', async ()=>{ const em = $('resetEmail').value.trim(); if(!em){ toast('Enter email'); return; } try{ await authAPI.forgotPassword(em); }catch(e){ console.error(e); toast('Reset error'); } });
-
-  // cipher and quiz buttons (they don't depend on auth wiring)
-  $('btnEncode').addEventListener('click', runEncode);
-  $('btnDecode').addEventListener('click', runDecode);
-  $('btnSmart').addEventListener('click', runSmart);
-  $('btnCopy').addEventListener('click', copyOutput);
-  $('btnClear').addEventListener('click', clearCipher);
-  $('btnExport').addEventListener('click', exportHistory);
-  $('importFile').addEventListener('change', handleImport);
-
-  $('btnStartQuiz').addEventListener('click', startQuiz);
-  $('btnSubmit').addEventListener('click', submitQuizAnswer);
-  $('btnNext').addEventListener('click', nextQuizQuestion);
-  $('btnEndQuiz').addEventListener('click', endQuiz);
-
-  // quick char counting & autosave
-  $('cipherInput').addEventListener('input', (e)=>{ $('charCount').textContent = (e.target.value || '').length; localStorage.setItem('sc_draft', e.target.value || ''); });
-  // restore draft if any
-  const draft = localStorage.getItem('sc_draft'); if(draft) $('cipherInput').value = draft; $('charCount').textContent = ($('cipherInput').value || '').length;
-
-  // small UI initializations
-  renderHistory();
-  renderLeaderboardLocal();
-});
-
-// -----------------------------
-// minimal local-auth fallback
-// -----------------------------
-function makeLocalAuth(){
-  const USERS_KEY = 'sc_local_users';
-  const CURR_KEY = 'sc_local_user';
-  function loadUsers(){ try{ return JSON.parse(localStorage.getItem(USERS_KEY)||'{}'); }catch(e){ return {}; } }
-  function saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
-  function setCurrent(user){ localStorage.setItem(CURR_KEY, JSON.stringify(user)); authAPI.currentUser = user; authAPI._onAuthChanged && authAPI._onAuthChanged(user); updateUserUI(user); }
-  function clearCurrent(){ localStorage.removeItem(CURR_KEY); authAPI.currentUser = null; authAPI._onAuthChanged && authAPI._onAuthChanged(null); updateUserUI(null); }
-
-  return {
-    signup: async (email,pw) => {
-      const users = loadUsers();
-      if(users[email]) throw new Error('User exists (local)');
-      users[email] = { email, pw }; saveUsers(users);
-      setCurrent({ email });
-      toast('Signed up (local)');
-    },
-    login: async (email,pw) => {
-      const users = loadUsers();
-      if(!users[email] || users[email].pw !== pw) throw new Error('Invalid credentials (local)');
-      setCurrent({ email });
-      toast('Logged in (local)');
-    },
-    googleLogin: async ()=>{ /* no-op simulated */ const email = 'local_google_user@example.com'; setCurrent({ email }); toast('Google simulated (local)'); },
-    logout: async ()=>{ clearCurrent(); toast('Logged out (local)'); },
-    forgotPassword: async (email)=>{ const users = loadUsers(); if(!users[email]) throw new Error('No such user (local)'); toast('Reset email simulated (local)'); },
-    isAuthenticated: ()=> !!JSON.parse(localStorage.getItem(CURR_KEY)||'null'),
-    getCurrentUser: ()=> JSON.parse(localStorage.getItem(CURR_KEY)||'null'),
-    onAuthChange: (cb)=>{ authAPI._onAuthChanged = cb; }
-  };
-}
-
-// keep a reference so we can switch in the real Firebase functions later
-let localAuth = makeLocalAuth();
-
-// -----------------------------
-// Attempt dynamic Firebase import.
-// If successful, wire real auth; otherwise keep local fallback.
-// -----------------------------
-(async function initFirebase(){
-  // early stub: show initializing toast so user knows something is happening
-  toast('Initializing authentication...');
-  try {
-    const appMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-    const authMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-    const fsMod   = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00",
-      authDomain: "cipher-e6c22.firebaseapp.com",
-      projectId: "cipher-e6c22",
-      storageBucket: "cipher-e6c22.appspot.com",
-      messagingSenderId: "345358817477",
-      appId: "1:345358817477:web:7ba4dd380d634b559038ac"
-    };
-
-    const app = appMod.initializeApp(firebaseConfig);
-    const auth = authMod.getAuth(app);
-    const provider = new authMod.GoogleAuthProvider();
-    const db = fsMod.getFirestore(app);
-
-    // replace authAPI with real firebase implementations
-    authAPI.signup = async (email,pw) => {
-      await authMod.createUserWithEmailAndPassword(auth, email, pw);
-      // firebase will trigger onAuthStateChanged which updates UI
-    };
-    authAPI.login = async (email,pw) => {
-      await authMod.signInWithEmailAndPassword(auth, email, pw);
-    };
-    authAPI.googleLogin = async () => {
-      await authMod.signInWithPopup(auth, provider);
-    };
-    authAPI.logout = async () => {
-      await authMod.signOut(auth);
-    };
-    authAPI.forgotPassword = async (email) => {
-      await authMod.sendPasswordResetEmail(auth, email);
-    };
-    authAPI.isAuthenticated = () => !!auth.currentUser;
-    authAPI.getCurrentUser = () => auth.currentUser;
-    authAPI.onAuthChange = (cb) => authMod.onAuthStateChanged(auth, cb);
-
-    // also make getDocs/addDoc available for saving later (we won't force them)
-    window._firebaseStore = { fsMod, db };
-
-    // wire onAuthStateChanged to update UI
-    authAPI.onAuthChange((user)=>{
-      if(user){
-        updateUserUI({ email: user.email, name: user.displayName || null });
-        // when user logs in using Firebase, show cipher
-        navigateTo('cipher');
-        renderHistory(); renderLeaderboardLocal();
-      } else {
-        updateUserUI(null);
-        navigateTo('login');
-      }
-    });
-
-    firebaseAvailable = true;
-    toast('Firebase ready');
-  } catch (err){
-    console.warn('Firebase failed to load, falling back to local auth', err);
-    toast('Firebase unavailable — using local auth fallback');
-    // wire authAPI to local auth
-    authAPI.signup = localAuth.signup;
-    authAPI.login = localAuth.login;
-    authAPI.googleLogin = localAuth.googleLogin;
-    authAPI.logout = localAuth.logout;
-    authAPI.forgotPassword = localAuth.forgotPassword;
-    authAPI.isAuthenticated = localAuth.isAuthenticated;
-    authAPI.getCurrentUser = localAuth.getCurrentUser;
-    // listen for local auth changes
-    localAuth.onAuthChange((u)=>{ if(u) { updateUserUI(u); navigateTo('cipher'); } else { updateUserUI(null); navigateTo('login'); } });
-    // if a local user is already logged in, show cipher
-    const curr = localAuth.getCurrentUser();
-    if(curr){ updateUserUI(curr); navigateTo('cipher'); }
-  }
-})();
-
-// update user UI
-function updateUserUI(user){
-  const badge = $('userBadge'), status = $('userStatus');
-  if(user){
-    badge.textContent = user.email || user.name || 'user';
-    status.textContent = `Signed in: ${user.email || user.name}`;
-    document.getElementById('nav-cipher').classList.remove('locked');
-    document.getElementById('nav-quiz').classList.remove('locked');
-  } else {
-    badge.textContent = 'Not signed';
-    status.textContent = 'Not logged in';
-    document.getElementById('nav-cipher').classList.add('locked');
-    document.getElementById('nav-quiz').classList.add('locked');
-  }
-}
-
-// -----------------------------
-// Cipher implementation (vowel->number + consonant+'a')
-// -----------------------------
-const vmap = { a:"1", e:"2", i:"3", o:"4", u:"5" };
-const rev  = { "1":"a","2":"e","3":"i","4":"o","5":"u" };
-
-function encodeCipher(s){
-  let out = '';
-  for(const ch of s){
-    const l = ch.toLowerCase();
-    if(vmap[l]) out += vmap[l];
-    else if(/[a-z]/i.test(ch)) out += ch + 'a';
-    else out += ch;
-  }
-  return out;
-}
-function decodeCipher(s){
-  let out = '';
-  for(let i=0;i<s.length;i++){
-    const c = s[i];
-    if(rev[c]) out += rev[c];
-    else if(/[a-z]/i.test(c) && s[i+1] === 'a'){ out += c; i++; }
-    else out += c;
-  }
-  return out;
-}
-
-function runEncode(){ const src = $('cipherInput').value || ''; const out = encodeCipher(src); $('cipherOutput').value = out; pushLocalHistory({ type:'Encoded', res: out, time: new Date().toISOString() }); toast('Encoded'); }
-function runDecode(){ const src = $('cipherInput').value || ''; const out = decodeCipher(src); $('cipherOutput').value = out; pushLocalHistory({ type:'Decoded', res: out, time: new Date().toISOString() }); toast('Decoded'); }
-function runSmart(){ const v = $('cipherInput').value || ''; if(/[1-5]/.test(v)) runDecode(); else runEncode(); }
-function copyOutput(){ const out = $('cipherOutput').value || ''; if(!out){ toast('Nothing to copy'); return; } navigator.clipboard.writeText(out).then(()=>toast('Copied ✓')).catch(()=>toast('Copy failed')); }
-function clearCipher(){ $('cipherInput').value=''; $('cipherOutput').value=''; localStorage.removeItem('sc_draft'); $('charCount').textContent = '0'; toast('Cleared'); }
-
-// local history (simple persistence)
-function pushLocalHistory(item){ const arr = JSON.parse(localStorage.getItem('sc_history')||'[]'); arr.unshift(item); localStorage.setItem('sc_history', JSON.stringify(arr.slice(0,500))); renderHistory(); }
-function renderHistory(){ const arr = JSON.parse(localStorage.getItem('sc_history')||'[]'); const el = $('history'); if(!el) return; if(arr.length===0) { el.innerHTML = '<div class="history-item" style="color:var(--muted)">No history</div>'; return; } el.innerHTML = arr.map(it=>`<div class="history-item"><strong>${it.type}</strong><div style="float:right">${new Date(it.time).toLocaleString()}</div><div style="clear:both;margin-top:6px;white-space:pre-wrap">${escapeHtml(it.res)}</div></div>`).join(''); }
-function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// import/export helpers
-function exportHistory(){ const arr = JSON.parse(localStorage.getItem('sc_history')||'[]'); if(!arr.length){ toast('No history'); return; } const blob = new Blob([JSON.stringify(arr,null,2)], { type:'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'cipher_history.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); toast('Exported'); }
-function handleImport(e){ const f = e.target.files && e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev)=>{ try{ const arr = JSON.parse(ev.target.result); if(!Array.isArray(arr)) throw new Error('Invalid'); const cur = JSON.parse(localStorage.getItem('sc_history')||'[]'); const merged = [...arr, ...cur].slice(0,500); localStorage.setItem('sc_history', JSON.stringify(merged)); renderHistory(); toast('Imported'); }catch(err){ console.error(err); toast('Import failed'); } }; r.readAsText(f); }
-
-// =========================
-// Simple Quiz (local)
-// =========================
-const SENTENCES = [
-  "The quick brown fox jumps over the lazy dog.",
-  "Knowledge is power, but wisdom is everything.",
-  "Success usually comes to those who are too busy to be looking for it.",
-  "Do not watch the clock. Do what it does. Keep going.",
-  "Difficult roads often lead to beautiful destinations.",
-  "Hard work beats talent when talent doesn’t work hard.",
-  "Great things never come from comfort zones.",
-  "Dream big and dare to fail.",
-  "The only limit to our realization of tomorrow is our doubts of today.",
-  "Opportunities don't happen, you create them.",
-  "If you want something you've never had, you must be willing to do something you've never done.",
-  "Life is 10% what happens to us and 90% how we react to it.",
-  "It always seems impossible until it's done.",
-  "Don't wait. The time will never be just right.",
-  "Act as if what you do makes a difference. It does.",
-  "The harder you fall, the higher you bounce.",
-  "Small steps every day add up to big results over time.",
-  "Creativity is intelligence having fun.",
-  "Be kind whenever possible. It is always possible.",
-  "Change your thoughts and you change your world.",
-  "A smooth sea never made a skilled sailor.",
-  "The secret of getting ahead is getting started.",
-  "Turn your wounds into wisdom and lessons into strength.",
-  "Perseverance is not a long race; it is many short races one after another.",
-  "Value the people who value you; pay attention to where you spend your time."
-];
-
-let quizPool = [], qi = 0, qscore = 0, qTimer = null, qTimeLeft = 45;
-function shuffle(a){ const arr=[...a]; for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr; }
-
-function startQuiz(){
-  if(!authAPI.isAuthenticated()) { toast('Login required'); return; }
-  quizPool = shuffle(SENTENCES).slice(0,15).map(s=>({ plain: s, encoded: encodeCipher(s) }));
-  qi = 0; qscore = 0; $('quizTotal').textContent = quizPool.length; $('quizScore').textContent = 0;
-  showQuizQuestion();
-}
-function showQuizQuestion(){ if(qi >= quizPool.length){ finishQuiz(); return; } $('quizQuestion').textContent = 'Decode this: ' + quizPool[qi].encoded; $('quizAnswer').value=''; $('quizProgress').textContent = qi+1; startQuizTimer(); }
-function startQuizTimer(){ stopQuizTimer(); qTimeLeft = 45; $('quizTimer').textContent = qTimeLeft; qTimer = setInterval(()=>{ qTimeLeft--; $('quizTimer').textContent = qTimeLeft; if(qTimeLeft<=0){ stopQuizTimer(); toast('Time up'); qi++; showQuizQuestion(); } }, 1000); }
-function stopQuizTimer(){ if(qTimer){ clearInterval(qTimer); qTimer = null; } }
-function submitQuizAnswer(){ stopQuizTimer(); const ans = ($('quizAnswer').value||'').trim().toLowerCase(); if(!ans){ toast('Enter an answer'); startQuizTimer(); return; } const correct = quizPool[qi].plain.trim().toLowerCase(); if(ans === correct){ qscore++; toast('Correct'); } else toast('Wrong — ' + quizPool[qi].plain); qi++; setTimeout(()=>showQuizQuestion(), 600); }
-function nextQuizQuestion(){ stopQuizTimer(); qi++; showQuizQuestion(); }
-function finishQuiz(){ stopQuizTimer(); $('quizQuestion').textContent = `Finished — Score: ${qscore}/${quizPool.length}`; $('quizScore').textContent = qscore; pushLocalLeader({ user: (authAPI.getCurrentUser && authAPI.getCurrentUser().email) || 'anon', score: qscore, total: quizPool.length, time: new Date().toISOString() }); renderLeaderboardLocal(); }
-function endQuiz(){ stopQuizTimer(); toast('Quiz ended'); }
-
-// leaderboard local
-function pushLocalLeader(item){ const arr = JSON.parse(localStorage.getItem('sc_leader')||'[]'); arr.unshift(item); localStorage.setItem('sc_leader', JSON.stringify(arr.slice(0,200))); renderLeaderboardLocal(); }
-function renderLeaderboardLocal(){ const arr = JSON.parse(localStorage.getItem('sc_leader')||'[]'); const el = $('leaderboard'); if(!el) return; if(!arr.length){ el.innerHTML = '<div class="history-item" style="color:var(--muted)">No scores yet</div>'; return; } el.innerHTML = arr.slice(0,20).map((it,idx)=>`<div class="history-item"><strong>#${idx+1} ${escapeHtml(it.user)}</strong><div style="float:right">${it.score}/${it.total}</div><div style="clear:both;margin-top:6px">${new Date(it.time).toLocaleString()}</div></div>`).join(''); }
-
-// expose basic debugging helpers
-window.debug = {
-  authAPI,
-  navigateTo,
-  encodeCipher,
-  decodeCipher
-};
-
-</script>
-</body>
+    </footer>
+    <script src="script.js"></script>
+  </body>
 </html>
