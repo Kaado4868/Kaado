@@ -1,13 +1,18 @@
 // --- Global Constants ---
 const CACHE_DURATION = 1000 * 60 * 10; // 10 minutes in milliseconds
-const NAV_OFFSET = 60; // Offset in pixels to account for the fixed navbar height
+const NAV_OFFSET = 60; // Offset in pixels for smooth scrolling (to clear the navbar height)
 
 // --- Load Manager ---
 window.addEventListener('load', () => {
+    // If the search-results-html exists, we run the dedicated search function
+    if (document.getElementById('results-grid')) {
+        runSearchFromURL();
+    }
+    // Load the homepage data
     loadAllData();
 });
 
-// --- NEW/MODIFIED: Hamburger Toggle & Smooth Scrolling Logic ---
+// --- NEW/MODIFIED: Hamburger Toggle & Smooth Scrolling Setup ---
 document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.querySelector('.menu-toggle');
     const navLinks = document.getElementById('nav-links');
@@ -23,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Close menu when a link is clicked (mobile fix)
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
+                 // Close menu only for internal links on small screens
                  if (link.getAttribute('href').startsWith('#') && window.innerWidth <= 768) {
                     navLinks.classList.remove('open');
                     menuToggle.setAttribute('aria-expanded', 'false');
@@ -31,20 +37,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Smooth Scrolling Navigation Logic (UPDATED FOR ACCURACY) ---
+    // --- Smooth Scrolling Navigation Logic (FIXED) ---
     document.querySelectorAll('.navbar a').forEach(anchor => {
         // Only apply logic to internal links starting with '#'
         if (anchor.getAttribute('href').startsWith('#')) {
             anchor.addEventListener('click', function (e) {
-                e.preventDefault(); 
+                e.preventDefault();
 
                 const hash = this.hash;
-                
-                // Use document.documentElement for scrolling to the very top (#top or index.html)
-                const targetElement = (hash === '#top') ? document.documentElement : document.querySelector(hash); 
-                
+                const targetElement = document.querySelector(hash); 
+
                 if (targetElement) {
-                    // Use scrollTo and offset for precise scrolling
                     const targetPosition = targetElement.offsetTop - NAV_OFFSET;
                     
                     window.scrollTo({
@@ -52,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         behavior: 'smooth'
                     });
                     
-                    // Update the URL hash
                     history.pushState(null, null, hash);
                 }
             });
@@ -65,11 +67,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadAllData() {
     
-    // Run News (fastest) and Calendar Setup sequentially first
+    const fullSeasonalGrid = document.getElementById('full-seasonal-grid');
+
+    if (fullSeasonalGrid) {
+        // --- ONLY RUN ON SEASONAL.HTML ---
+        await fetchFullSeasonal();
+        return; // Stop execution here for the dedicated seasonal page
+    }
+    
+    // --- RUN ONLY ON INDEX.HTML ---
     await fetchNews(); 
     await setupCalendar(); 
     
-    // Define all Jikan requests that need to run sequentially
     const jikanRequests = [
         fetchDailyRec,
         fetchTrending,
@@ -78,12 +87,184 @@ async function loadAllData() {
         fetchUpcoming
     ];
 
-    // Loop through requests, running one at a time with a delay
     for (const requestFunction of jikanRequests) {
         await requestFunction(); 
         await new Promise(resolve => setTimeout(resolve, 1000)); 
     }
 }
+
+
+// --- UNIVERSAL SEARCH (API SEARCH) ---
+
+function handleSearch(event) {
+    // Only run if 'Enter' is pressed
+    if (event && event.key !== 'Enter') {
+        return;
+    }
+    
+    const input = document.getElementById('searchInput');
+    const searchTerm = input.value.trim();
+
+    if (searchTerm === "") {
+        // Don't alert on Enter, just do nothing
+        return;
+    }
+    
+    // Redirect to the search results page
+    const encodedTerm = encodeURIComponent(searchTerm);
+    window.location.href = `search-results.html?q=${encodedTerm}`;
+}
+
+async function runSearchFromURL() {
+    const resultsGrid = document.getElementById('results-grid');
+    if (!resultsGrid) return; 
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchTerm = urlParams.get('q');
+
+    if (!searchTerm) {
+        resultsGrid.innerHTML = '<p>No search term provided. Please search the full anime database.</p>';
+        return;
+    }
+    
+    document.querySelector('.static-page-content h2').textContent = `Anime Database Results for "${searchTerm}"`;
+
+    // CRITICAL: Call the external news link generator
+    displayExternalNewsLink(searchTerm);
+
+    // Fetch the anime results
+    await fetchSearchData(searchTerm);
+}
+
+// --- NEW: External News Link Generator ---
+function displayExternalNewsLink(query) {
+    const newsDiv = document.getElementById('external-news-link');
+    if (!newsDiv) return;
+
+    // Use Google News search to simulate a news database lookup
+    const encodedQuery = encodeURIComponent(`anime news ${query}`);
+    const googleUrl = `https://www.google.com/search?tbm=nws&q=${encodedQuery}`;
+    
+    newsDiv.innerHTML = `
+        <p>Your comprehensive news search is redirected to the web:</p>
+        <a href="${googleUrl}" target="_blank" class="watch-button-search" style="text-align: center;">Search the Web for News on "${query}"</a>
+    `;
+}
+
+
+function fetchSearchData(query) {
+    const resultsGrid = document.getElementById('results-grid');
+    resultsGrid.innerHTML = '<p>Searching MyAnimeList...</p>';
+
+    const apiUrl = `https://api.jikan.moe/v4/anime?q=${query}&limit=20`;
+
+    return fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Search API failed or rate limited.');
+            }
+            return response.json();
+        })
+        .then(apiData => {
+            displaySearchResults(apiData.data);
+        })
+        .catch(error => {
+            resultsGrid.innerHTML = '<p class="error-message">Search failed: Cannot connect to anime database. <a href="javascript:location.reload()" class="refresh-link">Refresh to try again.</a></a.p>';
+        });
+}
+
+function displaySearchResults(animeList) {
+    const gridContainer = document.getElementById('results-grid');
+    gridContainer.innerHTML = '';
+    
+    if (!Array.isArray(animeList) || animeList.length === 0) {
+        gridContainer.innerHTML = '<p>No anime matching your search criteria were found.</p>';
+        return;
+    }
+    
+    animeList.forEach(anime => {
+        const card = document.createElement('div'); 
+        card.className = 'anime-card'; 
+
+        const imageLink = document.createElement('a');
+        imageLink.href = anime.url;
+        imageLink.target = '_blank';
+        const image = document.createElement('img');
+        image.src = anime.images.jpg.image_url;
+        image.alt = anime.title;
+        imageLink.appendChild(image);
+        
+        const titleLink = document.createElement('a');
+        titleLink.href = anime.url;
+        titleLink.target = '_blank';
+        const title = document.createElement('h4');
+        title.textContent = anime.title;
+        titleLink.appendChild(title);
+        
+        const score = document.createElement('span');
+        score.className = 'anime-card-score';
+        score.textContent = `Score: ${anime.score || 'N/A'}`;
+
+        const watchButton = document.createElement('a');
+        watchButton.href = `https://www.google.com/search?q=watch+${encodeURIComponent(anime.title)}`;
+        watchButton.target = '_blank';
+        watchButton.className = 'watch-button-search'; 
+        watchButton.textContent = 'Find Legal Streams';
+
+        card.appendChild(imageLink);
+        card.appendChild(titleLink);
+        card.appendChild(score);
+        card.appendChild(watchButton); 
+        
+        gridContainer.appendChild(card);
+    });
+}
+
+
+// --- LIVE SEARCH FUNCTIONALITY (Client-Side Filtering) ---
+function liveSearch() {
+    // Only run this function on the homepage
+    if (document.getElementById('full-seasonal-grid') || document.getElementById('results-grid')) {
+        return;
+    }
+    
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toUpperCase();
+
+    // 1. Search Manual Recommendation Posts
+    const postArticles = document.querySelectorAll('.recommendations .post');
+    postArticles.forEach(article => {
+        const text = article.textContent || article.innerText; 
+        if (text.toUpperCase().indexOf(filter) > -1) {
+            article.style.display = "";
+        } else {
+            article.style.display = "none";
+        }
+    });
+
+    // 2. Search Top All-Time/Upcoming Grids
+    const cardContainers = document.querySelectorAll('#top-rated-grid .anime-card, #upcoming-grid .anime-card');
+    cardContainers.forEach(card => {
+        const text = card.textContent || card.innerText;
+        if (text.toUpperCase().indexOf(filter) > -1) {
+            card.style.display = "";
+        } else {
+            card.style.display = "none";
+        }
+    });
+    
+    // 3. Search Latest News Feed
+    const newsItems = document.querySelectorAll('.news-item');
+    newsItems.forEach(item => {
+        const text = item.textContent || item.innerText;
+        if (text.toUpperCase().indexOf(filter) > -1) {
+            item.style.display = "";
+        } else {
+            item.style.display = "none";
+        }
+    });
+}
+// --- END LIVE SEARCH FUNCTIONALITY ---
 
 
 // --- API Fetch Functions with 10-Minute Caching ---
@@ -272,6 +453,36 @@ function fetchSchedule(day) {
         .catch(error => {
             const calendarContainer = document.getElementById('calendar-container');
             calendarContainer.innerHTML = '<p class="error-message">Could not load schedule. <a href="javascript:location.reload()" class="refresh-link">Refresh to try again.</a></p>';
+        });
+}
+
+function fetchFullSeasonal() {
+    const gridContainer = document.getElementById('full-seasonal-grid');
+    if (!gridContainer) return Promise.resolve(); 
+
+    const cacheKey = 'fullSeasonalAnime';
+    const cachedData = JSON.parse(localStorage.getItem(cacheKey));
+    const CACHE_DURATION_SEASONAL = 1000 * 60 * 60 * 12; // 12 hours
+
+    if (cachedData && (Date.now() - cachedData.timestamp < CACHE_DURATION_SEASONAL)) {
+        displayFullSeasonal(cachedData.data);
+        return Promise.resolve(); 
+    }
+
+    return fetch(`https://api.jikan.moe/v4/seasons/now?limit=25`) 
+        .then(response => {
+            if (!response.ok) throw new Error('Jikan API (full seasonal) response was not ok');
+            return response.json();
+        })
+        .then(apiData => {
+            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: apiData.data }));
+            displayFullSeasonal(apiData.data);
+            return Promise.resolve();
+        })
+        .catch(error => {
+            const gridContainer = document.getElementById('full-seasonal-grid');
+            gridContainer.innerHTML = '<p class="error-message">Could not load seasonal data.</p>';
+            return Promise.reject(error);
         });
 }
 
@@ -466,6 +677,42 @@ function displayUpcoming(animeList) {
         const score = document.createElement('span');
         score.className = 'anime-card-score';
         score.textContent = `Score: ${anime.score || 'N/A'}`;
+        card.appendChild(image);
+        card.appendChild(title);
+        card.appendChild(score);
+        gridContainer.appendChild(card);
+    });
+}
+
+function displayFullSeasonal(animeList) {
+    const gridContainer = document.getElementById('full-seasonal-grid');
+    if (!gridContainer) return;
+    gridContainer.innerHTML = ''; 
+
+    if (!Array.isArray(animeList) || animeList.length === 0) {
+        gridContainer.innerHTML = '<p>No seasonal anime found.</p>';
+        return;
+    }
+
+    animeList.sort((a, b) => (b.score || b.members || 0) - (a.score || a.members || 0));
+
+    animeList.forEach(anime => {
+        const card = document.createElement('a');
+        card.href = anime.url;
+        card.target = '_blank';
+        card.className = 'anime-card'; 
+        
+        const image = document.createElement('img');
+        image.src = anime.images.jpg.image_url;
+        image.alt = anime.title;
+        
+        const title = document.createElement('h4');
+        title.textContent = anime.title;
+        
+        const score = document.createElement('span');
+        score.className = 'anime-card-score';
+        score.textContent = `Score: ${anime.score || 'N/A'}`;
+
         card.appendChild(image);
         card.appendChild(title);
         card.appendChild(score);

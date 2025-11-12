@@ -7,13 +7,14 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <span id="top"></span>
+
     <header>
       <h1>My Anime News Hub</h1>
       <p>Your daily source for news and recommendations</p>
 
       <nav class="navbar">
         <span class="nav-branding">Anime Trendz</span>
-
         <button
           class="menu-toggle"
           aria-expanded="false"
@@ -21,23 +22,48 @@
         >
           &#9776;
         </button>
-
         <div class="nav-links" id="nav-links">
           <ul>
-            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="#top" class="active">Home</a></li>
             <li><a href="#recommendations-section">My Recommendations</a></li>
             <li><a href="#schedule-section">Weekly Schedule</a></li>
             <li><a href="#top-rated-section">Top All-Time</a></li>
-            <li><a href="#">About</a></li>
+            <li><a href="seasonal.html">Seasonal Guide</a></li>
+            <li><a href="reviews.html">Reviews</a></li>
+            <li><a href="about.html">About</a></li>
             <li><a href="#">Contact</a></li>
           </ul>
         </div>
       </nav>
     </header>
 
+    <div class="search-container">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search homepage content..."
+        onkeyup="liveSearch()"
+        onkeypress="if(event.key === 'Enter') handleSearch(event)"
+      />
+    </div>
+
     <div class="container">
       <main class="recommendations" id="recommendations-section">
         <h2>My Recommendations</h2>
+
+        <article class="post">
+          <img src="aot.jpg" alt="Poster for Attack on Titan" />
+          <div class="post-content">
+            <h3>Recommendation: 'Attack on Titan'</h3>
+            <p>
+              This is arguably the greatest modern dark fantasy epic. The story
+              and world-building are unparalleled, and the animation quality is
+              consistently breathtaking. Mandatory viewing for any serious anime
+              fan!
+            </p>
+            <p><em>Posted: Nov 11, 2025</em></p>
+          </div>
+        </article>
 
         <article class="post">
           <img src="one-piece.jpg" alt="Poster for One Piece" />
@@ -102,6 +128,7 @@
             <p><em>Posted: Nov 9, 2025</em></p>
           </div>
         </article>
+
         <section class="top-rated-section" id="top-rated-section">
           <h2>Top All-Time Anime</h2>
           <div id="top-rated-grid">
@@ -165,9 +192,9 @@
         <div class="footer-links">
           <h4>Site Links</h4>
           <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="#">Reviews</a></li>
-            <li><a href="#">About</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="reviews.html">Reviews</a></li>
+            <li><a href="about.html">About</a></li>
             <li><a href="#">Contact</a></li>
           </ul>
         </div>

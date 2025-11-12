@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Anime Trendz</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <span id="top"></span>
+    <header>
+      <h1>My Anime News Hub</h1>
+      <p>Your daily source for news and recommendations</p>
+
+      <nav class="navbar">
+        <button
+          class="menu-toggle"
+          aria-expanded="false"
+          aria-controls="nav-links"
+        >
+          &#9776;
+        </button>
+
+        <div class="nav-links" id="nav-links">
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li>
+              <a href="index.html#recommendations-section"
+                >My Recommendations</a
+              >
+            </li>
+            <li><a href="index.html#schedule-section">Weekly Schedule</a></li>
+            <li><a href="index.html#top-rated-section">Top All-Time</a></li>
+            <li><a href="seasonal.html">Seasonal Guide</a></li>
+
+            <li><a href="reviews.html">Reviews</a></li>
+
+            <li><a href="about.html" class="active">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <div class="search-container">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search the full anime database..."
+        onkeyup="handleSearch(event)"
+      />
+    </div>
+
+    <div class="container">
+      <main class="static-page-content">
+        <h2>About Anime Trendz</h2>
+
+        <h3>Our Mission</h3>
+        <p>
+          Welcome! This site was created as a central hub for daily anime news,
+          official release schedules, and curated recommendations for new and
+          long-running shows. Our mission is to provide a clean, fast, and
+          comprehensive resource for tracking the seasonal anime lineup and
+          discovering top-rated series of all time, all without unnecessary
+          clutter.
+        </p>
+
+        <h3>The Tech Behind the Site</h3>
+        <p>
+          This site is built using **pure HTML, CSS, and JavaScript**. There is
+          no traditional server running the content.
+        </p>
+        <ul>
+          <li>
+            **Speed & Efficiency:** We use **JavaScript Promises** and **Browser
+            Caching** to ensure data loads instantly after the first visit.
+          </li>
+          <li>
+            **Live Data:** All live content (news, schedules, and ratings) is
+            sourced through the free **Jikan API** and **Anime News Network
+            API**.
+          </li>
+          <li>
+            **Deployment:** The site is hosted live using **GitHub Pages**.
+          </li>
+        </ul>
+
+        <h3>The Creator</h3>
+        <p>
+          Anime Trendz is maintained by a fan, for fans. We hope you enjoy the
+          resource!
+        </p>
+      </main>
+    </div>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-links">
+          <h4>Site Links</h4>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="reviews.html">Reviews</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-info">
+          <p>&copy; 2025 My Anime News Hub. All rights reserved.</p>
+          <p>Built with HTML, CSS, and the Jikan API.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

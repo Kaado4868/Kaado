@@ -2,14 +2,13 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    background-color: #f4f4f4;
+    background-color: white; /* Unified background color for clean layout */
     color: #333;
 }
 
 header {
     background-color: #2e51a2;
     color: white;
-    /* MODIFIED: Increased padding for more breathing room */
     padding: 30px 20px 10px; 
     text-align: center;
     position: relative; 
@@ -73,6 +72,33 @@ h1, h2, h3 {
     margin-top: 0;
 }
 
+/* --- UPDATED SEARCH BAR STYLING --- */
+.search-container {
+    padding: 10px 20px;
+    background-color: white; /* Unified background color */
+    border-bottom: 1px solid #eee; /* Light divider */
+}
+
+#searchInput {
+    width: 100%;
+    max-width: 1200px;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px; /* Rounded corners */
+    font-size: 1em;
+    box-sizing: border-box; /* Includes padding/border in the element's total width */
+    display: block;
+    margin: 0 auto; /* Center the input field */
+    transition: border-color 0.3s ease;
+}
+
+#searchInput:focus {
+    border-color: #2e51a2; /* Highlight blue on focus */
+    outline: none;
+}
+/* --- END SEARCH BAR STYLING --- */
+
+
 /* Create a two-column layout */
 .container {
     display: grid;
@@ -81,7 +107,39 @@ h1, h2, h3 {
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
+    background-color: #f4f4f4; /* Light background for content area only */
 }
+
+/* --- NEW: Static Page Content Style (for About, Contact, etc.) --- */
+.static-page-content {
+    /* Ensure it spans the full content width (Grid column 1 to 3) */
+    grid-column: 1 / -1; 
+    
+    /* Set padding and background to match the main post area */
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    line-height: 1.6;
+}
+
+.static-page-content h2 {
+    color: #2e51a2;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.static-page-content h3 {
+    color: #333;
+    margin-top: 30px;
+}
+
+.static-page-content ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
 
 /* --- POST STYLING --- */
 .recommendations .post {
@@ -124,7 +182,7 @@ h1, h2, h3 {
 
 /* --- Daily Recommendation Styling --- */
 #daily-rec-container {
-    margin-bottom: 30px; 
+    margin-bottom: 30px; /* Space before next section */
 }
 
 .daily-rec-card {
@@ -234,7 +292,7 @@ h1, h2, h3 {
 }
 
 
-/* --- Seasonal Anime Styling --- */
+/* --- Seasonal Anime Styling (for Sidebar) --- */
 #seasonal-container {
     max-height: 400px;
     overflow-y: auto;
@@ -353,7 +411,13 @@ h1, h2, h3 {
     margin-top: 0;
 }
 
-#top-rated-grid {
+/* --- UNIFIED GRID STYLES (NEW) --- */
+/* This now styles ALL poster grids */
+#top-rated-grid,
+#upcoming-grid,
+#full-seasonal-grid,
+#results-grid,
+#reviews-grid { /* <-- ADDED REVIEWS GRID */
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 20px;
@@ -376,9 +440,16 @@ h1, h2, h3 {
 
 .anime-card img {
     width: 100%;
-    height: 220px; 
+    height: 220px; /* This is the DEFAULT height (good for homepage grids) */ 
     object-fit: cover;
 }
+
+/* --- CRITICAL OVERRIDE FOR FULL-WIDTH PAGES --- */
+/* This targets cards inside any full-width page */
+.static-page-content .anime-card img {
+    height: 160px; /* Use a SHORTER height for full-width grids */
+}
+
 
 .anime-card h4 {
     font-size: 1em;
@@ -397,6 +468,25 @@ h1, h2, h3 {
     font-weight: bold;
 }
 
+/* --- NEW: Search Result Watch Button Styling --- */
+.watch-button-search {
+    display: block;
+    background-color: #d9534f; /* Red theme color */
+    color: #ffffff;
+    padding: 8px 10px;
+    margin: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+.watch-button-search:hover {
+    background-color: #c9302c; /* Darker red */
+    color: #ffffff;
+}
 
 /* --- Upcoming Season Section Styling --- */
 .upcoming-section {
@@ -409,31 +499,24 @@ h1, h2, h3 {
     margin-top: 0;
 }
 
-#upcoming-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 20px;
-}
-
 
 /* --- Footer Styling --- */
 footer {
     background-color: #233f7b; /* Dark blue color, matching the navbar background */
     color: #f4f4f4; /* Light text color */
-    padding: 30px 0; /* REMOVED HORIZONTAL PADDING HERE */
-    margin-top: 40px; /* Add space between main content and footer */
-    border-top: 5px solid #d9534f; /* A red accent line to match theme */
+    padding: 30px 0;
+    margin-top: 40px; 
+    border-top: 5px solid #d9534f;
 }
 
 .footer-content {
-    /* ADDED PADDING AND MAX-WIDTH TO ALIGN WITH .container CONTENT */
     padding: 0 20px;
     max-width: 1200px;
     margin: 0 auto;
     
     display: flex;
-    justify-content: space-between; /* Space out the links and info sections */
-    flex-wrap: wrap; /* Allows sections to stack on mobile */
+    justify-content: space-between; 
+    flex-wrap: wrap; 
     gap: 20px;
 }
 
@@ -495,8 +578,8 @@ footer {
 }
 
 /* ---
-   NEW/MODIFIED: Mobile Responsiveness
-   This section is where we hide/show the menu/icon
+   FINAL DEFINITIVE FIX: Mobile Responsiveness
+   This section handles all mobile-specific layouts and overrides.
 --- */
 @media (max-width: 768px) {
     
@@ -571,7 +654,7 @@ footer {
         height: 180px;
     }
 
-    /* 6. Mobile Footer Fix: This is the important change for alignment */
+    /* 6. Mobile Footer Fix */
     .footer-content {
         flex-direction: column;
     }
@@ -588,5 +671,26 @@ footer {
     
     .footer-info p {
         margin: 0;
+    }
+    
+    /* 7. Seasonal Grid Fix: Override the desktop column sizing */
+    .static-page-content {
+        padding: 10px;
+    }
+
+    /* This rule now correctly targets ALL full-width grids on mobile */
+    #full-seasonal-grid,
+    #results-grid,
+    #reviews-grid { /* <-- ADDED REVIEWS GRID */
+        /* This is the key override for small screens: force 2 columns */
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    /* Override card image height ONLY on full-width mobile pages */
+    .static-page-content .anime-card img {
+        height: 140px; 
     }
 }
