@@ -4,17 +4,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fatima Store</title>
     
-    <link rel="manifest" href="./manifest.json?v=1.1.10">
+    <link rel="manifest" href="./manifest.json?v=1.1.11">
     <link rel="icon" type="image/png" href="./logo.png?v=1.2.0">
     <link rel="apple-touch-icon" href="./logo.png?v=1.2.0">
     <meta name="theme-color" content="#4f46e5">
     
     <script>
+        // Emergency Error Handler
         window.onerror = function(msg, url, line) {
-            if (msg.includes("Script error") || msg.includes("firebase")) return false;
             const overlay = document.getElementById('loading-overlay');
-            if(overlay && !overlay.classList.contains('hidden')) {
-                overlay.innerHTML = `<div class="p-6 text-center"><div class="text-red-500 font-bold text-xl mb-2">System Error</div><p class="text-xs text-slate-500 bg-slate-100 p-4 rounded-xl text-left overflow-auto max-h-40 font-mono">${msg}</p><button onclick="localStorage.clear(); window.location.reload()" class="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/30">Reset & Reload</button></div>`;
+            const text = document.getElementById('loading-text');
+            if(overlay && text) {
+                text.innerHTML = `<span class="text-red-500">Error: ${msg}</span>`;
+                document.getElementById('reset-btn').classList.remove('hidden');
             }
             return false;
         };
@@ -54,9 +56,6 @@
         .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .dark .glass-header { background: rgba(15, 23, 42, 0.85); }
         
-        .modern-card { transition: transform 0.2s, box-shadow 0.2s; }
-        .modern-card:active { transform: scale(0.98); }
-        
         @media print {
             body * { visibility: hidden; }
             #receipt-content, #receipt-content * { visibility: visible; }
@@ -72,8 +71,9 @@
              <div class="absolute inset-0 bg-indigo-500/20 rounded-full animate-ping"></div>
              <img src="./logo.png?v=1.2.0" class="w-24 h-24 relative z-10 rounded-2xl shadow-2xl shadow-indigo-500/20" alt="Fatima Store">
         </div>
-        <p id="loading-text" class="text-slate-400 text-xs font-semibold tracking-widest uppercase animate-pulse">System Initializing</p>
-        <button onclick="localStorage.removeItem('pk_store_name'); window.location.reload()" class="absolute bottom-10 text-[10px] text-slate-300 dark:text-slate-700 hover:text-indigo-500 underline transition-colors">Safe Reset</button>
+        <p id="loading-text" class="text-slate-400 text-xs font-semibold tracking-widest uppercase animate-pulse">System Initializing...</p>
+        <button id="reset-btn" onclick="localStorage.clear(); window.location.reload()" class="hidden mt-8 px-6 py-2 bg-indigo-600 text-white rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all">Reset & Reload</button>
+        <div class="absolute bottom-10 text-[10px] text-slate-300 dark:text-slate-700">v1.1.11</div>
     </div>
 
     <div id="update-toast" class="toast"><span>Update Available</span><button onclick="window.location.reload()" class="text-indigo-400 font-bold">Refresh</button></div>
@@ -103,7 +103,6 @@
                 </button>
             </form>
         </div>
-        <div class="absolute bottom-8 text-[10px] text-slate-400 font-mono select-none">v1.1.10</div>
     </div>
 
     <div id="app-screen" class="hidden min-h-screen pb-32">
@@ -176,8 +175,7 @@
                 <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-2 text-indigo-600"><i data-lucide="check" class="w-6 h-6"></i></div>
                 <h3 class="text-lg font-bold text-slate-900">Sale Complete</h3>
             </div>
-            <div id="receipt-content" class="bg-slate-50 border border-slate-100 p-4 rounded-xl text-sm font-mono mb-4 text-slate-600">
-                </div>
+            <div id="receipt-content" class="bg-slate-50 border border-slate-100 p-4 rounded-xl text-sm font-mono mb-4 text-slate-600"></div>
             <div class="flex gap-2 no-print">
                 <button onclick="window.printReceipt()" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-sm">Print / Save PDF</button>
                 <button onclick="document.getElementById('receipt-modal').classList.add('hidden')" class="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-bold text-sm">Close</button>
@@ -283,7 +281,6 @@
                     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Category Distribution</h4><div class="h-48 relative"><canvas id="catChart"></canvas></div></div>
                     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Price Range Analysis</h4><div class="h-48 relative"><canvas id="priceChart"></canvas></div></div>
                 </div>
-                
                 <div id="view-team" class="hidden space-y-6 animate-[fadeIn_0.3s_ease-out]">
                     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
                         <h4 class="font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2"><i data-lucide="megaphone" class="w-4 h-4 text-indigo-500"></i> Staff Notice Board</h4>
@@ -293,15 +290,12 @@
                     <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="font-bold text-slate-800 dark:text-white mb-3">Add Team Member</h4><form id="add-staff-form" class="flex flex-col gap-3"><input type="email" id="new-staff-email" required class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Email address"><div class="flex gap-2"><select id="new-staff-role" class="flex-1 p-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none"><option value="manager">Manager</option><option value="staff">Staff (Read Only)</option></select><button type="submit" class="bg-indigo-600 text-white px-5 rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-600/20">Add</button></div></form></div>
                     <div id="staff-list" class="space-y-2"></div>
                 </div>
-
                 <div id="view-logs" class="hidden space-y-4 animate-[fadeIn_0.3s_ease-out]">
                     <div class="flex items-center justify-between px-1"><span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Full Audit History</span><button onclick="loadLogs()" class="text-slate-400 hover:text-indigo-600"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button></div><div id="logs-list" class="space-y-3"></div>
                 </div>
-
                 <div id="view-trash" class="hidden space-y-4 animate-[fadeIn_0.3s_ease-out]">
                     <div class="flex justify-between items-center px-1 mb-2"><span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Deleted Items</span><button onclick="window.emptyTrash()" class="text-xs text-rose-600 font-bold bg-rose-50 dark:bg-rose-900/30 px-4 py-2 rounded-xl border border-rose-100 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors flex items-center gap-2"><i data-lucide="trash" class="w-3 h-3"></i> Empty Bin</button></div><div id="trash-list" class="space-y-2"></div>
                 </div>
-
                 <div id="view-tools" class="hidden space-y-5 animate-[fadeIn_0.3s_ease-out]">
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-4"><div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl"><i data-lucide="upload-cloud" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i></div><div><h4 class="font-bold text-slate-900 dark:text-white">Import Data</h4><p class="text-xs text-slate-500 mt-0.5">Upload CSV inventory.</p></div></div><input type="file" id="csv-file-input" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" class="hidden" onchange="window.handleFileUpload(this)"><button onclick="document.getElementById('csv-file-input').click()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 shadow-lg shadow-blue-600/20 active:scale-95 transition-transform">Select File</button></div></div>
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-4"><div class="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl"><i data-lucide="download" class="w-6 h-6 text-emerald-600 dark:text-emerald-400"></i></div><div><h4 class="font-bold text-slate-900 dark:text-white">Export Data</h4><p class="text-xs text-slate-500 mt-0.5">Download inventory as CSV.</p></div></div><button onclick="window.exportData()" class="bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-600">Download</button></div></div>
@@ -686,31 +680,4 @@
         document.getElementById('item-form').addEventListener('submit', (e) => {
             e.preventDefault(); if(!isManager) return;
             const id = document.getElementById('item-id').value;
-            const data = { barcode: document.getElementById('barcode-input').value.trim(), name: document.getElementById('name-input').value.trim(), price: parseFloat(document.getElementById('price-input').value), bulkPrice: document.getElementById('bulk-input').value.trim(), category: document.getElementById('category-input').value.trim(), isDeleted: false, updatedAt: serverTimestamp() };
-            const duplicate = checkDuplicate(data.name, data.barcode, id);
-            if(duplicate) return alert(`Item '${duplicate.name}' exists.`);
-            if(id) { updateDoc(doc(getCollectionRef(), id), data).then(()=>window.closeModal('modal')); logAction("Edit", `Updated ${data.name}`); }
-            else { data.createdAt = serverTimestamp(); addDoc(collection(getCollectionRef().firestore, getCollectionRef().path), data).then(()=>window.closeModal('modal')); logAction("Create", `Created ${data.name}`); }
-        });
-
-        window.switchAdminTab = (t) => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-indigo-600', 'border-indigo-600', 'dark:text-indigo-400')); document.getElementById(`tab-${t}`).classList.add('active', 'text-indigo-600', 'border-indigo-600', 'dark:text-indigo-400'); ['stats','team','logs','trash','tools'].forEach(x => document.getElementById(`view-${x}`).classList.add('hidden')); document.getElementById(`view-${t}`).classList.remove('hidden'); if(t==='logs') loadLogs(); if(t==='trash') renderTrash(); if(t==='team') renderStaffList(); if(t==='stats') renderCharts(); };
-        window.openSuperAdmin = () => { if(isSuperAdmin) { document.getElementById('admin-modal').classList.remove('hidden'); window.switchAdminTab('stats'); } };
-        
-        function updateStats() { if(isSuperAdmin) { document.getElementById('stat-active-count').innerText = visibleItems.length; document.getElementById('stat-total-db').innerText = allItems.length; if(!document.getElementById('view-stats').classList.contains('hidden')) renderCharts(); } }
-        async function loadLogs() { const l = document.getElementById('logs-list'); l.innerHTML = 'Loading...'; const s = await getDocs(query(getLogCollectionRef(), orderBy('timestamp', 'desc'), limit(50))); l.innerHTML = ''; s.forEach(d => { const data = d.data(); l.innerHTML += `<div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 text-xs shadow-sm"> <div class="flex justify-between font-bold text-slate-700 dark:text-slate-300"><span>${data.action}</span><span class="text-slate-400 font-normal">${data.timestamp?.toDate().toLocaleTimeString()}</span></div> <div class="text-slate-500 mt-1">${data.details}</div> <div class="text-[10px] text-indigo-500 mt-1 font-bold">${data.user.split('@')[0]}</div> </div>`; }); }
-        
-        function renderTrash() { const l = document.getElementById('trash-list'); l.innerHTML = ''; if(deletedItems.length===0) l.innerHTML='<div class="text-center text-slate-400 py-4">Bin Empty</div>'; deletedItems.forEach(i => { l.innerHTML += `<div class="flex justify-between items-center bg-white dark:bg-slate-800 p-3 rounded-xl border border-rose-100 dark:border-rose-900/30"> <div class="font-bold text-slate-700 dark:text-slate-300 text-sm">${escape(i.name)}</div> <button onclick="updateDoc(doc(getCollectionRef(), '${i.id}'), {isDeleted:false}); logAction('Restore', 'Restored item')" class="text-indigo-600 text-xs font-bold bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-lg">Restore</button> </div>`; }); }
-        window.emptyTrash = async () => { if(confirm("Permanently Delete All Trash?")) { const b = writeBatch(db); deletedItems.forEach(i => b.delete(doc(getCollectionRef(), i.id))); await b.commit(); await logAction("Empty Trash", `Deleted ${deletedItems.length} items`); renderTrash(); alert("Recycle Bin Emptied Successfully!"); } };
-
-        window.startScanner = (m) => { scanMode = m; document.getElementById('scanner-overlay').classList.remove('hidden'); scanner = new Html5Qrcode("reader"); scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (t) => { playBeep(); if(scanMode==='search'){ document.getElementById('search-input').value = t; renderList(); } else { document.getElementById('barcode-input').value = t; } window.stopScanner(); }).catch(()=>{}); };
-        window.stopScanner = () => { if(scanner) scanner.stop().then(() => { scanner.clear(); document.getElementById('scanner-overlay').classList.add('hidden'); }); };
-        window.toggleFlash = () => { if(scanner) try { const t = scanner.html5QrcodeScanner.getHtml5Qrcode().getRunningTrackCameraCapabilities().torch; scanner.html5QrcodeScanner.getHtml5Qrcode().applyVideoConstraints({ advanced: [{ torch: !t }] }); } catch(e){} };
-        document.getElementById('search-input').addEventListener('input', (e) => { document.getElementById('clear-search').classList.toggle('hidden', !e.target.value); renderList(); });
-        document.getElementById('clear-search').addEventListener('click', () => { document.getElementById('search-input').value = ''; document.getElementById('clear-search').classList.add('hidden'); renderList(); });
-        
-        window.logout = () => { if(confirm("Sign out?")) signOut(auth).then(()=>window.location.reload()); };
-        function escape(s) { return s ? s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''; }
-        if(window.lucide) lucide.createIcons(); init();
-    </script>
-</body>
-</html>
+            const data = { barcode: document.getElementById('barcode-input').value.trim(), name: document.getElementById('name-input').value
