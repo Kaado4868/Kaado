@@ -2,9 +2,9 @@
 <html lang="en" class="light"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fatima Store - POS System</title>
+    <title>Fatima Store</title>
     
-    <link rel="manifest" href="./manifest.json?v=3.1.1">
+    <link rel="manifest" href="./manifest.json?v=1.1.10">
     <link rel="icon" type="image/png" href="./logo.png?v=1.2.0">
     <link rel="apple-touch-icon" href="./logo.png?v=1.2.0">
     <meta name="theme-color" content="#4f46e5">
@@ -14,7 +14,7 @@
             if (msg.includes("Script error") || msg.includes("firebase")) return false;
             const overlay = document.getElementById('loading-overlay');
             if(overlay && !overlay.classList.contains('hidden')) {
-                overlay.innerHTML = `<div class="p-6 text-center"><div class="text-red-500 font-bold text-xl mb-2">Startup Error</div><p class="text-xs text-slate-500 bg-slate-100 p-4 rounded text-left overflow-auto max-h-40 font-mono">${msg}</p><button onclick="localStorage.clear(); window.location.reload()" class="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg">Reset & Reload</button></div>`;
+                overlay.innerHTML = `<div class="p-6 text-center"><div class="text-red-500 font-bold text-xl mb-2">System Error</div><p class="text-xs text-slate-500 bg-slate-100 p-4 rounded-xl text-left overflow-auto max-h-40 font-mono">${msg}</p><button onclick="localStorage.clear(); window.location.reload()" class="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/30">Reset & Reload</button></div>`;
             }
             return false;
         };
@@ -24,151 +24,182 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: { extend: { colors: { slate: { 850: '#151f32', 950: '#020617' } } } }
+            theme: { 
+                extend: { 
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { slate: { 850: '#151f32', 950: '#020617' } } 
+                } 
+            }
         }
     </script>
 
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
-        body, div, nav, button, input, textarea { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
-        .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 999px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; gap: 12px; white-space: nowrap; }
-        .toast.show { opacity: 1; pointer-events: auto; }
+        body, div, nav, button, input, textarea { transition: all 0.2s ease-in-out; }
+        
+        .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1e293b; color: white; padding: 10px 24px; border-radius: 999px; font-size: 13px; font-weight: 600; opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; z-index: 100; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        #reader { width: 100% !important; height: 100% !important; background: black; border: none !important; }
-        #reader video { width: 100% !important; height: 100% !important; object-fit: cover !important; }
-        .scanner-viewfinder { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 300px; height: 200px; pointer-events: none; z-index: 20; }
-        .scanner-line { position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: #ef4444; box-shadow: 0 0 4px #ef4444; animation: scan 1.5s infinite ease-in-out; opacity: 0.9; }
-        @keyframes scan { 0% { top: 10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 90%; opacity: 0; } }
-        .tab-btn.active { border-bottom: 2px solid #4f46e5; color: #4f46e5; }
-        .custom-checkbox:checked + div { background-color: #eff6ff; border-color: #6366f1; }
-        .dark .custom-checkbox:checked + div { background-color: #1e1b4b; border-color: #6366f1; }
-        .zoom-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .zoom-card:hover { transform: scale(1.03); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        
+        #reader { width: 100% !important; height: 100% !important; background: black; border-radius: 24px; overflow: hidden; }
+        #reader video { object-fit: cover !important; border-radius: 24px; }
+        
+        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .dark .glass-header { background: rgba(15, 23, 42, 0.85); }
+        
+        .modern-card { transition: transform 0.2s, box-shadow 0.2s; }
+        .modern-card:active { transform: scale(0.98); }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #receipt-content, #receipt-content * { visibility: visible; }
+            #receipt-content { position: absolute; left: 0; top: 0; width: 100%; color: black; background: white; padding: 20px; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen selection:bg-indigo-500 selection:text-white">
 
-    <div id="loading-overlay" class="fixed inset-0 z-[60] bg-white dark:bg-slate-900 flex flex-col items-center justify-center">
-        <div class="mb-4 relative">
-             <div class="absolute inset-0 bg-indigo-100 dark:bg-indigo-900 rounded-full animate-ping opacity-75"></div>
-             <img src="./logo.png?v=1.2.0" class="w-24 h-24 relative z-10 rounded-full shadow-lg" alt="Fatima Store">
+    <div id="loading-overlay" class="fixed inset-0 z-[60] bg-white dark:bg-slate-950 flex flex-col items-center justify-center">
+        <div class="mb-6 relative">
+             <div class="absolute inset-0 bg-indigo-500/20 rounded-full animate-ping"></div>
+             <img src="./logo.png?v=1.2.0" class="w-24 h-24 relative z-10 rounded-2xl shadow-2xl shadow-indigo-500/20" alt="Fatima Store">
         </div>
-        <p id="loading-text" class="text-slate-500 dark:text-slate-400 font-medium animate-pulse">Initializing...</p>
-        <button onclick="localStorage.removeItem('pk_store_name'); window.location.reload()" class="absolute bottom-10 text-xs text-slate-400 underline">Reset App</button>
+        <p id="loading-text" class="text-slate-400 text-xs font-semibold tracking-widest uppercase animate-pulse">System Initializing</p>
+        <button onclick="localStorage.removeItem('pk_store_name'); window.location.reload()" class="absolute bottom-10 text-[10px] text-slate-300 dark:text-slate-700 hover:text-indigo-500 underline transition-colors">Safe Reset</button>
     </div>
 
-    <div id="update-toast" class="toast"><span>New Update Available</span><button class="update-btn" onclick="window.location.reload()">Update</button></div>
+    <div id="update-toast" class="toast"><span>Update Available</span><button onclick="window.location.reload()" class="text-indigo-400 font-bold">Refresh</button></div>
     <div id="toast" class="toast">Press back again to exit</div>
 
-    <div id="login-screen" class="fixed inset-0 z-50 bg-slate-100 dark:bg-slate-900 flex flex-col items-center justify-center p-6 hidden">
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-sm text-center relative z-10 border dark:border-slate-700">
-            <div class="w-24 h-24 mx-auto mb-4"><img src="./logo.png" class="w-full h-full object-contain drop-shadow-md" alt="Logo"></div>
-            <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Fatima Store</h1>
-            <div class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold mb-6 border border-indigo-100 dark:border-indigo-800">
-                <i data-lucide="lock" class="w-3 h-3"></i> Authorized Access Only
+    <div id="login-screen" class="fixed inset-0 z-50 bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 hidden">
+        <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl shadow-slate-200/50 dark:shadow-none w-full max-w-sm text-center relative z-10 border border-slate-100 dark:border-slate-800">
+            <div class="w-20 h-20 mx-auto mb-6 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-inner">
+                <img src="./logo.png" class="w-12 h-12 object-contain" alt="Logo">
+            </div>
+            <h1 class="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Fatima Store</h1>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-bold uppercase tracking-wide mb-8 border border-indigo-100 dark:border-indigo-500/20">
+                <i data-lucide="shield-check" class="w-3 h-3"></i> Secure Access
             </div>
             <form id="login-form" class="space-y-4">
-                <input type="text" id="store-name-input" required class="block w-full rounded-xl border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 border p-4 text-center text-lg font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none uppercase placeholder-slate-400" placeholder="STORE NAME">
-                <button type="submit" id="login-btn" class="w-full py-3 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full text-slate-700 dark:text-white font-medium hover:bg-slate-50 dark:hover:bg-slate-600 hover:shadow-md active:scale-95 transition-all flex items-center justify-center gap-3 relative overflow-hidden group">
+                <div class="relative">
+                    <input type="text" id="store-name-input" required class="block w-full rounded-2xl border-0 bg-slate-100 dark:bg-slate-800 py-4 px-4 text-center text-lg font-bold text-slate-900 dark:text-white ring-1 ring-inset ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-inset focus:ring-indigo-600 outline-none uppercase placeholder:text-slate-400 transition-all" placeholder="STORE ID">
+                </div>
+                <button type="submit" id="login-btn" class="group w-full py-4 px-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-xl shadow-slate-900/10">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                     </svg>
-                    <span class="group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Sign in with Google</span>
+                    <span>Sign in with Google</span>
                 </button>
             </form>
         </div>
-        <div class="absolute bottom-6 text-[10px] text-slate-400 font-mono opacity-50 select-none">v3.1.1</div>
+        <div class="absolute bottom-8 text-[10px] text-slate-400 font-mono select-none">v1.1.10</div>
     </div>
 
-    <div id="app-screen" class="hidden min-h-screen pb-24">
-        <div class="bg-white dark:bg-slate-800 sticky top-0 z-20 shadow-sm border-b border-slate-200 dark:border-slate-700">
-            <div class="max-w-md mx-auto px-4 py-3">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-                        <img src="./logo.png?v=1.2.0" class="w-8 h-8 rounded-md shadow-sm" alt="Logo">
+    <div id="app-screen" class="hidden min-h-screen pb-32">
+        <div class="glass-header sticky top-0 z-30 border-b border-slate-200/60 dark:border-slate-800/60">
+            <div class="max-w-md mx-auto px-4 py-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <img src="./logo.png?v=1.2.0" class="w-9 h-9 rounded-xl shadow-sm" alt="Logo">
                         <div>
-                            <h1 class="text-lg font-bold tracking-tight leading-none flex items-center">Fatima Store <span class="hidden offline-badge ml-2 bg-red-500 text-white text-[10px] px-1 rounded">OFFLINE</span></h1>
-                            <div id="role-badge" class="text-[10px] text-slate-400 dark:text-slate-500 font-mono uppercase tracking-wide">STAFF</div>
+                            <h1 class="text-base font-bold text-slate-900 dark:text-white leading-none">Fatima Store</h1>
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <div id="net-indicator" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                <span id="role-badge" class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Staff</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div id="net-status" class="hidden w-8 h-8 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 text-red-500"><i data-lucide="wifi-off" class="w-4 h-4"></i></div>
-                        <button onclick="window.toggleDarkMode()" class="text-slate-400 hover:text-amber-500 p-2"><i id="dark-icon" data-lucide="moon" class="w-4 h-4"></i></button>
-                        <button onclick="window.openSuperAdmin()" id="super-admin-btn" class="hidden text-amber-500 hover:text-amber-400 p-2 rounded-full border border-amber-100 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-900/10 relative animate-pulse">
-                            <i data-lucide="shield-alert" class="w-4 h-4"></i>
-                        </button>
-                        <button onclick="window.logout()" class="text-xs text-slate-400 hover:text-red-500 flex items-center gap-1 px-2 py-1 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-200 dark:border-slate-700">Log Out</button>
+                    <div class="flex items-center gap-1">
+                        <button onclick="window.toggleDarkMode()" class="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><i id="dark-icon" data-lucide="moon" class="w-4 h-4"></i></button>
+                        <button onclick="window.openSuperAdmin()" id="super-admin-btn" class="hidden w-9 h-9 flex items-center justify-center rounded-full text-amber-500 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors relative"><i data-lucide="shield-alert" class="w-4 h-4"></i><span class="absolute top-2 right-2 w-1.5 h-1.5 bg-amber-500 rounded-full animate-ping"></span></button>
+                        <button onclick="window.logout()" class="ml-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full text-[10px] font-bold hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors">Log Out</button>
                     </div>
                 </div>
                 
-                <div id="notice-banner" class="hidden mb-3 bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2 flex items-start gap-3 relative animate-[fadeIn_0.5s_ease-out]">
-                    <div class="bg-amber-200 dark:bg-amber-900/50 p-1.5 rounded text-amber-700 dark:text-amber-400 mt-0.5"><i data-lucide="megaphone" class="w-4 h-4"></i></div>
+                <div id="notice-banner" class="hidden mb-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 border border-amber-100 dark:border-amber-800/50 rounded-2xl p-3 flex items-start gap-3 relative animate-[slideDown_0.3s_ease-out]">
+                    <div class="bg-amber-100 dark:bg-amber-500/20 p-2 rounded-xl text-amber-600 dark:text-amber-400"><i data-lucide="megaphone" class="w-4 h-4"></i></div>
                     <div class="flex-1 pr-4">
-                        <p id="notice-text" class="text-xs font-bold text-amber-900 dark:text-amber-100 leading-tight"></p>
-                        <p id="notice-meta" class="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 font-mono opacity-80"></p>
+                        <p id="notice-text" class="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight"></p>
+                        <p id="notice-meta" class="text-[10px] text-slate-500 dark:text-slate-500 mt-1 font-mono"></p>
                     </div>
-                    <button onclick="document.getElementById('notice-banner').classList.add('hidden')" class="absolute top-1 right-1 p-1 text-amber-500 hover:text-amber-700"><i data-lucide="x" class="w-3 h-3"></i></button>
+                    <button onclick="document.getElementById('notice-banner').classList.add('hidden')" class="absolute top-2 right-2 p-1 text-amber-400 hover:text-amber-600"><i data-lucide="x" class="w-3 h-3"></i></button>
                 </div>
 
                 <div class="relative flex gap-2">
-                    <div class="relative flex-1">
-                        <i data-lucide="search" class="absolute left-3 top-3.5 w-5 h-5 text-slate-400"></i>
-                        <input type="text" id="search-input" class="block w-full pl-10 pr-10 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 dark:text-white border-none text-slate-900 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Search...">
-                        <button id="clear-search" class="absolute right-3 top-3 text-slate-400 hidden"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <div class="relative flex-1 group">
+                        <i data-lucide="search" class="absolute left-3.5 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                        <input type="text" id="search-input" class="block w-full pl-11 pr-10 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800/50 dark:text-white border-none text-sm font-medium placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition-all shadow-inner" placeholder="Search items...">
+                        <button id="clear-search" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 hidden"><i data-lucide="x" class="w-5 h-5"></i></button>
                     </div>
-                    <button onclick="window.startScanner('search')" class="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800 active:scale-95 transition-transform"><i data-lucide="scan-line" class="w-6 h-6"></i></button>
+                    <button onclick="window.startScanner('search')" class="bg-indigo-600 text-white w-12 rounded-2xl shadow-lg shadow-indigo-500/30 active:scale-95 transition-transform flex items-center justify-center"><i data-lucide="scan-line" class="w-5 h-5"></i></button>
                 </div>
-                <div id="category-container" class="flex gap-2 mt-3 overflow-x-auto no-scrollbar pb-1"></div>
+                <div id="category-container" class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-1"></div>
             </div>
         </div>
 
         <div class="max-w-md mx-auto px-4 py-4">
             <div id="data-loading" class="text-center py-12 hidden">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-2"></div>
-                <p class="text-slate-500 text-sm font-medium">Loading Inventory...</p>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-wide">Loading Inventory...</p>
             </div>
             <div id="empty-state" class="hidden text-center py-12">
-                <div class="bg-slate-200 dark:bg-slate-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="tag" class="w-8 h-8 text-slate-400"></i></div>
-                <h3 class="text-lg font-medium text-slate-900 dark:text-white">No items found</h3>
-                <p class="text-slate-500 text-sm mt-1">Try a different search or add items.</p>
+                <div class="bg-slate-100 dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="package-open" class="w-10 h-10 text-slate-300 dark:text-slate-600"></i></div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">No items found</h3>
+                <p class="text-slate-500 text-xs mt-1">Try a different search term.</p>
             </div>
             <div id="item-list" class="space-y-3"></div>
         </div>
 
-        <div id="fab-container" class="fixed bottom-6 right-6 z-20 hidden flex flex-col gap-3">
-            <button onclick="window.openCart()" id="cart-fab" class="relative bg-emerald-500 text-white w-14 h-14 rounded-full shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:scale-110 active:scale-90 transition-all hidden">
+        <div id="fab-container" class="fixed bottom-8 right-6 z-20 hidden flex flex-col gap-4">
+            <button onclick="window.openCart()" id="cart-fab" class="relative bg-black dark:bg-white text-white dark:text-black w-14 h-14 rounded-2xl shadow-xl hover:scale-110 active:scale-90 transition-all flex items-center justify-center hidden">
                 <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-                <span id="cart-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+                <span id="cart-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-slate-100 dark:border-slate-900 hidden">0</span>
             </button>
-            <button onclick="window.openItemModal()" class="bg-indigo-600 text-white w-14 h-14 rounded-full shadow-lg shadow-indigo-600/30 flex items-center justify-center hover:scale-110 active:scale-90 transition-all"><i data-lucide="plus" class="w-8 h-8"></i></button>
+            <button onclick="window.openItemModal()" class="bg-indigo-600 text-white w-14 h-14 rounded-2xl shadow-xl shadow-indigo-600/30 flex items-center justify-center hover:scale-110 active:scale-90 transition-all"><i data-lucide="plus" class="w-8 h-8"></i></button>
+        </div>
+    </div>
+
+    <div id="receipt-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center px-4 backdrop-blur-sm bg-slate-900/60">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl relative">
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-2 text-indigo-600"><i data-lucide="check" class="w-6 h-6"></i></div>
+                <h3 class="text-lg font-bold text-slate-900">Sale Complete</h3>
+            </div>
+            <div id="receipt-content" class="bg-slate-50 border border-slate-100 p-4 rounded-xl text-sm font-mono mb-4 text-slate-600">
+                </div>
+            <div class="flex gap-2 no-print">
+                <button onclick="window.printReceipt()" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-sm">Print / Save PDF</button>
+                <button onclick="document.getElementById('receipt-modal').classList.add('hidden')" class="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-bold text-sm">Close</button>
+            </div>
         </div>
     </div>
 
     <div id="cart-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 py-6 sm:p-6">
         <div onclick="document.getElementById('cart-modal').classList.add('hidden')" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
-        <div class="relative bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden animate-[slideUp_0.3s_ease-out] flex flex-col max-h-[85vh]">
-            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-                <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2"><i data-lucide="shopping-cart" class="w-5 h-5 text-emerald-500"></i> Current Cart</h3>
-                <button onclick="document.getElementById('cart-modal').classList.add('hidden')" class="text-slate-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+        <div class="relative bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-[slideUp_0.3s_ease-out] flex flex-col max-h-[85vh]">
+            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2"><i data-lucide="shopping-cart" class="w-5 h-5 text-indigo-600"></i> Cart</h3>
+                <button onclick="document.getElementById('cart-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-            <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-                </div>
-            <div class="p-5 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+            <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></div>
+            <div class="p-6 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
                 <div class="flex justify-between items-center mb-4">
-                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Total</span>
-                    <span id="cart-total" class="text-2xl font-black text-slate-900 dark:text-white">₦0.00</span>
+                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Amount</span>
+                    <span id="cart-total" class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">₦0.00</span>
                 </div>
-                <button onclick="window.checkout()" class="w-full py-3.5 bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
-                    Complete Sale <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <button onclick="window.checkout()" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-transform flex items-center justify-center gap-2 text-base">
+                    Checkout <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
@@ -176,122 +207,120 @@
 
     <div id="modal" class="hidden fixed inset-0 z-40 flex items-end sm:items-center justify-center px-4 py-6 sm:p-6">
         <div onclick="window.closeModal('modal')" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
-        <div class="relative bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden animate-[slideUp_0.3s_ease-out]">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+        <div class="relative bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-xl overflow-hidden animate-[slideUp_0.3s_ease-out]">
+            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
                 <h3 id="modal-title" class="font-bold text-lg text-slate-900 dark:text-white">New Item</h3>
                 <button onclick="window.closeModal('modal')" class="text-slate-400"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
-            <form id="item-form" class="p-6 space-y-4">
+            <form id="item-form" class="p-6 space-y-5">
                 <input type="hidden" id="item-id">
                 <div>
-                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Barcode</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="text" id="barcode-input" class="flex-1 p-3 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 outline-none font-mono dark:text-white" placeholder="Scan or Type">
-                        <button type="button" onclick="window.startScanner('edit')" class="bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 p-3 rounded-lg"><i data-lucide="scan-line" class="w-5 h-5"></i></button>
+                    <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Barcode</label>
+                    <div class="flex gap-2 mt-1.5">
+                        <input type="text" id="barcode-input" class="flex-1 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 outline-none font-mono text-sm dark:text-white" placeholder="Scan or Type">
+                        <button type="button" onclick="window.startScanner('edit')" class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 p-3.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"><i data-lucide="scan-line" class="w-5 h-5"></i></button>
                     </div>
                 </div>
-                <div><label class="text-sm font-bold text-slate-700 dark:text-slate-300">Name</label><input type="text" id="name-input" required class="w-full mt-1 p-3 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 outline-none capitalize dark:text-white" placeholder="Item Name"></div>
+                <div><label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Name</label><input type="text" id="name-input" required class="w-full mt-1.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 outline-none capitalize text-sm font-bold dark:text-white" placeholder="Item Name"></div>
                 <div class="flex gap-4">
-                    <div class="flex-1"><label class="text-sm font-bold text-slate-700 dark:text-slate-300">Price (₦)</label><input type="number" inputmode="decimal" id="price-input" step="0.01" required class="w-full mt-1 p-3 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 outline-none dark:text-white" placeholder="0.00"></div>
-                    <div class="flex-1"><label class="text-sm font-bold text-slate-700 dark:text-slate-300">Bulk Deal</label><input type="text" id="bulk-input" class="w-full mt-1 p-3 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 outline-none dark:text-white" placeholder="e.g. 2 for 50"></div>
+                    <div class="flex-1"><label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Price (₦)</label><input type="number" inputmode="decimal" id="price-input" step="0.01" required class="w-full mt-1.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 outline-none text-sm font-bold dark:text-white" placeholder="0.00"></div>
+                    <div class="flex-1"><label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Bulk Deal</label><input type="text" id="bulk-input" class="w-full mt-1.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 outline-none text-sm dark:text-white" placeholder="e.g. 2 for 50"></div>
                 </div>
-                <div><label class="text-sm font-bold text-slate-700 dark:text-slate-300">Category</label><input type="text" id="category-input" class="w-full mt-1 p-3 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 focus:border-indigo-500 outline-none capitalize dark:text-white" placeholder="Optional (e.g. Drinks)"></div>
-                <button type="submit" id="save-btn" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">Save Item</button>
+                <div><label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Category</label><input type="text" id="category-input" class="w-full mt-1.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 outline-none capitalize text-sm dark:text-white" placeholder="Optional (e.g. Drinks)"></div>
+                <button type="submit" id="save-btn" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-600/20 active:scale-95 transition-all">Save Item</button>
             </form>
         </div>
     </div>
 
     <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
         <div onclick="window.closeModal('admin-modal')" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
-        <div class="relative bg-slate-50 dark:bg-slate-800 w-full max-w-lg h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-slate-900/5">
-            <div class="bg-white dark:bg-slate-800 px-5 py-4 flex justify-between items-center border-b border-slate-100 dark:border-slate-700">
-                <div class="flex items-center gap-3">
-                    <div class="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg">
-                        <i data-lucide="shield-check" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
+        <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-lg h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-white/10">
+            <div class="bg-white dark:bg-slate-800 px-6 py-5 flex justify-between items-center border-b border-slate-100 dark:border-slate-700">
+                <div class="flex items-center gap-4">
+                    <div class="bg-amber-100 dark:bg-amber-900/30 p-2.5 rounded-xl">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-amber-600 dark:text-amber-400"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-900 dark:text-white leading-tight">Admin HQ</h3>
+                        <h3 class="font-bold text-lg text-slate-900 dark:text-white leading-tight">Admin HQ</h3>
                         <div class="flex items-center gap-2 mt-0.5">
                             <span class="relative flex h-2 w-2">
                               <span id="admin-status-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                               <span id="admin-status-dot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                             </span>
-                            <span id="admin-status-text" class="text-[10px] font-medium text-slate-400 dark:text-slate-500 tracking-wide uppercase">System Online</span>
+                            <span id="admin-status-text" class="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-wide uppercase">System Online</span>
                         </div>
                     </div>
                 </div>
-                <button onclick="window.closeModal('admin-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-full transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+                <button onclick="window.closeModal('admin-modal')" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-slate-200 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <div class="flex bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 overflow-x-auto px-2">
-                <button onclick="window.switchAdminTab('stats')" class="tab-btn active flex-1 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-indigo-600 relative transition-colors" id="tab-stats">Stats</button>
-                <button onclick="window.switchAdminTab('team')" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-indigo-600 relative transition-colors" id="tab-team">Team</button>
-                <button onclick="window.switchAdminTab('logs')" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-indigo-600 relative transition-colors" id="tab-logs">Logs</button>
-                <button onclick="window.switchAdminTab('trash')" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-indigo-600 relative transition-colors" id="tab-trash">Bin</button>
-                <button onclick="window.switchAdminTab('tools')" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-indigo-600 relative transition-colors" id="tab-tools">Tools</button>
+            <div class="flex bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 overflow-x-auto px-4 gap-2 pb-0">
+                <button onclick="window.switchAdminTab('stats')" class="tab-btn active flex-1 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-indigo-600 relative transition-colors border-b-2 border-transparent" id="tab-stats">Stats</button>
+                <button onclick="window.switchAdminTab('team')" class="tab-btn flex-1 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-indigo-600 relative transition-colors border-b-2 border-transparent" id="tab-team">Team</button>
+                <button onclick="window.switchAdminTab('logs')" class="tab-btn flex-1 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-indigo-600 relative transition-colors border-b-2 border-transparent" id="tab-logs">Logs</button>
+                <button onclick="window.switchAdminTab('trash')" class="tab-btn flex-1 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-indigo-600 relative transition-colors border-b-2 border-transparent" id="tab-trash">Bin</button>
+                <button onclick="window.switchAdminTab('tools')" class="tab-btn flex-1 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-indigo-600 relative transition-colors border-b-2 border-transparent" id="tab-tools">Tools</button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-5 custom-scrollbar bg-slate-50/50 dark:bg-slate-900/50">
-                <div id="view-stats" class="space-y-5 animate-[fadeIn_0.3s_ease-out]">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="zoom-card bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+            <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <div id="view-stats" class="space-y-6 animate-[fadeIn_0.3s_ease-out]">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group">
                             <div class="absolute -right-6 -top-6 bg-indigo-50 dark:bg-indigo-900/20 w-24 h-24 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
                             <div class="relative z-10">
-                                <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1 flex items-center gap-1"><i data-lucide="activity" class="w-3 h-3 text-indigo-500"></i> Active Items</div>
-                                <div class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400" id="stat-active-count">0</div>
+                                <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2 flex items-center gap-1"><i data-lucide="activity" class="w-3 h-3 text-indigo-500"></i> Active Items</div>
+                                <div class="text-3xl font-black text-slate-900 dark:text-white" id="stat-active-count">0</div>
                             </div>
                         </div>
-                        <div class="zoom-card bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group">
                             <div class="absolute -right-6 -top-6 bg-emerald-50 dark:bg-emerald-900/20 w-24 h-24 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
                             <div class="relative z-10">
-                                <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1 flex items-center gap-1"><i data-lucide="database" class="w-3 h-3 text-emerald-500"></i> Total Database</div>
-                                <div class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400" id="stat-total-db">0</div>
+                                <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-2 flex items-center gap-1"><i data-lucide="database" class="w-3 h-3 text-emerald-500"></i> Total Database</div>
+                                <div class="text-3xl font-black text-slate-900 dark:text-white" id="stat-total-db">0</div>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Category Distribution</h4><div class="h-48 relative"><canvas id="catChart"></canvas></div></div>
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Price Range Analysis</h4><div class="h-48 relative"><canvas id="priceChart"></canvas></div></div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Category Distribution</h4><div class="h-48 relative"><canvas id="catChart"></canvas></div></div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Price Range Analysis</h4><div class="h-48 relative"><canvas id="priceChart"></canvas></div></div>
                 </div>
-                <div id="view-team" class="hidden space-y-4 animate-[fadeIn_0.3s_ease-out]">
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                        <h4 class="font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2"><i data-lucide="megaphone" class="w-4 h-4 text-indigo-500"></i> Staff Notice Board</h4>
-                        <div class="flex gap-2"><input type="text" id="notice-input" class="flex-1 p-3 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Broadcast a message..."><button onclick="window.postNotice()" class="bg-indigo-600 text-white px-4 rounded-lg font-bold text-sm hover:bg-indigo-700 shadow-lg shadow-indigo-600/20">Post</button></div>
+                
+                <div id="view-team" class="hidden space-y-6 animate-[fadeIn_0.3s_ease-out]">
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                        <h4 class="font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2"><i data-lucide="megaphone" class="w-4 h-4 text-indigo-500"></i> Staff Notice Board</h4>
+                        <div class="flex gap-2"><input type="text" id="notice-input" class="flex-1 p-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Broadcast a message..."><button onclick="window.postNotice()" class="bg-indigo-600 text-white px-5 rounded-xl font-bold text-sm hover:bg-indigo-700 shadow-lg shadow-indigo-600/20">Post</button></div>
                         <button onclick="window.clearNotice()" class="text-[10px] text-rose-500 font-bold mt-2 hover:underline uppercase tracking-wide">Clear current notice</button>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="font-bold text-slate-800 dark:text-white mb-2">Add Team Member</h4><form id="add-staff-form" class="flex flex-col gap-3"><input type="email" id="new-staff-email" required class="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Email address"><div class="flex gap-2"><select id="new-staff-role" class="flex-1 p-3 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none"><option value="manager">Manager</option><option value="staff">Staff (Read Only)</option></select><button type="submit" class="bg-indigo-600 text-white px-5 rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-600/20">Add</button></div></form></div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="font-bold text-slate-800 dark:text-white mb-3">Add Team Member</h4><form id="add-staff-form" class="flex flex-col gap-3"><input type="email" id="new-staff-email" required class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Email address"><div class="flex gap-2"><select id="new-staff-role" class="flex-1 p-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none"><option value="manager">Manager</option><option value="staff">Staff (Read Only)</option></select><button type="submit" class="bg-indigo-600 text-white px-5 rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-600/20">Add</button></div></form></div>
                     <div id="staff-list" class="space-y-2"></div>
                 </div>
-                <div id="view-logs" class="hidden space-y-3 animate-[fadeIn_0.3s_ease-out]">
-                    <div class="flex items-center justify-between px-1"><span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Full Audit History</span><button onclick="loadLogs()" class="text-slate-400 hover:text-indigo-600"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button></div><div id="logs-list" class="space-y-2"></div>
+
+                <div id="view-logs" class="hidden space-y-4 animate-[fadeIn_0.3s_ease-out]">
+                    <div class="flex items-center justify-between px-1"><span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Full Audit History</span><button onclick="loadLogs()" class="text-slate-400 hover:text-indigo-600"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button></div><div id="logs-list" class="space-y-3"></div>
                 </div>
-                <div id="view-trash" class="hidden space-y-3 animate-[fadeIn_0.3s_ease-out]">
-                    <div class="flex justify-between items-center px-1 mb-2"><span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Deleted Items</span><button onclick="window.emptyTrash()" class="text-xs text-rose-600 font-bold bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-lg border border-rose-100 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors flex items-center gap-1"><i data-lucide="trash" class="w-3 h-3"></i> Empty Bin</button></div><div id="trash-list" class="space-y-2"></div>
+
+                <div id="view-trash" class="hidden space-y-4 animate-[fadeIn_0.3s_ease-out]">
+                    <div class="flex justify-between items-center px-1 mb-2"><span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Deleted Items</span><button onclick="window.emptyTrash()" class="text-xs text-rose-600 font-bold bg-rose-50 dark:bg-rose-900/30 px-4 py-2 rounded-xl border border-rose-100 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors flex items-center gap-2"><i data-lucide="trash" class="w-3 h-3"></i> Empty Bin</button></div><div id="trash-list" class="space-y-2"></div>
                 </div>
-                <div id="view-tools" class="hidden space-y-4 animate-[fadeIn_0.3s_ease-out]">
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg"><i data-lucide="upload-cloud" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i></div><div><h4 class="font-bold text-slate-800 dark:text-white text-sm">Import Data</h4><p class="text-[10px] text-slate-400">Upload CSV file.</p></div></div><input type="file" id="csv-file-input" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" class="hidden" onchange="window.handleFileUpload(this)"><button onclick="document.getElementById('csv-file-input').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-700 shadow-lg shadow-blue-600/20 active:scale-95 transition-transform">Select File</button></div></div>
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></i></div><div><h4 class="font-bold text-slate-800 dark:text-white text-sm">Export Data</h4><p class="text-[10px] text-slate-400">Download inventory as CSV.</p></div></div><button onclick="window.exportData()" class="bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-emerald-600">Download</button></div></div>
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg"><i data-lucide="shield" class="w-5 h-5 text-purple-600 dark:text-purple-400"></i></div><div><h4 class="font-bold text-slate-800 dark:text-white text-sm">Security Rules</h4><p class="text-[10px] text-slate-400">Generates Standard Rules.</p></div></div><button onclick="window.copyRules()" class="bg-purple-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-purple-600">Copy Rules</button></div></div>
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center gap-3 mb-5"><div class="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg"><i data-lucide="trending-up" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i></div><div><h4 class="font-bold text-slate-800 dark:text-white text-sm">Bulk Price Adjuster</h4><p class="text-[10px] text-slate-400">Apply inflation or discounts globally.</p></div></div><div class="mb-5"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">1. Select Target</label><div class="grid grid-cols-3 gap-2"><button onclick="window.setBulkScope('all')" id="scope-all" class="scope-btn p-3 rounded-lg border border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-bold flex flex-col items-center gap-1 transition-all"><i data-lucide="layers" class="w-4 h-4"></i> All Items</button><button onclick="window.setBulkScope('category')" id="scope-category" class="scope-btn p-3 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-xs font-bold flex flex-col items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><i data-lucide="library" class="w-4 h-4"></i> Category</button><button onclick="window.setBulkScope('manual')" id="scope-manual" class="scope-btn p-3 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-xs font-bold flex flex-col items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><i data-lucide="check-square" class="w-4 h-4"></i> Manual</button></div></div><div id="tool-selection-area" class="mb-5 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 min-h-[60px] flex flex-col justify-center"><div id="tool-cat-select" class="hidden w-full"><label class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Which Category?</label><div class="relative"><select id="tool-category-input" class="w-full p-2.5 pl-3 pr-10 rounded-lg border border-slate-200 dark:border-slate-600 text-sm bg-white dark:bg-slate-700 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"></select><i data-lucide="chevron-down" class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none"></i></div></div><div id="tool-manual-select" class="hidden w-full"><label class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 block flex justify-between"><span>Select Items</span> <span class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 rounded-full text-[10px]" id="manual-count">0</span></label><div id="manual-list" class="h-40 overflow-y-auto space-y-1 pr-1 custom-scrollbar bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1"></div></div><div id="tool-all-msg" class="text-xs text-slate-500 dark:text-slate-400 font-medium text-center flex items-center justify-center gap-2"><i data-lucide="info" class="w-4 h-4 text-indigo-500"></i> Updates will apply to the entire store.</div></div><div class="border-t border-slate-100 dark:border-slate-700 pt-5"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">2. Percentage Change</label><div class="flex flex-col gap-3"><div class="relative w-full"><input type="number" id="inflation-input" class="w-full p-3 pl-4 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-700" placeholder="e.g. 10"><span class="absolute right-4 top-3.5 text-slate-400 font-bold">%</span></div><div class="flex gap-2"><button onclick="window.applyBulkUpdate('increase')" class="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition-transform hover:bg-emerald-600 flex items-center justify-center gap-2"><i data-lucide="trending-up" class="w-4 h-4"></i> Increase</button><button onclick="window.applyBulkUpdate('decrease')" class="flex-1 bg-rose-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-rose-500/20 active:scale-95 transition-transform hover:bg-rose-600 flex items-center justify-center gap-2"><i data-lucide="trending-down" class="w-4 h-4"></i> Decrease</button></div></div><p class="text-[10px] text-slate-400 mt-2 text-center">Select increase for inflation or decrease for discounts.</p></div></div>
+
+                <div id="view-tools" class="hidden space-y-5 animate-[fadeIn_0.3s_ease-out]">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-4"><div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl"><i data-lucide="upload-cloud" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i></div><div><h4 class="font-bold text-slate-900 dark:text-white">Import Data</h4><p class="text-xs text-slate-500 mt-0.5">Upload CSV inventory.</p></div></div><input type="file" id="csv-file-input" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" class="hidden" onchange="window.handleFileUpload(this)"><button onclick="document.getElementById('csv-file-input').click()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 shadow-lg shadow-blue-600/20 active:scale-95 transition-transform">Select File</button></div></div>
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-4"><div class="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl"><i data-lucide="download" class="w-6 h-6 text-emerald-600 dark:text-emerald-400"></i></div><div><h4 class="font-bold text-slate-900 dark:text-white">Export Data</h4><p class="text-xs text-slate-500 mt-0.5">Download inventory as CSV.</p></div></div><button onclick="window.exportData()" class="bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-600">Download</button></div></div>
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-4"><div class="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl"><i data-lucide="shield" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i></div><div><h4 class="font-bold text-slate-900 dark:text-white">Security Rules</h4><p class="text-xs text-slate-500 mt-0.5">Generates Standard Rules.</p></div></div><button onclick="window.copyRules()" class="bg-purple-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-purple-600">Copy Rules</button></div></div>
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center gap-4 mb-5"><div class="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl"><i data-lucide="trending-up" class="w-6 h-6 text-amber-600 dark:text-amber-400"></i></div><div><h4 class="font-bold text-slate-900 dark:text-white">Bulk Price Adjuster</h4><p class="text-xs text-slate-500 mt-0.5">Apply inflation or discounts globally.</p></div></div><div class="mb-5"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">1. Select Target</label><div class="grid grid-cols-3 gap-2"><button onclick="window.setBulkScope('all')" id="scope-all" class="scope-btn p-3 rounded-xl border border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-bold flex flex-col items-center gap-1 transition-all"><i data-lucide="layers" class="w-4 h-4"></i> All Items</button><button onclick="window.setBulkScope('category')" id="scope-category" class="scope-btn p-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-xs font-bold flex flex-col items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><i data-lucide="library" class="w-4 h-4"></i> Category</button><button onclick="window.setBulkScope('manual')" id="scope-manual" class="scope-btn p-3 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-xs font-bold flex flex-col items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><i data-lucide="check-square" class="w-4 h-4"></i> Manual</button></div></div><div id="tool-selection-area" class="mb-5 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 min-h-[60px] flex flex-col justify-center"><div id="tool-cat-select" class="hidden w-full"><label class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Which Category?</label><div class="relative"><select id="tool-category-input" class="w-full p-2.5 pl-3 pr-10 rounded-lg border border-slate-200 dark:border-slate-600 text-sm bg-white dark:bg-slate-700 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"></select><i data-lucide="chevron-down" class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none"></i></div></div><div id="tool-manual-select" class="hidden w-full"><label class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 block flex justify-between"><span>Select Items</span> <span class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 rounded-full text-[10px]" id="manual-count">0</span></label><div id="manual-list" class="h-40 overflow-y-auto space-y-1 pr-1 custom-scrollbar bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1"></div></div><div id="tool-all-msg" class="text-xs text-slate-500 dark:text-slate-400 font-medium text-center flex items-center justify-center gap-2"><i data-lucide="info" class="w-4 h-4 text-indigo-500"></i> Updates will apply to the entire store.</div></div><div class="border-t border-slate-100 dark:border-slate-700 pt-5"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">2. Percentage Change</label><div class="flex flex-col gap-3"><div class="relative w-full"><input type="number" id="inflation-input" class="w-full p-3.5 pl-4 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-900 text-sm" placeholder="e.g. 10"><span class="absolute right-4 top-3.5 text-slate-400 font-bold text-sm">%</span></div><div class="flex gap-2"><button onclick="window.applyBulkUpdate('increase')" class="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition-transform hover:bg-emerald-600 flex items-center justify-center gap-2"><i data-lucide="trending-up" class="w-4 h-4"></i> Increase</button><button onclick="window.applyBulkUpdate('decrease')" class="flex-1 bg-rose-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-rose-500/20 active:scale-95 transition-transform hover:bg-rose-600 flex items-center justify-center gap-2"><i data-lucide="trending-down" class="w-4 h-4"></i> Decrease</button></div></div><p class="text-[10px] text-slate-400 mt-3 text-center">Select increase for inflation or decrease for discounts.</p></div></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="scanner-overlay" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-center items-center">
-        <div class="absolute top-0 w-full p-4 z-20 flex justify-between items-center text-white bg-gradient-to-b from-black/80 to-transparent">
-            <h3 class="font-bold text-lg">Scan Barcode</h3>
-            <button onclick="window.stopScanner()" class="bg-white/20 p-2 rounded-full backdrop-blur-md active:bg-white/30">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
+        <div class="absolute top-0 w-full p-6 z-20 flex justify-between items-center text-white bg-gradient-to-b from-black/80 to-transparent">
+            <h3 class="font-bold text-xl">Scan Barcode</h3>
+            <button onclick="window.stopScanner()" class="bg-white/20 p-2.5 rounded-full backdrop-blur-md active:bg-white/30"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
         <div class="relative w-full h-full bg-black flex flex-col justify-center overflow-hidden">
             <div id="reader" class="w-full h-full"></div>
-            <div class="scanner-viewfinder z-10">
-                <div class="scanner-line"></div>
-            </div>
-            <button id="flash-btn" onclick="window.toggleFlash()" class="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-30 bg-white/20 p-4 rounded-full backdrop-blur-md border border-white/30 hidden hover:bg-white/30 active:scale-95 transition-all">
-                <i data-lucide="flashlight" class="w-6 h-6 text-white"></i>
-            </button>
+            <div class="scanner-viewfinder z-10"><div class="scanner-line"></div></div>
+            <button id="flash-btn" onclick="window.toggleFlash()" class="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-30 bg-white/20 p-4 rounded-full backdrop-blur-md border border-white/30 hidden hover:bg-white/30 active:scale-95 transition-all"><i data-lucide="flashlight" class="w-6 h-6 text-white"></i></button>
         </div>
     </div>
 
@@ -307,13 +336,9 @@
         const appId = 'cipher-e6c22'; 
 
         const SUPER_ADMIN_EMAIL = "abdulkadirbukar2006@gmail.com";
-        const GOOGLE_BTN_HTML = `<svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg><span class="group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Sign in with Google</span>`;
+        const GOOGLE_BTN_HTML = `<svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg><span>Sign in with Google</span>`;
 
-        try {
-            enableMultiTabIndexedDbPersistence(db)
-                .then(() => console.log('Offline Persistence Enabled'))
-                .catch(err => console.log('Persistence:', err.code));
-        } catch(e) { console.error("Init Error", e); }
+        try { enableMultiTabIndexedDbPersistence(db).catch(err => console.log('Persistence:', err.code)); } catch(e) {}
 
         let currentUser = null; 
         let currentStoreName = localStorage.getItem('pk_store_name'); 
@@ -342,8 +367,9 @@
         function updateChartTheme() {
             if(!isSuperAdmin) return;
             const isDark = document.documentElement.classList.contains('dark');
-            const color = isDark ? '#e2e8f0' : '#475569';
+            const color = isDark ? '#94a3b8' : '#475569';
             Chart.defaults.color = color;
+            Chart.defaults.font.family = 'Inter';
             if(document.getElementById('view-stats').classList.contains('hidden') === false) renderCharts();
         }
 
@@ -378,13 +404,13 @@
                 type: 'bar',
                 data: {
                     labels: Object.keys(ranges),
-                    datasets: [{ label: 'Items', data: Object.values(ranges), backgroundColor: '#6366f1', borderRadius: 4 }]
+                    datasets: [{ label: 'Items', data: Object.values(ranges), backgroundColor: '#6366f1', borderRadius: 6 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
             });
         }
 
-        function playBeep() { try { if (navigator.vibrate) navigator.vibrate(200); if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.type = 'square'; oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.15); } catch (e) { console.error("Sound Fail", e); } }
+        function playBeep() { try { if (navigator.vibrate) navigator.vibrate(200); if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain(); oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.type = 'square'; oscillator.frequency.setValueAtTime(1200, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.15); } catch (e) { } }
         function engageTrap() { if (trapActive) return; try { if (!history.state || history.state.page !== 'trap') { window.history.pushState({ page: 'trap' }, "", ""); trapActive = true; } } catch(e) { trapActive = false; } }
         ['touchstart', 'touchmove', 'click', 'keydown'].forEach(evt => { window.addEventListener(evt, () => { if (!trapActive) engageTrap(); }, { passive: true, capture: true }); });
         window.addEventListener('popstate', (event) => { 
@@ -398,27 +424,11 @@
         const loadingOverlay = document.getElementById('loading-overlay'); const loginScreen = document.getElementById('login-screen'); const appScreen = document.getElementById('app-screen');
         function updateOnlineStatus() { 
             const isOnline = navigator.onLine; 
-            document.body.classList.toggle('offline', !isOnline); 
-            const adminPing = document.getElementById('admin-status-ping'); 
-            const adminDot = document.getElementById('admin-status-dot'); 
-            const adminText = document.getElementById('admin-status-text'); 
-            const netStatus = document.getElementById('net-status');
-            
-            if(netStatus) netStatus.classList.toggle('hidden', isOnline);
-
-            if (adminPing && adminDot && adminText) { 
-                if (isOnline) { 
-                    adminPing.classList.remove('hidden'); 
-                    adminDot.classList.replace('bg-red-500', 'bg-emerald-500'); 
-                    adminText.innerText = "System Online"; 
-                    adminText.classList.replace('text-red-400', 'text-slate-400'); 
-                } else { 
-                    adminPing.classList.add('hidden'); 
-                    adminDot.classList.replace('bg-emerald-500', 'bg-red-500'); 
-                    adminText.innerText = "System Offline"; 
-                    adminText.classList.replace('text-slate-400', 'text-red-400'); 
-                } 
-            } 
+            document.body.classList.toggle('offline', !isOnline);
+            const netInd = document.getElementById('net-indicator');
+            const adminText = document.getElementById('admin-status-text');
+            if(netInd) netInd.className = `w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-red-500'}`;
+            if(adminText) adminText.innerText = isOnline ? "System Online" : "System Offline";
         }
         window.addEventListener('online', updateOnlineStatus); window.addEventListener('offline', updateOnlineStatus); updateOnlineStatus();
 
@@ -428,24 +438,15 @@
                     navigator.serviceWorker.register('./sw.js').then(reg => { reg.addEventListener('updatefound', () => { const newWorker = reg.installing; newWorker.addEventListener('statechange', () => { if (newWorker.state === 'installed' && navigator.serviceWorker.controller) { document.getElementById('update-toast').classList.add('show'); } }); }); });
                     navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
                 }
-                
-                // 5-Second Timeout for Loader
                 setTimeout(() => {
                     const overlay = document.getElementById('loading-overlay');
-                    if(overlay && !overlay.classList.contains('hidden')) {
-                        document.getElementById('loading-text').innerText = "Connecting is taking longer than usual...";
-                    }
+                    if(overlay && !overlay.classList.contains('hidden')) { document.getElementById('loading-text').innerText = "Connecting is taking longer than usual..."; }
                 }, 5000);
-
-                if (currentStoreName) { 
-                    document.getElementById('store-name-input').value = currentStoreName;
-                }
-                
+                if (currentStoreName) { document.getElementById('store-name-input').value = currentStoreName; }
                 if (window.lucide) lucide.createIcons();
-            } catch(e) { console.error("Startup Error", e); }
+            } catch(e) { }
         }
 
-        // --- CART LOGIC ---
         window.addToCart = (id) => {
             const item = visibleItems.find(i => i.id === id);
             if(!item) return;
@@ -457,11 +458,11 @@
             if(btn) {
                 const originalHtml = btn.innerHTML;
                 btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i>`;
-                btn.classList.add('bg-emerald-500');
+                btn.classList.add('bg-emerald-500', 'text-white');
                 if(window.lucide) lucide.createIcons();
                 setTimeout(() => {
                     btn.innerHTML = originalHtml;
-                    btn.classList.remove('bg-emerald-500');
+                    btn.classList.remove('bg-emerald-500', 'text-white');
                     if(window.lucide) lucide.createIcons();
                 }, 500);
             }
@@ -471,7 +472,6 @@
             const totalQty = cart.reduce((a, b) => a + b.qty, 0);
             const badge = document.getElementById('cart-badge');
             const fab = document.getElementById('cart-fab');
-            
             if(totalQty > 0) {
                 badge.innerText = totalQty;
                 badge.classList.remove('hidden');
@@ -485,14 +485,10 @@
         window.updateCartQty = (index, change) => {
             const item = cart[index];
             if(change === -1 && item.qty === 1) {
-                if(confirm("Remove item from cart?")) {
-                    cart.splice(index, 1);
-                }
-            } else {
-                item.qty += change;
-            }
+                if(confirm("Remove item from cart?")) { cart.splice(index, 1); }
+            } else { item.qty += change; }
             updateCartUI();
-            openCart(); // Re-render to show new qty
+            openCart();
         };
 
         window.openCart = () => {
@@ -500,27 +496,27 @@
             const container = document.getElementById('cart-items');
             container.innerHTML = '';
             let total = 0;
-
             if(cart.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-8">Cart is empty</div>`;
+                container.innerHTML = `<div class="text-center text-slate-400 py-12"><i data-lucide="shopping-cart" class="w-12 h-12 mx-auto mb-2 opacity-20"></i><p>Cart is empty</p></div>`;
             } else {
                 cart.forEach((item, index) => {
                     const itemTotal = item.price * item.qty;
                     total += itemTotal;
                     container.innerHTML += `
-                        <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-700/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
                             <div>
-                                <div class="font-bold text-slate-900 dark:text-white text-sm">${escape(item.name)}</div>
-                                <div class="text-xs text-slate-500 dark:text-slate-400">₦${formatMoney(item.price)} each</div>
+                                <div class="font-bold text-slate-900 dark:text-white text-sm mb-1">${escape(item.name)}</div>
+                                <div class="text-xs font-medium text-slate-500 dark:text-slate-400">₦${formatMoney(item.price)} each</div>
                             </div>
                             <div class="flex items-center gap-3">
-                                <div class="flex items-center bg-white dark:bg-slate-600 rounded-lg border border-slate-200 dark:border-slate-500 overflow-hidden">
-                                    <button onclick="window.updateCartQty(${index}, -1)" class="p-1 px-2 hover:bg-slate-100 dark:hover:bg-slate-500 text-slate-600 dark:text-slate-300 font-bold">-</button>
-                                    <span class="px-2 text-sm font-bold text-slate-900 dark:text-white min-w-[20px] text-center">${item.qty}</span>
-                                    <button onclick="window.updateCartQty(${index}, 1)" class="p-1 px-2 hover:bg-slate-100 dark:hover:bg-slate-500 text-slate-600 dark:text-slate-300 font-bold">+</button>
+                                <div class="flex items-center bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-600 shadow-sm overflow-hidden">
+                                    <button onclick="window.updateCartQty(${index}, -1)" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold">-</button>
+                                    <span class="w-8 text-center text-sm font-bold text-slate-900 dark:text-white">${item.qty}</span>
+                                    <button onclick="window.updateCartQty(${index}, 1)" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold">+</button>
                                 </div>
-                                <span class="font-bold text-slate-900 dark:text-white text-sm min-w-[60px] text-right">₦${formatMoney(itemTotal)}</span>
-                                <button onclick="window.removeFromCart(${index})" class="text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 p-1 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                <div class="text-right min-w-[70px]">
+                                    <div class="font-bold text-slate-900 dark:text-white text-sm">₦${formatMoney(itemTotal)}</div>
+                                </div>
                             </div>
                         </div>`;
                 });
@@ -530,10 +526,34 @@
             if(window.lucide) lucide.createIcons();
         };
 
-        window.removeFromCart = (index) => {
-            cart.splice(index, 1);
-            updateCartUI();
-            openCart();
+        window.generateReceipt = (items, total) => {
+            const date = new Date().toLocaleString();
+            let html = `
+                <div style="text-align:center; padding-bottom:10px; border-bottom:1px dashed #cbd5e1; margin-bottom:10px;">
+                    <h2 style="font-weight:900; font-size:16px; margin:0;">FATIMA STORE</h2>
+                    <p style="font-size:10px; color:#64748b;">${date}</p>
+                </div>
+                <div style="margin-bottom:10px;">`;
+            items.forEach(i => {
+                html += `
+                <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+                    <span>${i.qty} x ${i.name}</span>
+                    <span style="font-weight:600;">${formatMoney(i.price * i.qty)}</span>
+                </div>`;
+            });
+            html += `</div>
+                <div style="border-top:1px dashed #cbd5e1; padding-top:10px; display:flex; justify-content:space-between; font-weight:900; font-size:14px;">
+                    <span>TOTAL</span>
+                    <span>₦${formatMoney(total)}</span>
+                </div>
+                <p style="text-align:center; font-size:9px; color:#94a3b8; margin-top:15px;">Thank you for your patronage!</p>
+            `;
+            document.getElementById('receipt-content').innerHTML = html;
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        };
+
+        window.printReceipt = () => {
+            window.print();
         };
 
         window.checkout = async () => {
@@ -542,17 +562,17 @@
             
             const total = cart.reduce((a, b) => a + (b.price * b.qty), 0);
             const details = `Sold ${cart.length} unique items. Total: ₦${formatMoney(total)}`;
+            const cartCopy = [...cart];
             
             try {
-                await logAction("Sale", details, { items: cart, total: total });
+                await logAction("Sale", details, { items: cartCopy, total: total });
                 cart = [];
                 updateCartUI();
                 document.getElementById('cart-modal').classList.add('hidden');
-                alert("Sale Recorded!");
+                window.generateReceipt(cartCopy, total);
             } catch(e) { alert("Checkout failed: " + e.message); }
         };
 
-        // --- DUPLICATE CHECK HELPER ---
         function checkDuplicate(name, barcode, excludeId = null) {
             const normName = name.trim().toLowerCase();
             return visibleItems.find(i => {
@@ -568,627 +588,128 @@
                 currentUser = user; 
                 const email = user.email ? user.email.toLowerCase() : "";
                 isSuperAdmin = (email === SUPER_ADMIN_EMAIL.toLowerCase());
-                
                 if(isSuperAdmin) { isManager = true; updateUI(); }
-
                 if (currentStoreName) {
                     if(configUnsubscribe) configUnsubscribe();
-                    const configRef = doc(getCollectionRef(), '_config');
-                    
-                    configUnsubscribe = onSnapshot(configRef, (docSnap) => {
+                    configUnsubscribe = onSnapshot(doc(getCollectionRef(), '_config'), (docSnap) => {
                         if (docSnap.exists()) {
                             const rawStaff = docSnap.data().staff;
-                            if (Array.isArray(rawStaff)) {
-                                const newMap = {};
-                                rawStaff.forEach(s => { if(s.email) newMap[s.email] = s.role || 'staff'; });
-                                staffMap = newMap;
-                                if(isSuperAdmin) { setDoc(configRef, { staff: staffMap }, { merge: true }); }
-                            } else {
-                                staffMap = rawStaff || {};
-                            }
-                        } else if (isSuperAdmin) {
-                            setDoc(configRef, { staff: {} });
-                        }
+                            staffMap = Array.isArray(rawStaff) ? {} : (rawStaff || {});
+                        } else if (isSuperAdmin) { setDoc(doc(getCollectionRef(), '_config'), { staff: {} }); }
                         
                         const role = staffMap[email];
-                        if (!isSuperAdmin && !role) {
-                            alert("Access Denied: You are not a staff member of this store.");
-                            signOut(auth);
-                            return;
-                        }
-
+                        if (!isSuperAdmin && !role) { alert("Access Denied"); signOut(auth); return; }
                         isManager = isSuperAdmin || (role === 'manager');
-                        
-                        const roleText = isSuperAdmin ? "Super Admin" : (isManager ? "Manager" : "Staff (Read Only)");
-                        if(document.getElementById('role-badge')) document.getElementById('role-badge').innerText = roleText.toUpperCase();
-                        
-                        showApp();
-                        updateUI(); 
-                    }, (error) => {
-                        console.log("Config sync error", error);
-                        if (!isSuperAdmin) {
-                            alert("Access Denied: Unable to verify staff credentials.");
-                            signOut(auth);
-                        } else {
-                            showApp();
-                            updateUI();
-                        }
+                        const roleText = isSuperAdmin ? "Super Admin" : (isManager ? "Manager" : "Staff");
+                        if(document.getElementById('role-badge')) document.getElementById('role-badge').innerText = roleText;
+                        showApp(); updateUI(); 
                     });
-
                     if(noticeUnsubscribe) noticeUnsubscribe();
-                    const noticeRef = doc(getCollectionRef(), 'system_notice');
-                    noticeUnsubscribe = onSnapshot(noticeRef, (docSnap) => {
+                    noticeUnsubscribe = onSnapshot(doc(getCollectionRef(), 'system_notice'), (docSnap) => {
                         const banner = document.getElementById('notice-banner');
-                        if(docSnap.exists()) {
-                            const data = docSnap.data();
-                            if(data.text) {
-                                document.getElementById('notice-text').innerText = data.text;
-                                document.getElementById('notice-meta').innerText = `Posted by ${data.author.split('@')[0]} • ${new Date(data.updatedAt?.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-                                banner.classList.remove('hidden');
-                            } else {
-                                banner.classList.add('hidden');
-                            }
-                        } else {
-                            banner.classList.add('hidden');
-                        }
-                        if(window.lucide) lucide.createIcons();
+                        if(docSnap.exists() && docSnap.data().text) {
+                            document.getElementById('notice-text').innerText = docSnap.data().text;
+                            document.getElementById('notice-meta').innerText = `Posted by ${docSnap.data().author.split('@')[0]}`;
+                            banner.classList.remove('hidden');
+                        } else { banner.classList.add('hidden'); }
                     });
                 }
-            } else { 
-                currentUser = null; isSuperAdmin = false; isManager = false;
-                showLogin();
-            }
+            } else { currentUser = null; isSuperAdmin = false; isManager = false; showLogin(); }
         });
 
-        function showLogin() { 
-            loadingOverlay.classList.add('hidden'); 
-            appScreen.classList.add('hidden'); 
-            loginScreen.classList.remove('hidden'); 
-            document.getElementById('login-btn').innerHTML = GOOGLE_BTN_HTML;
-        }
-        
-        function showApp() { 
-            loadingOverlay.classList.add('hidden'); 
-            loginScreen.classList.add('hidden'); 
-            appScreen.classList.remove('hidden'); 
-            startDataSync(); 
-            updateUI(); 
-            engageTrap(); 
-        }
-        
-        document.getElementById('login-form').addEventListener('submit', (e) => { 
-            e.preventDefault(); 
-            const inputName = document.getElementById('store-name-input').value.trim().toUpperCase(); 
-            if (inputName.length < 2) return alert("Invalid Name"); 
-            localStorage.setItem('pk_store_name', inputName); 
-            currentStoreName = inputName;
-            const btn = document.getElementById('login-btn');
-            btn.innerHTML = "Connecting to Google...";
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider).catch((error) => {
-                alert("Login Failed: " + error.message);
-                btn.innerHTML = GOOGLE_BTN_HTML;
-            });
-        });
+        function showLogin() { loadingOverlay.classList.add('hidden'); appScreen.classList.add('hidden'); loginScreen.classList.remove('hidden'); document.getElementById('login-btn').innerHTML = GOOGLE_BTN_HTML; }
+        function showApp() { loadingOverlay.classList.add('hidden'); loginScreen.classList.add('hidden'); appScreen.classList.remove('hidden'); startDataSync(); updateUI(); engageTrap(); }
+        document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); const inputName = document.getElementById('store-name-input').value.trim().toUpperCase(); if (inputName.length < 2) return alert("Invalid Name"); localStorage.setItem('pk_store_name', inputName); currentStoreName = inputName; document.getElementById('login-btn').innerHTML = "Connecting..."; signInWithPopup(auth, new GoogleAuthProvider()).catch((error) => { alert(error.message); document.getElementById('login-btn').innerHTML = GOOGLE_BTN_HTML; }); });
 
-        function getCollectionRef() { 
-            if(!currentStoreName) return null;
-            const safeName = currentStoreName.replace(/[^a-z0-9]/gi, '').toLowerCase(); 
-            return collection(db, 'artifacts', appId, 'public', 'data', `pk_store_${safeName}`); 
-        }
-        function getLogCollectionRef() { 
-            if(!currentStoreName) return null;
-            const safeName = currentStoreName.replace(/[^a-z0-9]/gi, '').toLowerCase(); 
-            return collection(db, 'artifacts', appId, 'public', 'logs', `pk_store_${safeName}`); 
-        }
+        function getCollectionRef() { if(!currentStoreName) return null; const safeName = currentStoreName.replace(/[^a-z0-9]/gi, '').toLowerCase(); return collection(db, 'artifacts', appId, 'public', 'data', `pk_store_${safeName}`); }
+        function getLogCollectionRef() { if(!currentStoreName) return null; const safeName = currentStoreName.replace(/[^a-z0-9]/gi, '').toLowerCase(); return collection(db, 'artifacts', appId, 'public', 'logs', `pk_store_${safeName}`); }
 
-        async function logAction(action, details, meta = {}) {
-            if (!isSuperAdmin && !isManager) return; 
-            const safeMeta = JSON.parse(JSON.stringify(meta, (key, value) => {
-                if (value === undefined) return null;
-                if (key === 'id') return undefined; 
-                return value;
-            }));
-            addDoc(getLogCollectionRef(), { action: action, details: details, user: currentUser.email || "Unknown", timestamp: serverTimestamp(), meta: safeMeta }).catch(e=>console.log("Log pending"));
-        }
+        async function logAction(action, details, meta = {}) { if (!isSuperAdmin && !isManager && action !== 'Sale') return; const safeMeta = JSON.parse(JSON.stringify(meta)); addDoc(getLogCollectionRef(), { action: action, details: details, user: currentUser.email || "Unknown", timestamp: serverTimestamp(), meta: safeMeta }).catch(e=>{}); }
 
-        window.exportData = () => {
-            const headers = "Name,Barcode,Price,Category,Bulk Deal\n";
-            const rows = visibleItems.map(i => `"${i.name}","${i.barcode||''}","${i.price}","${i.category||''}","${i.bulkPrice||''}"`).join("\n");
-            const csvContent = "data:text/csv;charset=utf-8," + headers + rows;
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `inventory_${currentStoreName}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        };
+        window.exportData = () => { const headers = "Name,Barcode,Price,Category,Bulk Deal\n"; const rows = visibleItems.map(i => `"${i.name}","${i.barcode||''}","${i.price}","${i.category||''}","${i.bulkPrice||''}"`).join("\n"); const link = document.createElement("a"); link.setAttribute("href", encodeURI("data:text/csv;charset=utf-8," + headers + rows)); link.setAttribute("download", `inventory_${currentStoreName}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); };
+        window.postNotice = async () => { const text = document.getElementById('notice-input').value.trim(); if(!text) return; await setDoc(doc(getCollectionRef(), 'system_notice'), { text: text, author: currentUser.email, updatedAt: serverTimestamp() }); document.getElementById('notice-input').value = ''; alert("Posted!"); };
+        window.clearNotice = async () => { if(confirm("Clear notice?")) await deleteDoc(doc(getCollectionRef(), 'system_notice')); };
 
-        window.postNotice = async () => {
-            const text = document.getElementById('notice-input').value.trim();
-            if(!text) return alert("Please type a message");
-            try {
-                await setDoc(doc(getCollectionRef(), 'system_notice'), {
-                    text: text,
-                    author: currentUser.email,
-                    updatedAt: serverTimestamp()
-                });
-                document.getElementById('notice-input').value = '';
-                alert("Notice Posted!");
-            } catch(e) { alert("Error posting notice: " + e.message); }
-        };
-
-        window.clearNotice = async () => {
-            if(!confirm("Clear the current notice?")) return;
-            try {
-                await deleteDoc(doc(getCollectionRef(), 'system_notice'));
-                alert("Notice Cleared");
-            } catch(e) { alert("Error clearing notice: " + e.message); }
-        };
-
-        window.handleFileUpload = (input) => {
-            const file = input.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                window.processCSV(e.target.result);
-                input.value = ''; 
-            };
-            reader.readAsText(file);
-        };
-
+        window.handleFileUpload = (input) => { const file = input.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { window.processCSV(e.target.result); input.value = ''; }; reader.readAsText(file); };
         window.processCSV = async (raw) => {
-            const lines = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-            const batch = writeBatch(db);
-            let count = 0;
-            let skipped = 0;
-            let duplicateCount = 0;
-
+            const lines = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n'); const batch = writeBatch(db); let count = 0;
             lines.forEach((line, index) => {
                 if(!line.trim()) return;
-                
-                const delimiter = line.includes(';') ? ';' : ',';
-                const regex = new RegExp(`(?:^|${delimiter})(\"(?:[^\"]|\"\")*\"|[^${delimiter}]*)`,"g");
-                let parts = [];
-                let match;
-                while (match = regex.exec(line)){
-                    let val = match[1];
-                    if (val.startsWith('"') && val.endsWith('"')) { val = val.slice(1, -1).replace(/""/g, '"'); }
-                    parts.push(val.trim());
-                }
-                
-                if(parts.length < 2) { parts = line.split(delimiter).map(p => p.trim().replace(/^"|"$/g, '')); }
-
-                if(index === 0 && (line.toLowerCase().includes('name') || line.toLowerCase().includes('price'))) return;
-
-                if(parts.length < 2) { skipped++; return; } 
-                
-                const name = parts[0];
-                const barcode = parts[1] || '';
-                let priceStr = parts[2] || '0';
-                priceStr = priceStr.replace(/[^\d.]/g, ''); 
-                const price = parseFloat(priceStr);
-                const category = parts[3] || '';
-                const bulkPrice = parts[4] || '';
-
-                if(!name || isNaN(price)) { skipped++; return; }
-
-                // DUPLICATE CHECK
-                if (checkDuplicate(name, barcode)) {
-                    duplicateCount++;
-                    return; // Skip adding this item
-                }
-
-                const newRef = doc(collection(getCollectionRef().firestore, getCollectionRef().path));
-                batch.set(newRef, {
-                    name: name,
-                    price: price,
-                    barcode: barcode,
-                    category: category,
-                    bulkPrice: bulkPrice,
-                    isDeleted: false,
-                    createdAt: serverTimestamp(),
-                    updatedAt: serverTimestamp()
-                });
+                const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(p => p.trim().replace(/^"|"$/g, ''));
+                if(index === 0 && line.toLowerCase().includes('name')) return;
+                if(parts.length < 2) return;
+                const name = parts[0]; const price = parseFloat(parts[2]?.replace(/[^\d.]/g, '') || '0');
+                if(!name || isNaN(price) || checkDuplicate(name, parts[1]||'')) return;
+                batch.set(doc(collection(getCollectionRef().firestore, getCollectionRef().path)), { name, price, barcode: parts[1]||'', category: parts[3]||'', bulkPrice: parts[4]||'', isDeleted: false, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
                 count++;
             });
-
-            let msg = `Ready to import ${count} items?`;
-            if (duplicateCount > 0) msg += `\n(${duplicateCount} duplicates skipped)`;
-            if (skipped > 0) msg += `\n(${skipped} invalid rows skipped)`;
-
-            if(count === 0) return alert("No new valid items found. " + (duplicateCount > 0 ? `Skipped ${duplicateCount} duplicates.` : ""));
-            
-            if(confirm(msg)) {
-                try {
-                    await batch.commit();
-                    await logAction("Bulk Import", `Imported ${count} items via CSV`);
-                    alert("Success! Items added.");
-                } catch(e) { alert("Import Failed: " + e.message); }
-            }
+            if(count > 0 && confirm(`Import ${count} items?`)) { await batch.commit(); await logAction("Bulk Import", `Imported ${count} items`); alert("Success!"); } else { alert("No new valid items found."); }
         };
 
-        window.copyRules = () => {
-            if(!currentStoreName) return alert("Please open a store first.");
-            const safeName = currentStoreName.replace(/[^a-z0-9]/gi, '').toLowerCase();
-            
-            const rules = `rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function isSuperAdmin() {
-      return request.auth != null && request.auth.token.email.lower() == '${SUPER_ADMIN_EMAIL}';
-    }
-    function isManager() {
-      let configPath = /databases/$(database)/documents/artifacts/${appId}/public/data/pk_store_${safeName}/_config;
-      return isSuperAdmin() || (exists(configPath) && get(configPath).data.staff[request.auth.token.email.lower()] == 'manager');
-    }
-    match /artifacts/${appId}/public/data/pk_store_${safeName} {
-      match /_config { allow read, write: if isSuperAdmin(); }
-      match /{document} {
-        allow read: if true; 
-        allow write: if isManager() && document != '_config'; 
-      }
-    }
-    match /artifacts/${appId}/public/logs/pk_store_${safeName}/{document=**} {
-      allow read: if isSuperAdmin();
-      allow create: if isManager();
-      allow update, delete: if isSuperAdmin();
-    }
-  }
-}`;
-            navigator.clipboard.writeText(rules).then(() => alert("✅ RULES COPIED!\nPaste in Firebase Console > Firestore > Rules"));
-        };
+        window.copyRules = () => { navigator.clipboard.writeText(`rules_version = '2'; service cloud.firestore { match /databases/{database}/documents { function isSuperAdmin() { return request.auth != null && request.auth.token.email.lower() == '${SUPER_ADMIN_EMAIL}'; } function isManager() { return isSuperAdmin() || (request.auth != null); } match /artifacts/${appId}/public/data/pk_store_${currentStoreName.toLowerCase()}/{document=**} { allow read, write: if isManager(); } } }`).then(() => alert("Rules Copied!")); };
 
-        document.getElementById('add-staff-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('new-staff-email').value.trim().toLowerCase();
-            const role = document.getElementById('new-staff-role').value;
-            if (!email) return;
-            staffMap[email] = role; 
-            document.getElementById('new-staff-email').value = '';
-            setDoc(doc(getCollectionRef(), '_config'), { staff: staffMap }, { merge: true })
-                .then(() => alert("Staff added! They now have access."))
-                .catch(e => { alert("Permission Denied: Only Super Admin can add staff."); console.error(e); });
-        });
+        document.getElementById('add-staff-form').addEventListener('submit', async (e) => { e.preventDefault(); const email = document.getElementById('new-staff-email').value.trim().toLowerCase(); staffMap[email] = document.getElementById('new-staff-role').value; await setDoc(doc(getCollectionRef(), '_config'), { staff: staffMap }, { merge: true }); document.getElementById('new-staff-email').value = ''; alert("Staff Added"); });
+        window.removeStaff = async (email) => { if(confirm("Remove?")) { delete staffMap[email]; await setDoc(doc(getCollectionRef(), '_config'), { staff: staffMap }, { merge: true }); } };
+        function renderStaffList() { const list = document.getElementById('staff-list'); list.innerHTML = ''; Object.entries(staffMap).forEach(([email, role]) => { list.innerHTML += `<div class="flex justify-between items-center bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800"><div><div class="font-bold text-slate-900 dark:text-white text-xs">${email}</div><div class="text-[10px] text-indigo-500 font-bold uppercase">${role}</div></div><button onclick="window.removeStaff('${email}')" class="text-rose-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`; }); if(window.lucide) lucide.createIcons(); }
 
-        window.removeStaff = async (email) => {
-            if (!confirm(`Remove ${email}?`)) return;
-            delete staffMap[email];
-            setDoc(doc(getCollectionRef(), '_config'), { staff: staffMap }, { merge: true }) 
-                .then(() => alert("Staff removed."))
-                .catch(e => alert("Permission Denied"));
-        };
-
-        function renderStaffList() {
-            const list = document.getElementById('staff-list');
-            list.innerHTML = '';
-            if (Object.keys(staffMap).length === 0) list.innerHTML = '<div class="text-center text-slate-400 text-sm">No staff added yet.</div>';
-            
-            Object.entries(staffMap).forEach(([email, role]) => {
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center bg-white dark:bg-slate-700 p-3 rounded-lg border border-slate-100 dark:border-slate-600";
-                div.innerHTML = `<div><div class="font-bold text-slate-800 dark:text-white text-sm">${email}</div><div class="text-xs text-indigo-500 uppercase font-bold">${role}</div></div><button onclick="window.removeStaff('${email}')" class="text-rose-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
-                list.appendChild(div);
-            });
-            if(window.lucide) lucide.createIcons();
-        }
-
-        function startDataSync() { 
-            if (unsubscribe) unsubscribe(); 
-            const spinner = document.getElementById('data-loading'); const emptyEl = document.getElementById('empty-state');
-            const spinnerTimeout = setTimeout(() => { spinner.classList.remove('hidden'); emptyEl.classList.add('hidden'); }, 200);
-            unsubscribe = onSnapshot(getCollectionRef(), (snapshot) => {
-                clearTimeout(spinnerTimeout); spinner.classList.add('hidden');
-                allItems = snapshot.docs.map(d => {
-                    try { return {id: d.id, ...d.data()}; } catch(e) { return null; }
-                }).filter(item => item && item.id !== '_config' && item.id !== 'system_notice');
-                
-                allItems.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-                visibleItems = allItems.filter(i => !i.isDeleted);
-                deletedItems = allItems.filter(i => i.isDeleted);
-                renderCategories(); renderList(); updateStats();
-            }); 
-        }
-
-        function formatFreshness(timestamp) {
-            if (!timestamp) return { text: "Just now", color: "text-indigo-500 font-bold" };
-            let date;
-            if (timestamp && typeof timestamp.toDate === 'function') { date = timestamp.toDate(); } 
-            else if (timestamp instanceof Date) { date = timestamp; } 
-            else { date = new Date(timestamp); }
-            if (isNaN(date.getTime())) return { text: "Unknown date", color: "text-slate-300" };
-            const now = new Date();
-            const diffMs = now - date;
-            if (diffMs < -60000) return { text: "Future date (Check Clock)", color: "text-amber-500" };
-            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-            if (diffDays === 0) return { text: "Updated today", color: "text-emerald-600 font-medium" };
-            if (diffDays === 1) return { text: "Yesterday", color: "text-slate-500" };
-            if (diffDays > 365) return { text: "> 1 year ago", color: "text-slate-300" };
-            return { text: `Updated ${diffDays}d ago`, color: "text-slate-400" };
-        }
-
-        function renderCategories() { const cats = new Set(['All']); visibleItems.forEach(i => { if (i.category) cats.add(i.category.trim()); }); const container = document.getElementById('category-container'); container.innerHTML = ''; cats.forEach(cat => { const btn = document.createElement('button'); const isActive = cat === selectedCategory; btn.className = `whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${isActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'bg-white dark:bg-slate-700 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-600'}`; btn.innerText = cat; btn.onclick = () => { selectedCategory = cat; renderCategories(); renderList(); }; container.appendChild(btn); }); }
-        
-        function formatMoney(amount) { 
-            const val = parseFloat(amount);
-            if (isNaN(val)) return '0.00';
-            return val.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
-        }
-        
+        function startDataSync() { if(unsubscribe) unsubscribe(); unsubscribe = onSnapshot(getCollectionRef(), (s) => { allItems = s.docs.map(d => ({id: d.id, ...d.data()})).filter(i => i.id !== '_config' && i.id !== 'system_notice'); allItems.sort((a,b) => a.name.localeCompare(b.name)); visibleItems = allItems.filter(i => !i.isDeleted); deletedItems = allItems.filter(i => i.isDeleted); renderCategories(); renderList(); updateStats(); }); }
+        function formatFreshness(t) { if(!t) return { text:"", color:"" }; const d = Math.floor((new Date() - t.toDate())/(86400000)); return d === 0 ? {text:"Today", color:"text-emerald-500 font-bold"} : {text:`${d}d ago`, color:"text-slate-400"}; }
+        function renderCategories() { const cats = new Set(['All']); visibleItems.forEach(i => i.category && cats.add(i.category.trim())); const c = document.getElementById('category-container'); c.innerHTML = ''; cats.forEach(cat => { c.innerHTML += `<button onclick="selectedCategory='${cat}'; renderCategories(); renderList()" class="whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold transition-all ${selectedCategory===cat ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700'}">${cat}</button>`; }); }
+        function formatMoney(a) { return parseFloat(a||0).toLocaleString('en-NG', { minimumFractionDigits: 2 }); }
         function renderList() { 
-            const rawTerm = document.getElementById('search-input').value.toLowerCase().trim(); const searchWords = rawTerm.split(" ").filter(word => word.length > 0); const listEl = document.getElementById('item-list'); const emptyEl = document.getElementById('empty-state'); 
-            const filtered = visibleItems.filter(item => { 
-                if(!item || !item.name) return false; 
-                const itemText = (item.name + " " + (item.category || "") + " " + (item.barcode || "")).toLowerCase(); 
-                return searchWords.every(word => itemText.includes(word)) && (selectedCategory === 'All' || item.category === selectedCategory); 
-            }); 
-            listEl.innerHTML = ''; if (filtered.length === 0) { emptyEl.classList.remove('hidden'); return; } emptyEl.classList.add('hidden'); 
-            filtered.forEach(item => { 
-                const freshness = formatFreshness(item.updatedAt || item.createdAt); 
-                const div = document.createElement('div'); div.className = "bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex justify-between items-center active:bg-slate-50 dark:active:bg-slate-700 transition-colors"; 
-                const addBtn = `<button id="add-btn-${item.id}" onclick="window.addToCart('${item.id}'); event.stopPropagation()" class="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-all flex items-center justify-center h-10 w-10"><i data-lucide="plus" class="w-5 h-5"></i></button>`;
-                const adminButtons = isManager ? `<div class="flex gap-2">${addBtn}<button onclick="window.editItem('${item.id}')" class="p-2 text-slate-400 hover:text-indigo-600"><i data-lucide="edit-2" class="w-5 h-5"></i></button><button onclick="window.softDeleteItem('${item.id}')" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>` : addBtn; 
-                
-                div.innerHTML = `<div class="flex-1" ${isManager ? `onclick="window.editItem('${item.id}')"` : ''}><div class="flex flex-wrap items-center gap-2"><h3 class="font-bold text-slate-900 dark:text-white text-lg">${escape(item.name)}</h3>${item.bulkPrice ? `<span class="inline-flex items-center gap-1 text-[10px] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-md font-semibold border border-indigo-100 dark:border-indigo-800"><i data-lucide="package" class="w-3 h-3"></i>${escape(item.bulkPrice)}</span>` : ''}</div><div class="flex items-center gap-2 mt-0.5"><div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">₦${formatMoney(item.price)}</div>${item.category ? `<span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider border border-slate-100 dark:border-slate-600 px-1 rounded">${escape(item.category)}</span>` : ''}</div><div class="text-[10px] mt-1 ${freshness.color}">${freshness.text}</div></div>${adminButtons}`; 
-                listEl.appendChild(div); 
-            }); 
+            const term = document.getElementById('search-input').value.toLowerCase().trim();
+            const list = document.getElementById('item-list');
+            list.innerHTML = '';
+            const filtered = visibleItems.filter(i => (i.name.toLowerCase().includes(term) || (i.barcode && i.barcode.includes(term))) && (selectedCategory==='All' || i.category===selectedCategory));
+            if(filtered.length === 0) return document.getElementById('empty-state').classList.remove('hidden');
+            document.getElementById('empty-state').classList.add('hidden');
+            filtered.forEach(i => {
+                const addBtn = `<button id="add-btn-${i.id}" onclick="window.addToCart('${i.id}'); event.stopPropagation()" class="h-10 w-10 flex items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all"><i data-lucide="plus" class="w-5 h-5"></i></button>`;
+                const ctrls = isManager ? `<div class="flex gap-2">${addBtn}<button onclick="window.editItem('${i.id}')" class="h-10 w-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="edit-2" class="w-5 h-5"></i></button><button onclick="window.softDeleteItem('${i.id}')" class="h-10 w-10 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>` : addBtn;
+                list.innerHTML += `<div class="modern-card bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex justify-between items-center" onclick="if(isManager) window.editItem('${i.id}')">
+                    <div class="flex-1 min-w-0 pr-4">
+                        <div class="flex items-center gap-2 mb-1"><h3 class="font-bold text-slate-900 dark:text-white text-base truncate">${escape(i.name)}</h3>${i.bulkPrice ? `<span class="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-[10px] font-bold text-indigo-600 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-500/20 whitespace-nowrap">${escape(i.bulkPrice)}</span>` : ''}</div>
+                        <div class="flex items-center gap-2 mb-1"><span class="text-xl font-black text-indigo-600 dark:text-indigo-400">₦${formatMoney(i.price)}</span>${i.category ? `<span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700/50">${escape(i.category)}</span>` : ''}</div>
+                        <div class="text-[10px] ${formatFreshness(i.updatedAt).color}">${formatFreshness(i.updatedAt).text}</div>
+                    </div>
+                    ${ctrls}
+                </div>`;
+            });
             if(window.lucide) lucide.createIcons();
         }
 
         window.openItemModal = () => { document.getElementById('modal').classList.remove('hidden'); document.getElementById('item-form').reset(); document.getElementById('item-id').value = ''; document.getElementById('modal-title').innerText = "New Item"; };
-        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
-        window.editItem = (id) => { if (!isManager) return; const item = visibleItems.find(i => i.id === id); if (!item) return; document.getElementById('item-id').value = item.id; document.getElementById('barcode-input').value = item.barcode || ''; document.getElementById('name-input').value = item.name; document.getElementById('price-input').value = item.price; document.getElementById('bulk-input').value = item.bulkPrice || ''; document.getElementById('category-input').value = item.category || ''; document.getElementById('modal-title').innerText = "Edit Item"; document.getElementById('modal').classList.remove('hidden'); };
+        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+        window.editItem = (id) => { if(!isManager) return; const i = visibleItems.find(x => x.id === id); if(!i) return; document.getElementById('item-id').value = i.id; document.getElementById('barcode-input').value = i.barcode||''; document.getElementById('name-input').value = i.name; document.getElementById('price-input').value = i.price; document.getElementById('bulk-input').value = i.bulkPrice||''; document.getElementById('category-input').value = i.category||''; document.getElementById('modal-title').innerText = "Edit Item"; document.getElementById('modal').classList.remove('hidden'); };
+        window.softDeleteItem = (id) => { if(isManager && confirm("Trash Item?")) updateDoc(doc(getCollectionRef(), id), { isDeleted: true, updatedAt: serverTimestamp() }).then(()=> logAction("Soft Delete", `Deleted item`, {itemId: id})); };
         
-        window.softDeleteItem = (id) => { 
-            if (!isManager || !confirm("Move to Trash?")) return;
-            const item = visibleItems.find(i => i.id === id);
-            if(!item) return;
-            visibleItems = visibleItems.filter(i => i.id !== id);
-            deletedItems.push(item);
-            renderList();
-            updateStats();
-            const itemName = item.name;
-            updateDoc(doc(getCollectionRef(), id), { isDeleted: true, updatedAt: serverTimestamp() })
-                .catch(e => {
-                    console.error("Sync error:", e);
-                    if (e.code === 'permission-denied') alert("Access Denied: Managers cannot delete items. Contact Admin.");
-                });
-            logAction("Soft Delete", `Deleted '${itemName}'`, { itemId: id }); 
-        };
-
         document.getElementById('item-form').addEventListener('submit', (e) => {
-            e.preventDefault(); if (!isManager) return;
-            const btn = document.getElementById('save-btn'); btn.disabled = true; btn.innerText = "Saving...";
+            e.preventDefault(); if(!isManager) return;
             const id = document.getElementById('item-id').value;
-            const data = { 
-                barcode: document.getElementById('barcode-input').value.trim(), 
-                name: document.getElementById('name-input').value.trim(), 
-                price: parseFloat(document.getElementById('price-input').value), 
-                bulkPrice: document.getElementById('bulk-input').value.trim(), 
-                category: document.getElementById('category-input').value.trim(), 
-                isDeleted: false, 
-                updatedAt: new Date() 
-            };
-
-            if (id) { 
-                const oldItem = allItems.find(i => i.id === id);
-                let oldDataSafe = oldItem ? JSON.parse(JSON.stringify(oldItem)) : null;
-                if(oldDataSafe) delete oldDataSafe.id;
-                const index = visibleItems.findIndex(i => i.id === id);
-                if(index !== -1) visibleItems[index] = { id, ...data };
-                data.updatedAt = serverTimestamp(); 
-                updateDoc(doc(getCollectionRef(), id), data)
-                    .then(() => logAction("Edit", `Updated '${data.name}'`, { itemId: id, previousData: oldDataSafe }))
-                    .catch(e => {
-                        if (e.code === 'permission-denied') alert("Access Denied: Permission refused.");
-                    });
-            } else { 
-                const newId = doc(collection(db, 'dummy')).id; 
-                const newItem = { id: newId, ...data };
-                visibleItems.push(newItem);
-                data.createdAt = serverTimestamp();
-                data.updatedAt = serverTimestamp();
-                setDoc(doc(getCollectionRef(), newId), data)
-                    .then(() => logAction("Create", `Created '${data.name}'`, { itemId: newId }))
-                    .catch(e => console.error("Sync pending"));
-            }
-            renderList();
-            updateStats();
-            window.closeModal('modal');
-            btn.disabled = false; btn.innerText = "Save Item";
+            const data = { barcode: document.getElementById('barcode-input').value.trim(), name: document.getElementById('name-input').value.trim(), price: parseFloat(document.getElementById('price-input').value), bulkPrice: document.getElementById('bulk-input').value.trim(), category: document.getElementById('category-input').value.trim(), isDeleted: false, updatedAt: serverTimestamp() };
+            const duplicate = checkDuplicate(data.name, data.barcode, id);
+            if(duplicate) return alert(`Item '${duplicate.name}' exists.`);
+            if(id) { updateDoc(doc(getCollectionRef(), id), data).then(()=>window.closeModal('modal')); logAction("Edit", `Updated ${data.name}`); }
+            else { data.createdAt = serverTimestamp(); addDoc(collection(getCollectionRef().firestore, getCollectionRef().path), data).then(()=>window.closeModal('modal')); logAction("Create", `Created ${data.name}`); }
         });
 
-        window.openSuperAdmin = () => { if (isSuperAdmin) { document.getElementById('admin-modal').classList.remove('hidden'); window.switchAdminTab('stats'); } };
-        window.switchAdminTab = (tab) => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-indigo-600', 'border-indigo-600', 'dark:text-indigo-400', 'dark:border-indigo-400')); 
-            const btn = document.getElementById(`tab-${tab}`);
-            btn.classList.add('active', 'text-indigo-600', 'border-indigo-600', 'dark:text-indigo-400', 'dark:border-indigo-400');
-            ['stats','team','logs','trash','tools'].forEach(t => document.getElementById(`view-${t}`).classList.add('hidden')); document.getElementById(`view-${tab}`).classList.remove('hidden');
-            if (tab === 'logs') loadLogs(); if (tab === 'trash') renderTrash(); if (tab === 'tools') renderTools(); if (tab === 'team') renderStaffList();
-            if (tab === 'stats') { loadRecentLogs(); renderCharts(); } 
-        };
-
-        function updateStats() {
-            if (!isSuperAdmin) return;
-            document.getElementById('stat-active-count').innerText = visibleItems.length;
-            document.getElementById('stat-total-db').innerText = allItems.length; 
-            if(document.getElementById('view-stats').classList.contains('hidden') === false) renderCharts();
-        }
-
-        async function loadRecentLogs() { } 
-        async function loadLogs() {
-            const list = document.getElementById('logs-list'); list.innerHTML = '<div class="text-center py-4"><div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div></div>';
-            try {
-                const snap = await getDocs(query(getLogCollectionRef(), orderBy('timestamp', 'desc'), limit(50)));
-                list.innerHTML = '';
-                if (snap.empty) { list.innerHTML = '<div class="text-center text-slate-400 text-sm">No logs found</div>'; return; }
-                snap.forEach(doc => { 
-                    const d = doc.data(); 
-                    const date = d.timestamp ? d.timestamp.toDate().toLocaleString() : 'Just now'; 
-                    let revertBtn = '';
-                    const canUndo = (d.action === 'Bulk Update' && d.meta?.backupData) || 
-                                    (['Edit', 'Soft Delete', 'Restore'].includes(d.action) && d.meta?.previousData) ||
-                                    (d.action === 'Create' && d.meta?.itemId);
-
-                    if (canUndo && !d.reverted) {
-                         revertBtn = `<button onclick="window.revertAction('${doc.id}')" class="flex items-center gap-1 bg-slate-50 dark:bg-slate-700 hover:bg-indigo-50 dark:hover:bg-indigo-900 text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-200 dark:border-slate-600 rounded px-2 py-1 transition-all group ml-2"><i data-lucide="rotate-ccw" class="w-3 h-3 group-hover:-rotate-90 transition-transform"></i><span class="text-[10px] font-bold">Undo</span></button>`;
-                    }
-                    const div = document.createElement('div'); 
-                    div.className = "bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700 text-sm shadow-sm flex justify-between items-start"; 
-                    div.innerHTML = `<div class="flex-1"><div class="flex justify-between font-bold text-slate-700 dark:text-slate-200"><span>${d.action}</span><span class="text-[10px] text-slate-400 font-normal ml-2">${date}</span></div><div class="text-slate-600 dark:text-slate-400 mt-1">${d.details}</div><div class="text-[10px] text-indigo-500 dark:text-indigo-400 mt-1 font-medium">${d.user}</div></div>${revertBtn}`; 
-                    list.appendChild(div); 
-                });
-                if(window.lucide) lucide.createIcons();
-            } catch(e) { list.innerHTML = `<div class="text-red-500 text-sm text-center">Update Firestore Rules to view logs.</div>`; }
-        }
-
-        window.revertAction = async (logId) => { 
-            if (!confirm("Undo this action?")) return;
-            try {
-                const logSnap = await getDoc(doc(getLogCollectionRef(), logId));
-                if (!logSnap.exists()) return alert("Log not found");
-                const logData = logSnap.data();
-                const meta = logData.meta || {};
-                const clean = (obj) => {
-                    if(!obj) return obj;
-                    const copy = JSON.parse(JSON.stringify(obj));
-                    delete copy.id;
-                    return copy;
-                };
-
-                if (!meta.previousData && !meta.backupData && logData.action !== 'Create') {
-                    return alert("Cannot Undo: No backup data found.");
-                }
-
-                if (logData.action === 'Bulk Update' && meta.backupData) {
-                    const batch = writeBatch(db);
-                    meta.backupData.forEach(item => {
-                        batch.update(doc(getCollectionRef(), item.id), { price: item.oldPrice, updatedAt: serverTimestamp() });
-                    });
-                    batch.commit().catch(e => alert("Revert Failed: Permission Denied"));
-                } else {
-                    const itemRef = doc(getCollectionRef(), meta.itemId);
-                    if (logData.action === 'Edit') updateDoc(itemRef, clean(meta.previousData)).catch(e => alert("Revert Failed"));
-                    else if (logData.action === 'Soft Delete') updateDoc(itemRef, { isDeleted: false }).catch(e => alert("Revert Failed"));
-                    else if (logData.action === 'Restore') updateDoc(itemRef, { isDeleted: true }).catch(e => alert("Revert Failed"));
-                    else if (logData.action === 'Create') deleteDoc(itemRef).catch(e => alert("Revert Failed"));
-                }
-                updateDoc(doc(getLogCollectionRef(), logId), { reverted: true });
-                alert("Action undone."); loadLogs(); 
-            } catch(e) { alert("Revert failed: " + e.message); }
-        };
-
-        function renderTrash() {
-            const list = document.getElementById('trash-list'); list.innerHTML = '';
-            if (deletedItems.length === 0) { list.innerHTML = '<div class="text-center text-slate-400 py-10 flex flex-col items-center"><i data-lucide="trash" class="w-8 h-8 mb-2 opacity-50"></i><span class="text-sm">Recycle bin is empty</span></div>'; return; }
-            deletedItems.forEach(item => { const div = document.createElement('div'); div.className = "bg-white dark:bg-slate-800 p-3 rounded-lg border border-rose-100 dark:border-rose-900 flex justify-between items-center shadow-sm"; div.innerHTML = `<div><div class="font-bold text-slate-800 dark:text-white">${escape(item.name)}</div><div class="text-xs text-rose-400 font-medium">Deleted</div></div><button onclick="window.restoreItem('${item.id}')" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 px-3 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors">Restore</button>`; list.appendChild(div); });
-        }
+        window.switchAdminTab = (t) => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-indigo-600', 'border-indigo-600', 'dark:text-indigo-400')); document.getElementById(`tab-${t}`).classList.add('active', 'text-indigo-600', 'border-indigo-600', 'dark:text-indigo-400'); ['stats','team','logs','trash','tools'].forEach(x => document.getElementById(`view-${x}`).classList.add('hidden')); document.getElementById(`view-${t}`).classList.remove('hidden'); if(t==='logs') loadLogs(); if(t==='trash') renderTrash(); if(t==='team') renderStaffList(); if(t==='stats') renderCharts(); };
+        window.openSuperAdmin = () => { if(isSuperAdmin) { document.getElementById('admin-modal').classList.remove('hidden'); window.switchAdminTab('stats'); } };
         
-        window.restoreItem = async (id) => { 
-            const item = deletedItems.find(i => i.id === id); const itemName = item ? item.name : "Unknown Item";
-            updateDoc(doc(getCollectionRef(), id), { isDeleted: false, updatedAt: serverTimestamp() }).catch(e => alert("Permission Denied"));
-            logAction("Restore", `Restored '${itemName}'`, { itemId: id }); 
-        };
+        function updateStats() { if(isSuperAdmin) { document.getElementById('stat-active-count').innerText = visibleItems.length; document.getElementById('stat-total-db').innerText = allItems.length; if(!document.getElementById('view-stats').classList.contains('hidden')) renderCharts(); } }
+        async function loadLogs() { const l = document.getElementById('logs-list'); l.innerHTML = 'Loading...'; const s = await getDocs(query(getLogCollectionRef(), orderBy('timestamp', 'desc'), limit(50))); l.innerHTML = ''; s.forEach(d => { const data = d.data(); l.innerHTML += `<div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 text-xs shadow-sm"> <div class="flex justify-between font-bold text-slate-700 dark:text-slate-300"><span>${data.action}</span><span class="text-slate-400 font-normal">${data.timestamp?.toDate().toLocaleTimeString()}</span></div> <div class="text-slate-500 mt-1">${data.details}</div> <div class="text-[10px] text-indigo-500 mt-1 font-bold">${data.user.split('@')[0]}</div> </div>`; }); }
         
-        window.emptyTrash = async () => { 
-            if(confirm("PERMANENTLY delete trash?")) { 
-                const count = deletedItems.length; if(count === 0) return alert("Trash already empty"); 
-                const batch = writeBatch(db); 
-                deletedItems.forEach(i => batch.delete(doc(getCollectionRef(), i.id))); 
-                batch.commit().catch(e => alert("Permission Denied: Only Admins can empty trash.")); 
-                logAction("Empty Trash", `Permanently deleted ${count} items`); renderTrash(); 
-            } 
-        };
+        function renderTrash() { const l = document.getElementById('trash-list'); l.innerHTML = ''; if(deletedItems.length===0) l.innerHTML='<div class="text-center text-slate-400 py-4">Bin Empty</div>'; deletedItems.forEach(i => { l.innerHTML += `<div class="flex justify-between items-center bg-white dark:bg-slate-800 p-3 rounded-xl border border-rose-100 dark:border-rose-900/30"> <div class="font-bold text-slate-700 dark:text-slate-300 text-sm">${escape(i.name)}</div> <button onclick="updateDoc(doc(getCollectionRef(), '${i.id}'), {isDeleted:false}); logAction('Restore', 'Restored item')" class="text-indigo-600 text-xs font-bold bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-lg">Restore</button> </div>`; }); }
+        window.emptyTrash = async () => { if(confirm("Permanently Delete All Trash?")) { const b = writeBatch(db); deletedItems.forEach(i => b.delete(doc(getCollectionRef(), i.id))); await b.commit(); await logAction("Empty Trash", `Deleted ${deletedItems.length} items`); renderTrash(); alert("Recycle Bin Emptied Successfully!"); } };
 
-        window.setBulkScope = (scope) => {
-            bulkScope = scope;
-            document.querySelectorAll('.scope-btn').forEach(b => { b.classList.remove('bg-indigo-50', 'text-indigo-700', 'border-indigo-600', 'ring-2', 'ring-indigo-200', 'dark:bg-indigo-900/30', 'dark:text-indigo-400'); b.classList.add('text-slate-500', 'dark:text-slate-400', 'border-slate-200', 'dark:border-slate-600'); });
-            const activeBtn = document.getElementById(`scope-${scope}`); activeBtn.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-600', 'ring-2', 'ring-indigo-200', 'dark:bg-indigo-900/30', 'dark:text-indigo-400'); activeBtn.classList.remove('text-slate-500', 'dark:text-slate-400', 'border-slate-200', 'dark:border-slate-600');
-            document.getElementById('tool-cat-select').classList.add('hidden'); document.getElementById('tool-manual-select').classList.add('hidden'); document.getElementById('tool-all-msg').classList.add('hidden');
-            if (scope === 'category') document.getElementById('tool-cat-select').classList.remove('hidden'); else if (scope === 'manual') document.getElementById('tool-manual-select').classList.remove('hidden'); else document.getElementById('tool-all-msg').classList.remove('hidden');
-        };
-        
-        window.updateManualCount = () => { document.getElementById('manual-count').innerText = document.querySelectorAll('.manual-check:checked').length; };
-        
-        window.applyBulkUpdate = async (type) => { 
-            const val = parseFloat(document.getElementById('inflation-input').value); 
-            if (isNaN(val) || val === 0) return alert("Enter percentage"); 
-            let targetItems = []; let logDetail = ""; 
-            if (bulkScope === 'all') { targetItems = visibleItems; logDetail = `${type === 'increase' ? '+' : '-'}${val}% on All Items`; } 
-            else if (bulkScope === 'category') { const cat = document.getElementById('tool-category-input').value; if (!cat) return alert("Select a category"); targetItems = visibleItems.filter(i => i.category === cat); logDetail = `${type === 'increase' ? '+' : '-'}${val}% on Category: ${cat}`; } 
-            else if (bulkScope === 'manual') { const checked = Array.from(document.querySelectorAll('.manual-check:checked')).map(c => c.value); if (checked.length === 0) return alert("Select items"); targetItems = visibleItems.filter(i => checked.includes(i.id)); logDetail = `${type === 'increase' ? '+' : '-'}${val}% on ${checked.length} Manually Selected Items`; } 
-            
-            if (!confirm(`Apply ${type === 'increase' ? 'Inflation' : 'Discount'} of ${val}% to ${targetItems.length} items?`)) return; 
-            
-            try { 
-                const batch = writeBatch(db); 
-                const backupData = [];
-                targetItems.slice(0, 490).forEach(item => { 
-                    let oldPrice = parseFloat(item.price);
-                    if (isNaN(oldPrice)) oldPrice = 0;
-                    let newPrice = 0;
-                    if (type === 'increase') newPrice = Math.ceil(oldPrice * (1 + (val / 100)));
-                    else newPrice = Math.floor(oldPrice * (1 - (val / 100)));
-                    backupData.push({ id: item.id, oldPrice: oldPrice });
-                    batch.update(doc(getCollectionRef(), item.id), { price: newPrice, updatedAt: serverTimestamp() }); 
-                }); 
-                
-                batch.commit().then(() => {
-                    logAction("Bulk Update", logDetail, { backupData: backupData }); 
-                    alert("Updated!"); 
-                    document.getElementById('inflation-input').value = ''; 
-                    document.querySelectorAll('.manual-check').forEach(c => c.checked = false); 
-                    window.updateManualCount();
-                }).catch(e => alert("Permission Denied: Bulk Update Rejected"));
-                 
-            } catch(e) { alert("Error: " + e.message); } 
-        };
-
-        function renderTools() { const catSelect = document.getElementById('tool-category-input'); const cats = new Set(); visibleItems.forEach(i => { if(i.category) cats.add(i.category.trim()); }); catSelect.innerHTML = '<option value="">Choose Category...</option>'; cats.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; catSelect.appendChild(opt); }); const manList = document.getElementById('manual-list'); manList.innerHTML = ''; visibleItems.forEach(item => { const div = document.createElement('label'); div.className = "flex items-center gap-3 p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer group transition-colors"; div.innerHTML = `<input type="checkbox" value="${item.id}" class="manual-check w-4 h-4 rounded border-slate-300 dark:border-slate-500 text-indigo-600 focus:ring-indigo-500 transition-all" onchange="window.updateManualCount()"><div class="text-sm"><div class="font-bold text-slate-800 dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors">${escape(item.name)}</div><div class="text-[10px] text-slate-500 dark:text-slate-400">₦${item.price}</div></div>`; manList.appendChild(div); }); window.setBulkScope(bulkScope); }
-
-        window.startScanner = (mode) => { scanMode = mode; document.getElementById('scanner-overlay').classList.remove('hidden'); if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); const silentOsc = audioCtx.createOscillator(); silentOsc.connect(audioCtx.destination); silentOsc.start(); silentOsc.stop(audioCtx.currentTime + 0.001); scanner = new Html5Qrcode("reader"); let isProcessing = false; scanner.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 250, height: 250 } }, (decodedText) => { if (isProcessing) return; isProcessing = true; playBeep(); if (scanMode === 'search') { const s = document.getElementById('search-input'); s.value = decodedText; s.dispatchEvent(new Event('input')); } else if (scanMode === 'edit') { document.getElementById('barcode-input').value = decodedText; } window.stopScanner(); }, () => {}).then(() => { document.getElementById('flash-btn').classList.remove('hidden'); }).catch(console.log); };
+        window.startScanner = (m) => { scanMode = m; document.getElementById('scanner-overlay').classList.remove('hidden'); scanner = new Html5Qrcode("reader"); scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (t) => { playBeep(); if(scanMode==='search'){ document.getElementById('search-input').value = t; renderList(); } else { document.getElementById('barcode-input').value = t; } window.stopScanner(); }).catch(()=>{}); };
+        window.stopScanner = () => { if(scanner) scanner.stop().then(() => { scanner.clear(); document.getElementById('scanner-overlay').classList.add('hidden'); }); };
         window.toggleFlash = () => { if(scanner) try { const t = scanner.html5QrcodeScanner.getHtml5Qrcode().getRunningTrackCameraCapabilities().torch; scanner.html5QrcodeScanner.getHtml5Qrcode().applyVideoConstraints({ advanced: [{ torch: !t }] }); } catch(e){} };
-        window.stopScanner = () => { if (scanner) scanner.stop().then(() => { scanner.clear(); document.getElementById('scanner-overlay').classList.add('hidden'); scanner = null; }); };
         document.getElementById('search-input').addEventListener('input', (e) => { document.getElementById('clear-search').classList.toggle('hidden', !e.target.value); renderList(); });
         document.getElementById('clear-search').addEventListener('click', () => { document.getElementById('search-input').value = ''; document.getElementById('clear-search').classList.add('hidden'); renderList(); });
         
-        window.logout = () => { if (confirm("Sign out of secure session?")) { localStorage.removeItem('pk_store_name'); currentStoreName = null; if (unsubscribe) unsubscribe(); signOut(auth).then(() => { document.getElementById('store-name-input').value = ""; showLogin(); }); } };
+        window.logout = () => { if(confirm("Sign out?")) signOut(auth).then(()=>window.location.reload()); };
         function escape(s) { return s ? s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''; }
-
-        function updateUI() { 
-            const superBtn = document.getElementById('super-admin-btn'); const fab = document.getElementById('fab-container'); const roleBadge = document.getElementById('role-badge');
-            
-            // Explicitly force show if isSuperAdmin is true
-            if (isSuperAdmin) { 
-                superBtn.classList.remove('hidden'); 
-                fab.classList.remove('hidden'); 
-                if(roleBadge) {
-                    roleBadge.innerText = "SUPER ADMIN"; 
-                    roleBadge.className = "text-[10px] text-amber-500 dark:text-amber-400 font-bold uppercase tracking-wide"; 
-                }
-                updateChartTheme(); 
-            } 
-            else if (isManager) { 
-                superBtn.classList.add('hidden'); 
-                fab.classList.remove('hidden'); 
-                if(roleBadge) {
-                    roleBadge.innerText = "MANAGER"; 
-                    roleBadge.className = "text-[10px] text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-wide"; 
-                }
-            } 
-            else { 
-                superBtn.classList.add('hidden'); 
-                fab.classList.add('hidden'); 
-                if(roleBadge) {
-                    roleBadge.innerText = "STAFF"; 
-                    roleBadge.className = "text-[10px] text-slate-400 dark:text-slate-500 font-mono uppercase tracking-wide"; 
-                }
-            }
-            // Aggressive icon refresh
-            if(window.lucide) lucide.createIcons(); 
-        }
-        
         if(window.lucide) lucide.createIcons(); init();
     </script>
 </body>
