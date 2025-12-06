@@ -2,9 +2,9 @@
 <html lang="en" class="light"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fatima Store - Staff Access</title>
+    <title>Fatima Store - POS System</title>
     
-    <link rel="manifest" href="./manifest.json?v=2.9.3">
+    <link rel="manifest" href="./manifest.json?v=3.1.0">
     <link rel="icon" type="image/png" href="./logo.png?v=1.2.0">
     <link rel="apple-touch-icon" href="./logo.png?v=1.2.0">
     <meta name="theme-color" content="#4f46e5">
@@ -59,7 +59,7 @@
              <div class="absolute inset-0 bg-indigo-100 dark:bg-indigo-900 rounded-full animate-ping opacity-75"></div>
              <img src="./logo.png?v=1.2.0" class="w-24 h-24 relative z-10 rounded-full shadow-lg" alt="Fatima Store">
         </div>
-        <p id="loading-text" class="text-slate-500 dark:text-slate-400 font-medium animate-pulse">Initializing Secure App...</p>
+        <p id="loading-text" class="text-slate-500 dark:text-slate-400 font-medium animate-pulse">Initializing...</p>
         <button onclick="localStorage.removeItem('pk_store_name'); window.location.reload()" class="absolute bottom-10 text-xs text-slate-400 underline">Reset App</button>
     </div>
 
@@ -86,7 +86,7 @@
                 </button>
             </form>
         </div>
-        <div class="absolute bottom-6 text-[10px] text-slate-400 font-mono opacity-50 select-none">v2.9.3</div>
+        <div class="absolute bottom-6 text-[10px] text-slate-400 font-mono opacity-50 select-none">v3.1.0</div>
     </div>
 
     <div id="app-screen" class="hidden min-h-screen pb-24">
@@ -144,8 +144,33 @@
             <div id="item-list" class="space-y-3"></div>
         </div>
 
-        <div id="fab-container" class="fixed bottom-6 right-6 z-20 hidden">
+        <div id="fab-container" class="fixed bottom-6 right-6 z-20 hidden flex flex-col gap-3">
+            <button onclick="window.openCart()" id="cart-fab" class="relative bg-emerald-500 text-white w-14 h-14 rounded-full shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:scale-110 active:scale-90 transition-all hidden">
+                <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                <span id="cart-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+            </button>
             <button onclick="window.openItemModal()" class="bg-indigo-600 text-white w-14 h-14 rounded-full shadow-lg shadow-indigo-600/30 flex items-center justify-center hover:scale-110 active:scale-90 transition-all"><i data-lucide="plus" class="w-8 h-8"></i></button>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 py-6 sm:p-6">
+        <div onclick="document.getElementById('cart-modal').classList.add('hidden')" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        <div class="relative bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden animate-[slideUp_0.3s_ease-out] flex flex-col max-h-[85vh]">
+            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2"><i data-lucide="shopping-cart" class="w-5 h-5 text-emerald-500"></i> Current Cart</h3>
+                <button onclick="document.getElementById('cart-modal').classList.add('hidden')" class="text-slate-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                </div>
+            <div class="p-5 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Total</span>
+                    <span id="cart-total" class="text-2xl font-black text-slate-900 dark:text-white">₦0.00</span>
+                </div>
+                <button onclick="window.checkout()" class="w-full py-3.5 bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    Complete Sale <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -207,7 +232,6 @@
             </div>
 
             <div class="flex-1 overflow-y-auto p-5 custom-scrollbar bg-slate-50/50 dark:bg-slate-900/50">
-                
                 <div id="view-stats" class="space-y-5 animate-[fadeIn_0.3s_ease-out]">
                     <div class="grid grid-cols-2 gap-3">
                         <div class="zoom-card bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group">
@@ -217,7 +241,6 @@
                                 <div class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400" id="stat-active-count">0</div>
                             </div>
                         </div>
-                        
                         <div class="zoom-card bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group">
                             <div class="absolute -right-6 -top-6 bg-emerald-50 dark:bg-emerald-900/20 w-24 h-24 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
                             <div class="relative z-10">
@@ -226,163 +249,30 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Category Distribution</h4>
-                        <div class="h-48 relative"><canvas id="catChart"></canvas></div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Price Range Analysis</h4>
-                        <div class="h-48 relative"><canvas id="priceChart"></canvas></div>
-                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Category Distribution</h4><div class="h-48 relative"><canvas id="catChart"></canvas></div></div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Price Range Analysis</h4><div class="h-48 relative"><canvas id="priceChart"></canvas></div></div>
                 </div>
-
                 <div id="view-team" class="hidden space-y-4 animate-[fadeIn_0.3s_ease-out]">
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                        <h4 class="font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
-                            <i data-lucide="megaphone" class="w-4 h-4 text-indigo-500"></i> Staff Notice Board
-                        </h4>
-                        <div class="flex gap-2">
-                            <input type="text" id="notice-input" class="flex-1 p-3 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Broadcast a message...">
-                            <button onclick="window.postNotice()" class="bg-indigo-600 text-white px-4 rounded-lg font-bold text-sm hover:bg-indigo-700 shadow-lg shadow-indigo-600/20">Post</button>
-                        </div>
+                        <h4 class="font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2"><i data-lucide="megaphone" class="w-4 h-4 text-indigo-500"></i> Staff Notice Board</h4>
+                        <div class="flex gap-2"><input type="text" id="notice-input" class="flex-1 p-3 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Broadcast a message..."><button onclick="window.postNotice()" class="bg-indigo-600 text-white px-4 rounded-lg font-bold text-sm hover:bg-indigo-700 shadow-lg shadow-indigo-600/20">Post</button></div>
                         <button onclick="window.clearNotice()" class="text-[10px] text-rose-500 font-bold mt-2 hover:underline uppercase tracking-wide">Clear current notice</button>
                     </div>
-
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                        <h4 class="font-bold text-slate-800 dark:text-white mb-2">Add Team Member</h4>
-                        <form id="add-staff-form" class="flex flex-col gap-3">
-                            <input type="email" id="new-staff-email" required class="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Email address">
-                            <div class="flex gap-2">
-                                <select id="new-staff-role" class="flex-1 p-3 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                                    <option value="manager">Manager</option>
-                                    <option value="staff">Staff (Read Only)</option>
-                                </select>
-                                <button type="submit" class="bg-indigo-600 text-white px-5 rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-600/20">Add</button>
-                            </div>
-                        </form>
-                    </div>
-                    
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><h4 class="font-bold text-slate-800 dark:text-white mb-2">Add Team Member</h4><form id="add-staff-form" class="flex flex-col gap-3"><input type="email" id="new-staff-email" required class="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Email address"><div class="flex gap-2"><select id="new-staff-role" class="flex-1 p-3 rounded-lg border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none"><option value="manager">Manager</option><option value="staff">Staff (Read Only)</option></select><button type="submit" class="bg-indigo-600 text-white px-5 rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-600/20">Add</button></div></form></div>
                     <div id="staff-list" class="space-y-2"></div>
                 </div>
-
                 <div id="view-logs" class="hidden space-y-3 animate-[fadeIn_0.3s_ease-out]">
-                    <div class="flex items-center justify-between px-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Full Audit History</span>
-                        <button onclick="loadLogs()" class="text-slate-400 hover:text-indigo-600"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button>
-                    </div>
-                    <div id="logs-list" class="space-y-2"></div>
+                    <div class="flex items-center justify-between px-1"><span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Full Audit History</span><button onclick="loadLogs()" class="text-slate-400 hover:text-indigo-600"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button></div><div id="logs-list" class="space-y-2"></div>
                 </div>
-
                 <div id="view-trash" class="hidden space-y-3 animate-[fadeIn_0.3s_ease-out]">
-                    <div class="flex justify-between items-center px-1 mb-2">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Deleted Items</span>
-                        <button onclick="window.emptyTrash()" class="text-xs text-rose-600 font-bold bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-lg border border-rose-100 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors flex items-center gap-1"><i data-lucide="trash" class="w-3 h-3"></i> Empty Bin</button>
-                    </div>
-                    <div id="trash-list" class="space-y-2"></div>
+                    <div class="flex justify-between items-center px-1 mb-2"><span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Deleted Items</span><button onclick="window.emptyTrash()" class="text-xs text-rose-600 font-bold bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-lg border border-rose-100 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors flex items-center gap-1"><i data-lucide="trash" class="w-3 h-3"></i> Empty Bin</button></div><div id="trash-list" class="space-y-2"></div>
                 </div>
-
                 <div id="view-tools" class="hidden space-y-4 animate-[fadeIn_0.3s_ease-out]">
-                    
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg"><i data-lucide="upload-cloud" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i></div>
-                                <div>
-                                    <h4 class="font-bold text-slate-800 dark:text-white text-sm">Import Data</h4>
-                                    <p class="text-[10px] text-slate-400">Upload CSV file.</p>
-                                </div>
-                            </div>
-                            <input type="file" id="csv-file-input" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" class="hidden" onchange="window.handleFileUpload(this)">
-                            <button onclick="document.getElementById('csv-file-input').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-700 shadow-lg shadow-blue-600/20 active:scale-95 transition-transform">Select File</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></i></div>
-                                <div>
-                                    <h4 class="font-bold text-slate-800 dark:text-white text-sm">Export Data</h4>
-                                    <p class="text-[10px] text-slate-400">Download inventory as CSV.</p>
-                                </div>
-                            </div>
-                            <button onclick="window.exportData()" class="bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-emerald-600">Download</button>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg"><i data-lucide="shield" class="w-5 h-5 text-purple-600 dark:text-purple-400"></i></div>
-                                <div>
-                                    <h4 class="font-bold text-slate-800 dark:text-white text-sm">Security Rules</h4>
-                                    <p class="text-[10px] text-slate-400">Generates Standard Rules.</p>
-                                </div>
-                            </div>
-                            <button onclick="window.copyRules()" class="bg-purple-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-purple-600">Copy Rules</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                        <div class="flex items-center gap-3 mb-5">
-                            <div class="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg"><i data-lucide="trending-up" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i></div>
-                            <div>
-                                <h4 class="font-bold text-slate-800 dark:text-white text-sm">Bulk Price Adjuster</h4>
-                                <p class="text-[10px] text-slate-400">Apply inflation or discounts globally.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-5">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">1. Select Target</label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button onclick="window.setBulkScope('all')" id="scope-all" class="scope-btn p-3 rounded-lg border border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-bold flex flex-col items-center gap-1 transition-all"><i data-lucide="layers" class="w-4 h-4"></i> All Items</button>
-                                <button onclick="window.setBulkScope('category')" id="scope-category" class="scope-btn p-3 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-xs font-bold flex flex-col items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><i data-lucide="library" class="w-4 h-4"></i> Category</button>
-                                <button onclick="window.setBulkScope('manual')" id="scope-manual" class="scope-btn p-3 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-xs font-bold flex flex-col items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><i data-lucide="check-square" class="w-4 h-4"></i> Manual</button>
-                            </div>
-                        </div>
-
-                        <div id="tool-selection-area" class="mb-5 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 min-h-[60px] flex flex-col justify-center">
-                            <div id="tool-cat-select" class="hidden w-full">
-                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Which Category?</label>
-                                <div class="relative">
-                                    <select id="tool-category-input" class="w-full p-2.5 pl-3 pr-10 rounded-lg border border-slate-200 dark:border-slate-600 text-sm bg-white dark:bg-slate-700 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"></select>
-                                    <i data-lucide="chevron-down" class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none"></i>
-                                </div>
-                            </div>
-
-                            <div id="tool-manual-select" class="hidden w-full">
-                                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 block flex justify-between"><span>Select Items</span> <span class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 rounded-full text-[10px]" id="manual-count">0</span></label>
-                                <div id="manual-list" class="h-40 overflow-y-auto space-y-1 pr-1 custom-scrollbar bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1"></div>
-                            </div>
-                            
-                            <div id="tool-all-msg" class="text-xs text-slate-500 dark:text-slate-400 font-medium text-center flex items-center justify-center gap-2">
-                                <i data-lucide="info" class="w-4 h-4 text-indigo-500"></i> Updates will apply to the entire store.
-                            </div>
-                        </div>
-
-                        <div class="border-t border-slate-100 dark:border-slate-700 pt-5">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">2. Percentage Change</label>
-                            <div class="flex flex-col gap-3">
-                                <div class="relative w-full">
-                                    <input type="number" id="inflation-input" class="w-full p-3 pl-4 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-700" placeholder="e.g. 10">
-                                    <span class="absolute right-4 top-3.5 text-slate-400 font-bold">%</span>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button onclick="window.applyBulkUpdate('increase')" class="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition-transform hover:bg-emerald-600 flex items-center justify-center gap-2">
-                                        <i data-lucide="trending-up" class="w-4 h-4"></i> Increase
-                                    </button>
-                                    <button onclick="window.applyBulkUpdate('decrease')" class="flex-1 bg-rose-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-rose-500/20 active:scale-95 transition-transform hover:bg-rose-600 flex items-center justify-center gap-2">
-                                        <i data-lucide="trending-down" class="w-4 h-4"></i> Decrease
-                                    </button>
-                                </div>
-                            </div>
-                            <p class="text-[10px] text-slate-400 mt-2 text-center">Select increase for inflation or decrease for discounts.</p>
-                        </div>
-                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg"><i data-lucide="upload-cloud" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i></div><div><h4 class="font-bold text-slate-800 dark:text-white text-sm">Import Data</h4><p class="text-[10px] text-slate-400">Upload CSV file.</p></div></div><input type="file" id="csv-file-input" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" class="hidden" onchange="window.handleFileUpload(this)"><button onclick="document.getElementById('csv-file-input').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-blue-700 shadow-lg shadow-blue-600/20 active:scale-95 transition-transform">Select File</button></div></div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg"><i data-lucide="download" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></i></div><div><h4 class="font-bold text-slate-800 dark:text-white text-sm">Export Data</h4><p class="text-[10px] text-slate-400">Download inventory as CSV.</p></div></div><button onclick="window.exportData()" class="bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-emerald-600">Download</button></div></div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg"><i data-lucide="shield" class="w-5 h-5 text-purple-600 dark:text-purple-400"></i></div><div><h4 class="font-bold text-slate-800 dark:text-white text-sm">Security Rules</h4><p class="text-[10px] text-slate-400">Generates Standard Rules.</p></div></div><button onclick="window.copyRules()" class="bg-purple-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-purple-600">Copy Rules</button></div></div>
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm"><div class="flex items-center gap-3 mb-5"><div class="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg"><i data-lucide="trending-up" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i></div><div><h4 class="font-bold text-slate-800 dark:text-white text-sm">Bulk Price Adjuster</h4><p class="text-[10px] text-slate-400">Apply inflation or discounts globally.</p></div></div><div class="mb-5"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">1. Select Target</label><div class="grid grid-cols-3 gap-2"><button onclick="window.setBulkScope('all')" id="scope-all" class="scope-btn p-3 rounded-lg border border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-bold flex flex-col items-center gap-1 transition-all"><i data-lucide="layers" class="w-4 h-4"></i> All Items</button><button onclick="window.setBulkScope('category')" id="scope-category" class="scope-btn p-3 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-xs font-bold flex flex-col items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><i data-lucide="library" class="w-4 h-4"></i> Category</button><button onclick="window.setBulkScope('manual')" id="scope-manual" class="scope-btn p-3 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 text-xs font-bold flex flex-col items-center gap-1 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"><i data-lucide="check-square" class="w-4 h-4"></i> Manual</button></div></div><div id="tool-selection-area" class="mb-5 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 min-h-[60px] flex flex-col justify-center"><div id="tool-cat-select" class="hidden w-full"><label class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Which Category?</label><div class="relative"><select id="tool-category-input" class="w-full p-2.5 pl-3 pr-10 rounded-lg border border-slate-200 dark:border-slate-600 text-sm bg-white dark:bg-slate-700 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"></select><i data-lucide="chevron-down" class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none"></i></div></div><div id="tool-manual-select" class="hidden w-full"><label class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 block flex justify-between"><span>Select Items</span> <span class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 rounded-full text-[10px]" id="manual-count">0</span></label><div id="manual-list" class="h-40 overflow-y-auto space-y-1 pr-1 custom-scrollbar bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-1"></div></div><div id="tool-all-msg" class="text-xs text-slate-500 dark:text-slate-400 font-medium text-center flex items-center justify-center gap-2"><i data-lucide="info" class="w-4 h-4 text-indigo-500"></i> Updates will apply to the entire store.</div></div><div class="border-t border-slate-100 dark:border-slate-700 pt-5"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2 block">2. Percentage Change</label><div class="flex flex-col gap-3"><div class="relative w-full"><input type="number" id="inflation-input" class="w-full p-3 pl-4 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-700" placeholder="e.g. 10"><span class="absolute right-4 top-3.5 text-slate-400 font-bold">%</span></div><div class="flex gap-2"><button onclick="window.applyBulkUpdate('increase')" class="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition-transform hover:bg-emerald-600 flex items-center justify-center gap-2"><i data-lucide="trending-up" class="w-4 h-4"></i> Increase</button><button onclick="window.applyBulkUpdate('decrease')" class="flex-1 bg-rose-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-rose-500/20 active:scale-95 transition-transform hover:bg-rose-600 flex items-center justify-center gap-2"><i data-lucide="trending-down" class="w-4 h-4"></i> Decrease</button></div></div><p class="text-[10px] text-slate-400 mt-2 text-center">Select increase for inflation or decrease for discounts.</p></div></div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -437,6 +327,7 @@
         let lastBackPressTime = 0; let trapActive = false;
         let bulkScope = 'all'; 
         let staffMap = {}; 
+        let cart = [];
 
         if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
         window.toggleDarkMode = () => {
@@ -537,11 +428,121 @@
                     navigator.serviceWorker.register('./sw.js').then(reg => { reg.addEventListener('updatefound', () => { const newWorker = reg.installing; newWorker.addEventListener('statechange', () => { if (newWorker.state === 'installed' && navigator.serviceWorker.controller) { document.getElementById('update-toast').classList.add('show'); } }); }); });
                     navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
                 }
+                
+                // 5-Second Timeout for Loader
+                setTimeout(() => {
+                    const overlay = document.getElementById('loading-overlay');
+                    if(overlay && !overlay.classList.contains('hidden')) {
+                        document.getElementById('loading-text').innerText = "Connecting is taking longer than usual...";
+                    }
+                }, 5000);
+
                 if (currentStoreName) { 
                     document.getElementById('store-name-input').value = currentStoreName;
                 }
+                
                 if (window.lucide) lucide.createIcons();
             } catch(e) { console.error("Startup Error", e); }
+        }
+
+        // --- CART LOGIC ---
+        window.addToCart = (id) => {
+            const item = visibleItems.find(i => i.id === id);
+            if(!item) return;
+            const existing = cart.find(c => c.id === id);
+            if(existing) existing.qty++;
+            else cart.push({ ...item, qty: 1 });
+            updateCartUI();
+            const btn = document.getElementById(`add-btn-${id}`);
+            if(btn) {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i>`;
+                btn.classList.add('bg-emerald-500');
+                if(window.lucide) lucide.createIcons();
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.remove('bg-emerald-500');
+                    if(window.lucide) lucide.createIcons();
+                }, 500);
+            }
+        };
+
+        window.updateCartUI = () => {
+            const totalQty = cart.reduce((a, b) => a + b.qty, 0);
+            const badge = document.getElementById('cart-badge');
+            const fab = document.getElementById('cart-fab');
+            
+            if(totalQty > 0) {
+                badge.innerText = totalQty;
+                badge.classList.remove('hidden');
+                fab.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+                fab.classList.add('hidden');
+            }
+        };
+
+        window.openCart = () => {
+            const modal = document.getElementById('cart-modal');
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+            let total = 0;
+
+            if(cart.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-8">Cart is empty</div>`;
+            } else {
+                cart.forEach((item, index) => {
+                    const itemTotal = item.price * item.qty;
+                    total += itemTotal;
+                    container.innerHTML += `
+                        <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                            <div>
+                                <div class="font-bold text-slate-900 dark:text-white text-sm">${escape(item.name)}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">₦${formatMoney(item.price)} x ${item.qty}</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="font-bold text-slate-900 dark:text-white text-sm">₦${formatMoney(itemTotal)}</span>
+                                <button onclick="window.removeFromCart(${index})" class="text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 p-1 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>`;
+                });
+            }
+            document.getElementById('cart-total').innerText = `₦${formatMoney(total)}`;
+            modal.classList.remove('hidden');
+            if(window.lucide) lucide.createIcons();
+        };
+
+        window.removeFromCart = (index) => {
+            cart.splice(index, 1);
+            updateCartUI();
+            openCart();
+        };
+
+        window.checkout = async () => {
+            if(cart.length === 0) return;
+            if(!confirm("Complete sale?")) return;
+            
+            const total = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+            const details = `Sold ${cart.length} unique items. Total: ₦${formatMoney(total)}`;
+            
+            try {
+                await logAction("Sale", details, { items: cart, total: total });
+                cart = [];
+                updateCartUI();
+                document.getElementById('cart-modal').classList.add('hidden');
+                alert("Sale Recorded!");
+            } catch(e) { alert("Checkout failed: " + e.message); }
+        };
+
+        // --- DUPLICATE CHECK HELPER ---
+        function checkDuplicate(name, barcode, excludeId = null) {
+            const normName = name.trim().toLowerCase();
+            return visibleItems.find(i => {
+                if (excludeId && i.id === excludeId) return false;
+                const matchName = i.name.trim().toLowerCase() === normName;
+                const matchBarcode = barcode && i.barcode && i.barcode === barcode;
+                return matchName || matchBarcode;
+            });
         }
 
         onAuthStateChanged(auth, async (user) => {
@@ -550,11 +551,7 @@
                 const email = user.email ? user.email.toLowerCase() : "";
                 isSuperAdmin = (email === SUPER_ADMIN_EMAIL.toLowerCase());
                 
-                // Force immediate UI update for Admin to ensure icon visibility
-                if(isSuperAdmin) {
-                    isManager = true;
-                    updateUI(); 
-                }
+                if(isSuperAdmin) { isManager = true; updateUI(); }
 
                 if (currentStoreName) {
                     if(configUnsubscribe) configUnsubscribe();
@@ -564,7 +561,6 @@
                         if (docSnap.exists()) {
                             const rawStaff = docSnap.data().staff;
                             if (Array.isArray(rawStaff)) {
-                                console.log("Migrating staff data...");
                                 const newMap = {};
                                 rawStaff.forEach(s => { if(s.email) newMap[s.email] = s.role || 'staff'; });
                                 staffMap = newMap;
@@ -630,7 +626,6 @@
             loadingOverlay.classList.add('hidden'); 
             appScreen.classList.add('hidden'); 
             loginScreen.classList.remove('hidden'); 
-            // Reset Button Text
             document.getElementById('login-btn').innerHTML = GOOGLE_BTN_HTML;
         }
         
@@ -649,10 +644,8 @@
             if (inputName.length < 2) return alert("Invalid Name"); 
             localStorage.setItem('pk_store_name', inputName); 
             currentStoreName = inputName;
-            
             const btn = document.getElementById('login-btn');
             btn.innerHTML = "Connecting to Google...";
-            
             const provider = new GoogleAuthProvider();
             signInWithPopup(auth, provider).catch((error) => {
                 alert("Login Failed: " + error.message);
@@ -728,57 +721,45 @@
         };
 
         window.processCSV = async (raw) => {
-            // Normalize newlines
             const lines = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
             const batch = writeBatch(db);
             let count = 0;
             let skipped = 0;
+            let duplicateCount = 0;
 
             lines.forEach((line, index) => {
                 if(!line.trim()) return;
                 
-                // Smart Delimiter Detection (Comma vs Semicolon)
                 const delimiter = line.includes(';') ? ';' : ',';
-                
-                // Advanced Split: Handle delimiters inside quotes
                 const regex = new RegExp(`(?:^|${delimiter})(\"(?:[^\"]|\"\")*\"|[^${delimiter}]*)`,"g");
                 let parts = [];
                 let match;
                 while (match = regex.exec(line)){
                     let val = match[1];
-                    // Remove surrounding quotes
-                    if (val.startsWith('"') && val.endsWith('"')) {
-                        val = val.slice(1, -1).replace(/""/g, '"');
-                    }
+                    if (val.startsWith('"') && val.endsWith('"')) { val = val.slice(1, -1).replace(/""/g, '"'); }
                     parts.push(val.trim());
                 }
                 
-                // Simple Fallback Split (Safer for simple mobile CSVs)
-                if(parts.length < 2) {
-                     parts = line.split(delimiter).map(p => p.trim().replace(/^"|"$/g, ''));
-                }
+                if(parts.length < 2) { parts = line.split(delimiter).map(p => p.trim().replace(/^"|"$/g, '')); }
 
-                // Skip Header Row
                 if(index === 0 && (line.toLowerCase().includes('name') || line.toLowerCase().includes('price'))) return;
 
                 if(parts.length < 2) { skipped++; return; } 
                 
-                // MAPPING: Name, Barcode, Price, Category, Bulk
                 const name = parts[0];
                 const barcode = parts[1] || '';
-                
-                // CLEAN PRICE: Remove currency symbols and non-digits (except dot)
                 let priceStr = parts[2] || '0';
                 priceStr = priceStr.replace(/[^\d.]/g, ''); 
                 const price = parseFloat(priceStr);
-                
                 const category = parts[3] || '';
                 const bulkPrice = parts[4] || '';
 
-                if(!name || isNaN(price)) { 
-                    console.log("Skipping invalid row:", index, name, price);
-                    skipped++; 
-                    return; 
+                if(!name || isNaN(price)) { skipped++; return; }
+
+                // DUPLICATE CHECK
+                if (checkDuplicate(name, barcode)) {
+                    duplicateCount++;
+                    return; // Skip adding this item
                 }
 
                 const newRef = doc(collection(getCollectionRef().firestore, getCollectionRef().path));
@@ -795,9 +776,13 @@
                 count++;
             });
 
-            if(count === 0) return alert("No valid items found. Please check if your CSV has Name and Price columns.");
+            let msg = `Ready to import ${count} items?`;
+            if (duplicateCount > 0) msg += `\n(${duplicateCount} duplicates skipped)`;
+            if (skipped > 0) msg += `\n(${skipped} invalid rows skipped)`;
+
+            if(count === 0) return alert("No new valid items found. " + (duplicateCount > 0 ? `Skipped ${duplicateCount} duplicates.` : ""));
             
-            if(confirm(`Ready to import ${count} items? (${skipped} rows skipped)`)) {
+            if(confirm(msg)) {
                 try {
                     await batch.commit();
                     await logAction("Bulk Import", `Imported ${count} items via CSV`);
@@ -924,7 +909,11 @@ service cloud.firestore {
             filtered.forEach(item => { 
                 const freshness = formatFreshness(item.updatedAt || item.createdAt); 
                 const div = document.createElement('div'); div.className = "bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex justify-between items-center active:bg-slate-50 dark:active:bg-slate-700 transition-colors"; 
-                const adminButtons = isManager ? `<div class="flex gap-2"><button onclick="window.editItem('${item.id}')" class="p-2 text-slate-400 hover:text-indigo-600"><i data-lucide="edit-2" class="w-5 h-5"></i></button><button onclick="window.softDeleteItem('${item.id}')" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>` : ''; 
+                // ADD ITEM BUTTON (VISIBLE TO ALL)
+                const addBtn = `<button id="add-btn-${item.id}" onclick="window.addToCart('${item.id}'); event.stopPropagation()" class="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-all flex items-center justify-center h-10 w-10"><i data-lucide="plus" class="w-5 h-5"></i></button>`;
+                // ADMIN EDIT BUTTONS
+                const adminButtons = isManager ? `<div class="flex gap-2">${addBtn}<button onclick="window.editItem('${item.id}')" class="p-2 text-slate-400 hover:text-indigo-600"><i data-lucide="edit-2" class="w-5 h-5"></i></button><button onclick="window.softDeleteItem('${item.id}')" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>` : addBtn; 
+                
                 div.innerHTML = `<div class="flex-1" ${isManager ? `onclick="window.editItem('${item.id}')"` : ''}><div class="flex flex-wrap items-center gap-2"><h3 class="font-bold text-slate-900 dark:text-white text-lg">${escape(item.name)}</h3>${item.bulkPrice ? `<span class="inline-flex items-center gap-1 text-[10px] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-md font-semibold border border-indigo-100 dark:border-indigo-800"><i data-lucide="package" class="w-3 h-3"></i>${escape(item.bulkPrice)}</span>` : ''}</div><div class="flex items-center gap-2 mt-0.5"><div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">₦${formatMoney(item.price)}</div>${item.category ? `<span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider border border-slate-100 dark:border-slate-600 px-1 rounded">${escape(item.category)}</span>` : ''}</div><div class="text-[10px] mt-1 ${freshness.color}">${freshness.text}</div></div>${adminButtons}`; 
                 listEl.appendChild(div); 
             }); 
@@ -965,6 +954,14 @@ service cloud.firestore {
                 isDeleted: false, 
                 updatedAt: new Date() 
             };
+
+            // DUPLICATE CHECK (Manual)
+            const duplicate = checkDuplicate(data.name, data.barcode, id);
+            if(duplicate) {
+                alert(`Error: Item '${duplicate.name}' already exists.`);
+                btn.disabled = false; btn.innerText = "Save Item";
+                return;
+            }
 
             if (id) { 
                 const oldItem = allItems.find(i => i.id === id);
