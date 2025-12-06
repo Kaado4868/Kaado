@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fatima Store - Staff Access</title>
     
-    <link rel="manifest" href="./manifest.json?v=2.8.0">
+    <link rel="manifest" href="./manifest.json?v=2.8.1">
     <link rel="icon" type="image/png" href="./logo.png?v=1.2.0">
     <link rel="apple-touch-icon" href="./logo.png?v=1.2.0">
     <meta name="theme-color" content="#4f46e5">
@@ -86,7 +86,7 @@
                 </button>
             </form>
         </div>
-        <div class="absolute bottom-6 text-[10px] text-slate-400 font-mono opacity-50 select-none">v2.8.0 (Secure)</div>
+        <div class="absolute bottom-6 text-[10px] text-slate-400 font-mono opacity-50 select-none">v2.8.1 (Fixed Icons)</div>
     </div>
 
     <div id="app-screen" class="hidden min-h-screen pb-24">
@@ -103,7 +103,11 @@
                     <div class="flex items-center gap-2">
                         <div id="net-status" class="hidden w-8 h-8 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 text-red-500"><i data-lucide="wifi-off" class="w-4 h-4"></i></div>
                         <button onclick="window.toggleDarkMode()" class="text-slate-400 hover:text-amber-500 p-2"><i id="dark-icon" data-lucide="moon" class="w-4 h-4"></i></button>
-                        <button onclick="window.openSuperAdmin()" id="super-admin-btn" class="hidden text-amber-500 hover:text-amber-400 p-2 rounded-full border border-amber-100 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-900/10 relative animate-pulse"><i data-lucide="shield-alert" class="w-4 h-4"></i></button>
+                        
+                        <button onclick="window.openSuperAdmin()" id="super-admin-btn" class="hidden text-amber-500 hover:text-amber-400 p-2 rounded-full border border-amber-100 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-900/10 relative animate-pulse">
+                            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                        </button>
+                        
                         <button onclick="window.logout()" class="text-xs text-slate-400 hover:text-red-500 flex items-center gap-1 px-2 py-1 bg-slate-50 dark:bg-slate-700/50 rounded border border-slate-200 dark:border-slate-700">Log Out</button>
                     </div>
                 </div>
@@ -555,6 +559,12 @@
                 const email = user.email ? user.email.toLowerCase() : "";
                 isSuperAdmin = (email === SUPER_ADMIN_EMAIL.toLowerCase());
                 
+                // FORCE UPDATE UI FOR SUPER ADMIN IMMEDIATELY (Don't wait for DB)
+                if (isSuperAdmin) {
+                     isManager = true;
+                     updateUI();
+                }
+
                 if (currentStoreName) {
                     if(configUnsubscribe) configUnsubscribe();
                     const configRef = doc(getCollectionRef(), '_config');
@@ -618,6 +628,7 @@
                         } else {
                             banner.classList.add('hidden');
                         }
+                        if(window.lucide) lucide.createIcons();
                     });
                 }
             } else { 
@@ -718,7 +729,6 @@
 
             lines.forEach(line => {
                 if(!line) return;
-                // Simple CSV split by comma (doesn't handle commas inside quotes, but good enough for simple use)
                 const parts = line.split(',');
                 if(parts.length < 2) { skipped++; return; } // Need at least Name and Price
                 
@@ -1098,6 +1108,39 @@ service cloud.firestore {
         
         window.logout = () => { if (confirm("Sign out of secure session?")) { localStorage.removeItem('pk_store_name'); currentStoreName = null; if (unsubscribe) unsubscribe(); signOut(auth).then(() => { document.getElementById('store-name-input').value = ""; showLogin(); }); } };
         function escape(s) { return s ? s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''; }
+
+        function updateUI() { 
+            const superBtn = document.getElementById('super-admin-btn'); const fab = document.getElementById('fab-container'); const roleBadge = document.getElementById('role-badge');
+            
+            // Explicitly force show if isSuperAdmin is true
+            if (isSuperAdmin) { 
+                superBtn.classList.remove('hidden'); 
+                fab.classList.remove('hidden'); 
+                if(roleBadge) {
+                    roleBadge.innerText = "SUPER ADMIN"; 
+                    roleBadge.className = "text-[10px] text-amber-500 dark:text-amber-400 font-bold uppercase tracking-wide"; 
+                }
+                updateChartTheme(); 
+            } 
+            else if (isManager) { 
+                superBtn.classList.add('hidden'); 
+                fab.classList.remove('hidden'); 
+                if(roleBadge) {
+                    roleBadge.innerText = "MANAGER"; 
+                    roleBadge.className = "text-[10px] text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-wide"; 
+                }
+            } 
+            else { 
+                superBtn.classList.add('hidden'); 
+                fab.classList.add('hidden'); 
+                if(roleBadge) {
+                    roleBadge.innerText = "STAFF"; 
+                    roleBadge.className = "text-[10px] text-slate-400 dark:text-slate-500 font-mono uppercase tracking-wide"; 
+                }
+            }
+            // Aggressive icon refresh
+            if(window.lucide) lucide.createIcons(); 
+        }
         
         if(window.lucide) lucide.createIcons(); init();
     </script>
