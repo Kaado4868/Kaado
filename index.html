@@ -2,21 +2,19 @@
 <html lang="en" class="light"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fatima Store</title>
+    <title>Fatima Store - Staff Access</title>
     
-    <link rel="manifest" href="./manifest.json?v=3.0.0">
+    <link rel="manifest" href="./manifest.json?v=2.9.3">
     <link rel="icon" type="image/png" href="./logo.png?v=1.2.0">
     <link rel="apple-touch-icon" href="./logo.png?v=1.2.0">
     <meta name="theme-color" content="#4f46e5">
     
     <script>
         window.onerror = function(msg, url, line) {
+            if (msg.includes("Script error") || msg.includes("firebase")) return false;
             const overlay = document.getElementById('loading-overlay');
-            const text = document.getElementById('loading-text');
             if(overlay && !overlay.classList.contains('hidden')) {
-                text.innerText = "Error: " + msg;
-                text.classList.add("text-red-500");
-                document.getElementById('retry-btn').classList.remove('hidden');
+                overlay.innerHTML = `<div class="p-6 text-center"><div class="text-red-500 font-bold text-xl mb-2">Startup Error</div><p class="text-xs text-slate-500 bg-slate-100 p-4 rounded text-left overflow-auto max-h-40 font-mono">${msg}</p><button onclick="localStorage.clear(); window.location.reload()" class="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg">Reset & Reload</button></div>`;
             }
             return false;
         };
@@ -61,12 +59,8 @@
              <div class="absolute inset-0 bg-indigo-100 dark:bg-indigo-900 rounded-full animate-ping opacity-75"></div>
              <img src="./logo.png?v=1.2.0" class="w-24 h-24 relative z-10 rounded-full shadow-lg" alt="Fatima Store">
         </div>
-        <p id="loading-text" class="text-slate-500 dark:text-slate-400 font-medium animate-pulse text-center px-4">Starting System...</p>
-        <div id="retry-btn" class="hidden flex flex-col items-center mt-6 gap-3">
-            <button onclick="window.location.reload()" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-bold shadow-lg">Retry Connection</button>
-            <button onclick="localStorage.removeItem('pk_store_name'); window.location.reload()" class="text-xs text-slate-400 underline">Hard Reset App</button>
-        </div>
-        <div class="absolute bottom-6 text-[10px] text-slate-300 font-mono">v3.0.0</div>
+        <p id="loading-text" class="text-slate-500 dark:text-slate-400 font-medium animate-pulse">Initializing Secure App...</p>
+        <button onclick="localStorage.removeItem('pk_store_name'); window.location.reload()" class="absolute bottom-10 text-xs text-slate-400 underline">Reset App</button>
     </div>
 
     <div id="update-toast" class="toast"><span>New Update Available</span><button class="update-btn" onclick="window.location.reload()">Update</button></div>
@@ -92,6 +86,7 @@
                 </button>
             </form>
         </div>
+        <div class="absolute bottom-6 text-[10px] text-slate-400 font-mono opacity-50 select-none">v2.9.3</div>
     </div>
 
     <div id="app-screen" class="hidden min-h-screen pb-24">
@@ -542,20 +537,9 @@
                     navigator.serviceWorker.register('./sw.js').then(reg => { reg.addEventListener('updatefound', () => { const newWorker = reg.installing; newWorker.addEventListener('statechange', () => { if (newWorker.state === 'installed' && navigator.serviceWorker.controller) { document.getElementById('update-toast').classList.add('show'); } }); }); });
                     navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
                 }
-                
-                // 5-Second Timeout for Loader
-                setTimeout(() => {
-                    const overlay = document.getElementById('loading-overlay');
-                    if(overlay && !overlay.classList.contains('hidden')) {
-                        document.getElementById('loading-text').innerText = "Connecting is taking longer than usual...";
-                        document.getElementById('retry-btn').classList.remove('hidden');
-                    }
-                }, 5000);
-
                 if (currentStoreName) { 
                     document.getElementById('store-name-input').value = currentStoreName;
                 }
-                
                 if (window.lucide) lucide.createIcons();
             } catch(e) { console.error("Startup Error", e); }
         }
@@ -732,7 +716,6 @@
             } catch(e) { alert("Error clearing notice: " + e.message); }
         };
 
-        // EXPLICITLY ATTACH TO WINDOW SCOPE TO FIX MOBILE CLICK ISSUES
         window.handleFileUpload = (input) => {
             const file = input.files[0];
             if(!file) return;
@@ -744,39 +727,67 @@
             reader.readAsText(file);
         };
 
-        // UPDATED PARSER: Matches [Name, Barcode, Price, Category, Bulk Deal]
         window.processCSV = async (raw) => {
-            const lines = raw.split(/\r?\n/);
+            // Normalize newlines
+            const lines = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
             const batch = writeBatch(db);
             let count = 0;
             let skipped = 0;
 
             lines.forEach((line, index) => {
-                if(!line) return;
+                if(!line.trim()) return;
                 
-                // Skip header row if it contains "Name" or "Price"
+                // Smart Delimiter Detection (Comma vs Semicolon)
+                const delimiter = line.includes(';') ? ';' : ',';
+                
+                // Advanced Split: Handle delimiters inside quotes
+                const regex = new RegExp(`(?:^|${delimiter})(\"(?:[^\"]|\"\")*\"|[^${delimiter}]*)`,"g");
+                let parts = [];
+                let match;
+                while (match = regex.exec(line)){
+                    let val = match[1];
+                    // Remove surrounding quotes
+                    if (val.startsWith('"') && val.endsWith('"')) {
+                        val = val.slice(1, -1).replace(/""/g, '"');
+                    }
+                    parts.push(val.trim());
+                }
+                
+                // Simple Fallback Split (Safer for simple mobile CSVs)
+                if(parts.length < 2) {
+                     parts = line.split(delimiter).map(p => p.trim().replace(/^"|"$/g, ''));
+                }
+
+                // Skip Header Row
                 if(index === 0 && (line.toLowerCase().includes('name') || line.toLowerCase().includes('price'))) return;
 
-                const parts = line.split(',');
                 if(parts.length < 2) { skipped++; return; } 
                 
-                // CORRECTED MAPPING based on Screenshot
-                // 0: Name, 1: Barcode, 2: Price, 3: Category, 4: Bulk
-                const name = parts[0].trim();
-                const barcode = parts[1] ? parts[1].trim() : '';
-                const price = parseFloat(parts[2] ? parts[2].trim() : '0'); 
-                const category = parts[3] ? parts[3].trim() : '';
-                const bulkPrice = parts[4] ? parts[4].trim() : '';
+                // MAPPING: Name, Barcode, Price, Category, Bulk
+                const name = parts[0];
+                const barcode = parts[1] || '';
+                
+                // CLEAN PRICE: Remove currency symbols and non-digits (except dot)
+                let priceStr = parts[2] || '0';
+                priceStr = priceStr.replace(/[^\d.]/g, ''); 
+                const price = parseFloat(priceStr);
+                
+                const category = parts[3] || '';
+                const bulkPrice = parts[4] || '';
 
-                if(!name || isNaN(price)) { skipped++; return; }
+                if(!name || isNaN(price)) { 
+                    console.log("Skipping invalid row:", index, name, price);
+                    skipped++; 
+                    return; 
+                }
 
                 const newRef = doc(collection(getCollectionRef().firestore, getCollectionRef().path));
                 batch.set(newRef, {
                     name: name,
                     price: price,
-                    barcode: barcode, // Correctly mapped
+                    barcode: barcode,
                     category: category,
-                    bulkPrice: bulkPrice, // Added new field
+                    bulkPrice: bulkPrice,
                     isDeleted: false,
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp()
@@ -784,9 +795,9 @@
                 count++;
             });
 
-            if(count === 0) return alert("No valid items found. Check format: Name,Barcode,Price");
+            if(count === 0) return alert("No valid items found. Please check if your CSV has Name and Price columns.");
             
-            if(confirm(`Ready to import ${count} items? (${skipped} skipped)`)) {
+            if(confirm(`Ready to import ${count} items? (${skipped} rows skipped)`)) {
                 try {
                     await batch.commit();
                     await logAction("Bulk Import", `Imported ${count} items via CSV`);
