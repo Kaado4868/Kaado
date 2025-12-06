@@ -159,11 +159,10 @@
                 
                 <div id="notice-banner" class="hidden mb-4 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-2xl px-4 py-3 flex items-start gap-3 relative animate-[fadeIn_0.5s_ease-out]">
                     <div class="bg-amber-100 dark:bg-amber-900/50 p-2 rounded-xl text-amber-600 dark:text-amber-400 shrink-0"><i data-lucide="megaphone" class="w-4 h-4"></i></div>
-                    <div class="flex-1 pr-4">
+                    <div class="flex-1 pr-1">
                         <p id="notice-text" class="text-sm font-bold text-amber-900 dark:text-amber-100 leading-tight"></p>
                         <p id="notice-meta" class="text-[10px] text-amber-600 dark:text-amber-400 mt-1 font-mono opacity-80"></p>
                     </div>
-                    <button onclick="document.getElementById('notice-banner').classList.add('hidden')" class="absolute top-2 right-2 p-2 text-amber-400 hover:text-amber-600"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
 
                 <div class="relative flex gap-2">
@@ -329,15 +328,25 @@
                     <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm"><h4 class="text-xs font-bold text-zinc-500 uppercase mb-4">Category Distribution</h4><div class="h-48 relative"><canvas id="catChart"></canvas></div></div>
                     <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm"><h4 class="text-xs font-bold text-zinc-500 uppercase mb-4">Price Range Analysis</h4><div class="h-48 relative"><canvas id="priceChart"></canvas></div></div>
                 </div>
+                
                 <div id="view-team" class="hidden space-y-4 animate-[fadeIn_0.3s_ease-out]">
                     <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
                         <h4 class="font-bold text-zinc-800 dark:text-white mb-2 flex items-center gap-2"><i data-lucide="megaphone" class="w-4 h-4 text-teal-500"></i> Staff Notice Board</h4>
-                        <div class="flex gap-2"><input type="text" id="notice-input" class="flex-1 p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm focus:ring-2 focus:ring-teal-500 outline-none" placeholder="Broadcast a message..."><button onclick="window.postNotice()" class="bg-teal-600 text-white px-5 rounded-xl font-bold text-sm hover:bg-teal-700 shadow-lg shadow-teal-600/20">Post</button></div>
-                        <button onclick="window.clearNotice()" class="text-[10px] text-rose-500 font-bold mt-2 hover:underline uppercase tracking-wide">Clear current notice</button>
+                        <div class="flex items-center gap-2 w-full">
+                            <input type="text" id="notice-input" class="flex-1 p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm focus:ring-2 focus:ring-teal-500 outline-none w-full" placeholder="Broadcast a message...">
+                            <button onclick="window.postNotice()" class="bg-teal-600 text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-teal-700 shadow-lg shadow-teal-600/20 shrink-0">Post</button>
+                        </div>
+                        <div class="flex justify-between items-center mt-3">
+                            <button onclick="window.clearNotice()" class="text-[10px] text-rose-500 font-bold hover:underline uppercase tracking-wide">Clear current notice</button>
+                            <button onclick="window.toggleNoticeHistory()" class="text-[10px] text-zinc-500 dark:text-zinc-400 font-bold hover:text-teal-500 uppercase tracking-wide flex items-center gap-1">View History <i data-lucide="chevron-down" class="w-3 h-3"></i></button>
+                        </div>
+                        <div id="notice-history" class="hidden mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-700 max-h-40 overflow-y-auto space-y-2"></div>
                     </div>
+                    
                     <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm"><h4 class="font-bold text-zinc-800 dark:text-white mb-2">Add Team Member</h4><form id="add-staff-form" class="flex flex-col gap-3"><input type="email" id="new-staff-email" required class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm focus:ring-2 focus:ring-teal-500 outline-none" placeholder="Email address"><div class="flex gap-2"><select id="new-staff-role" class="flex-1 p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm focus:ring-2 focus:ring-teal-500 outline-none"><option value="manager">Manager</option><option value="staff">Staff (Read Only)</option></select><button type="submit" class="bg-teal-600 text-white px-5 rounded-xl text-sm font-bold hover:bg-teal-700 shadow-lg shadow-teal-600/20">Add</button></div></form></div>
                     <div id="staff-list" class="space-y-2"></div>
                 </div>
+
                 <div id="view-logs" class="hidden space-y-3 animate-[fadeIn_0.3s_ease-out]">
                     <div class="flex items-center justify-between px-1"><span class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Full Audit History</span><button onclick="loadLogs()" class="text-zinc-400 hover:text-teal-600"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button></div><div id="logs-list" class="space-y-2"></div>
                 </div>
@@ -375,7 +384,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc, setDoc, serverTimestamp, enableMultiTabIndexedDbPersistence, query, limit, orderBy, writeBatch, getDocs } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc, setDoc, serverTimestamp, enableMultiTabIndexedDbPersistence, query, limit, orderBy, writeBatch, getDocs, where } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 
         const firebaseConfig = { apiKey: "AIzaSyBOfDcEpw-p7DNuoUKqlGlTC782yiVdf00", authDomain: "cipher-e6c22.firebaseapp.com", projectId: "cipher-e6c22", storageBucket: "cipher-e6c22.firebasestorage.app", messagingSenderId: "345358817477", appId: "1:345358817477:web:7ba4dd380d634b559038ac", measurementId: "G-CN75P4JDPW" };
         const app = initializeApp(firebaseConfig);
@@ -580,6 +589,15 @@
             updateCartUI();
             openCart(); // Re-render to show new qty
         };
+        
+        // ADDED: Dedicated remove function
+        window.removeFromCart = (index) => {
+            if(confirm("Remove this item?")) {
+                cart.splice(index, 1);
+                updateCartUI();
+                openCart();
+            }
+        };
 
         window.openCart = () => {
             const modal = document.getElementById('cart-modal');
@@ -593,19 +611,21 @@
                 cart.forEach((item, index) => {
                     const itemTotal = item.price * item.qty;
                     total += itemTotal;
+                    // UPDATED: Added Trash Button
                     container.innerHTML += `
                         <div class="flex justify-between items-center bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm">
                             <div>
                                 <div class="font-bold text-zinc-900 dark:text-white text-base">${escape(item.name)}</div>
                                 <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">₦${formatMoney(item.price)} each</div>
                             </div>
-                            <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-3">
+                                <button onclick="window.removeFromCart(${index})" class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 flex items-center justify-center hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                 <div class="flex items-center bg-white dark:bg-zinc-700 rounded-xl border border-zinc-200 dark:border-zinc-600 overflow-hidden shadow-sm">
                                     <button onclick="window.updateCartQty(${index}, -1)" class="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-300 font-bold transition-colors">-</button>
                                     <span class="w-8 text-sm font-bold text-zinc-900 dark:text-white text-center">${item.qty}</span>
                                     <button onclick="window.updateCartQty(${index}, 1)" class="w-8 h-8 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-300 font-bold transition-colors">+</button>
                                 </div>
-                                <div class="text-right">
+                                <div class="text-right w-16">
                                     <div class="font-bold text-zinc-900 dark:text-white text-base">₦${formatMoney(itemTotal)}</div>
                                 </div>
                             </div>
@@ -829,8 +849,14 @@
                     author: currentUser.email,
                     updatedAt: serverTimestamp()
                 });
+                // Added logging for history
+                await logAction("Broadcast", text);
                 document.getElementById('notice-input').value = '';
                 alert("Notice Posted!");
+                // Refresh history if open
+                if(!document.getElementById('notice-history').classList.contains('hidden')) {
+                    window.toggleNoticeHistory(true);
+                }
             } catch(e) { alert("Error posting notice: " + e.message); }
         };
 
@@ -841,6 +867,65 @@
                 alert("Notice Cleared");
             } catch(e) { alert("Error clearing notice: " + e.message); }
         };
+
+        // ADDED: Logic to toggle and view broadcast history
+        window.toggleNoticeHistory = async (forceRefresh = false) => {
+            const container = document.getElementById('notice-history');
+            if(container.classList.contains('hidden') && !forceRefresh) {
+                container.classList.remove('hidden');
+                container.innerHTML = '<div class="text-center py-2"><div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600"></div></div>';
+                
+                try {
+                    // Query logs for broadcasts. Note: Requires composite index if large dataset, but small limit works usually.
+                    // If Index error occurs, we fallback to client side filtering of recent logs.
+                    const snap = await getDocs(query(getLogCollectionRef(), where('action', '==', 'Broadcast'), orderBy('timestamp', 'desc'), limit(20)));
+                    
+                    container.innerHTML = '';
+                    if(snap.empty) {
+                        container.innerHTML = '<div class="text-xs text-zinc-400 text-center py-2">No history found</div>';
+                        return;
+                    }
+                    
+                    snap.forEach(doc => {
+                        const d = doc.data();
+                        const time = d.timestamp ? d.timestamp.toDate().toLocaleString() : 'N/A';
+                        container.innerHTML += `
+                            <div class="bg-zinc-50 dark:bg-zinc-700/50 p-2 rounded-lg text-xs">
+                                <div class="font-bold text-zinc-700 dark:text-zinc-200">${d.details}</div>
+                                <div class="flex justify-between mt-1 text-[10px] text-zinc-400">
+                                    <span>${d.user.split('@')[0]}</span>
+                                    <span>${time}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } catch(e) {
+                    console.log("History Index Error, falling back", e);
+                    // Fallback: Fetch general logs and filter client side
+                    const snap = await getDocs(query(getLogCollectionRef(), orderBy('timestamp', 'desc'), limit(100)));
+                    const broadcasts = snap.docs.map(d => d.data()).filter(d => d.action === 'Broadcast');
+                     container.innerHTML = '';
+                    if(broadcasts.length === 0) {
+                        container.innerHTML = '<div class="text-xs text-zinc-400 text-center py-2">No history found</div>';
+                    } else {
+                         broadcasts.forEach(d => {
+                            const time = d.timestamp ? d.timestamp.toDate().toLocaleString() : 'N/A';
+                            container.innerHTML += `
+                                <div class="bg-zinc-50 dark:bg-zinc-700/50 p-2 rounded-lg text-xs">
+                                    <div class="font-bold text-zinc-700 dark:text-zinc-200">${d.details}</div>
+                                    <div class="flex justify-between mt-1 text-[10px] text-zinc-400">
+                                        <span>${d.user.split('@')[0]}</span>
+                                        <span>${time}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } else if (!forceRefresh) {
+                container.classList.add('hidden');
+            }
+        }
 
         window.handleFileUpload = (input) => {
             const file = input.files[0];
@@ -1031,7 +1116,6 @@ service cloud.firestore {
             return val.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
         }
         
-        // --- UPDATED RENDER LIST WITH RESIZED BUTTONS ---
         function renderList() { 
             const rawTerm = document.getElementById('search-input').value.toLowerCase().trim(); const searchWords = rawTerm.split(" ").filter(word => word.length > 0); const listEl = document.getElementById('item-list'); const emptyEl = document.getElementById('empty-state'); 
             const filtered = visibleItems.filter(item => { 
@@ -1215,11 +1299,10 @@ service cloud.firestore {
                 const batch = writeBatch(db); 
                 deletedItems.forEach(i => batch.delete(doc(getCollectionRef(), i.id))); 
                 
-                // BUG FIX: Added success handling
                 batch.commit()
                     .then(() => {
                         alert("Trash Emptied Successfully!");
-                        deletedItems = []; // clear local array
+                        deletedItems = []; 
                         renderTrash();
                         logAction("Empty Trash", `Permanently deleted ${count} items`);
                     })
