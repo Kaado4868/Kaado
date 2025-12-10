@@ -29,15 +29,13 @@ body, div, nav, button, input, textarea { transition: background-color 0.2s ease
     #receipt-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; margin: 0; padding: 0; background: white; box-shadow: none; border: none; display: block !important; }
     #receipt-content { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; color: black; }
     .no-print { display: none !important; }
-                    }
-/* --- PASTE THIS AT THE BOTTOM OF STYLES.CSS --- */
+}
 
-/* GOLDEN ADMIN THEME */
+/* --- GOLDEN ADMIN THEME --- */
 .text-gold { color: #FFD700 !important; }
 .bg-gold { background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%) !important; color: black !important; }
 .border-gold { border-color: #FFD700 !important; }
 
-/* Golden Glow Animation */
 .glow-gold { 
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.6); 
     filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5)); 
@@ -55,7 +53,7 @@ body, div, nav, button, input, textarea { transition: background-color 0.2s ease
     letter-spacing: 1px;
 }
 
-/* DEBT HISTORY (For the new Ledger) */
+/* DEBT HISTORY LIST */
 .debt-history-item { 
     border-left: 2px solid #e4e4e7; 
     padding-left: 10px; 
