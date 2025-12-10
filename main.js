@@ -3,45 +3,43 @@ import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from
 import { doc, onSnapshot, setDoc, updateDoc, serverTimestamp, collection } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 import { startDataSync, renderList, visibleItems } from './inventory.js';
 import { CartManager } from './cart.js';
-import { switchAdminTab, softDeleteItem, restoreItem, addDebt, deleteDebt, addStaff, removeStaff, applyBulkUpdate, loadDebts, exportData, handleFileUpload } from './admin.js';
+import { switchAdminTab, softDeleteItem, restoreItem, processDebt, addStaff, removeStaff, applyBulkUpdate, loadDebts, exportData, handleFileUpload } from './admin.js';
 
 let currentStoreName = localStorage.getItem('pk_store_name');
 let currentUser = null;
-let isSuperAdmin = false; // The Database Owner
-let isAdmin = false;      // Assigned Admins (can access HQ)
-let isManager = false;    // Can edit items
+let isAdmin = false;
+let isManager = false;
 
 window.CartManager = CartManager;
 window.logout = () => { if(confirm("Log out?")) { localStorage.removeItem('pk_store_name'); signOut(auth); } };
 window.toggleDarkMode = () => { document.documentElement.classList.toggle('dark'); };
 
-// ADMIN HQ (Strictly for Admins)
-window.openSuperAdmin = () => { 
-    if(isAdmin) { 
-        document.getElementById('admin-modal').classList.remove('hidden'); 
-        switchAdminTab('stats', currentStoreName); 
-    } 
-};
-
-// LEDGER (Managers & Admins)
-window.openLedger = () => {
-    if(isManager || isAdmin) {
-        document.getElementById('ledger-modal').classList.remove('hidden');
-        loadDebts(currentStoreName);
-    }
-}
+// ADMIN & LEDGER
+window.openSuperAdmin = () => { if(isAdmin) { document.getElementById('admin-modal').classList.remove('hidden'); switchAdminTab('stats', currentStoreName); } };
+window.openLedger = () => { if(isManager || isAdmin) { document.getElementById('ledger-modal').classList.remove('hidden'); loadDebts(currentStoreName); } };
 
 window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 window.switchAdminTab = (tab) => switchAdminTab(tab, currentStoreName);
 window.softDeleteItem = (id) => softDeleteItem(id, currentStoreName, currentUser.email);
 window.restoreItem = (id) => restoreItem(id, currentStoreName, currentUser.email);
 window.getItem = (id) => visibleItems.find(i => i.id === id);
-window.deleteDebt = (id) => deleteDebt(currentStoreName, id);
 window.removeStaff = (email) => removeStaff(currentStoreName, email);
 window.applyBulkUpdate = (type) => applyBulkUpdate(currentStoreName, currentUser.email, type, document.getElementById('inflation-input').value);
 window.exportData = () => exportData();
 window.handleFileUpload = (input) => handleFileUpload(input, currentStoreName);
 
+// --- NEW DEBT FUNCTIONS ---
+window.payDebt = (id, name, currentAmount) => {
+    const amount = prompt(`Repay debt for ${name}.\nCurrent Owed: ₦${currentAmount}\n\nEnter amount to pay:`);
+    if(amount) processDebt(currentStoreName, currentUser.email, name, "Partial Repayment", amount, true, id);
+};
+window.addMoreDebt = (id, name) => {
+    const amount = prompt(`Add to ${name}'s debt.\nEnter amount:`);
+    const desc = prompt("What items?");
+    if(amount) processDebt(currentStoreName, currentUser.email, name, desc || "Additional items", amount, false, id);
+};
+
+// --- AUTH ---
 onAuthStateChanged(auth, (user) => {
     document.getElementById('loading-overlay').classList.add('hidden');
     if (user && currentStoreName) {
@@ -62,33 +60,59 @@ function checkPermissions() {
     onSnapshot(configRef, (docSnap) => {
         if(docSnap.exists()) {
             const data = docSnap.data();
-            const staff = data.staff || {};
             window.storeCategories = data.categories || ['General']; 
-            window.staffMap = staff; 
+            window.staffMap = data.staff || {}; 
 
-            isSuperAdmin = (currentUser.email === SUPER_ADMIN_EMAIL.toLowerCase());
-            const role = staff[currentUser.email.toLowerCase()];
+            // USERNAME CHECK
+            const myData = window.staffMap[currentUser.email.toLowerCase()];
+            const isSuperAdmin = (currentUser.email === SUPER_ADMIN_EMAIL.toLowerCase());
             
-            // Allow if SuperAdmin OR if Role exists
-            if (!isSuperAdmin && !role) {
-                alert("Access Denied: You are not staff here.");
-                signOut(auth);
-                return;
+            if (!isSuperAdmin && !myData) { alert("Access Denied"); signOut(auth); return; }
+            
+            // Force Username Creation
+            if (!myData || !myData.username) {
+                document.getElementById('username-modal').classList.remove('hidden');
+                // Handle submission
+                document.getElementById('username-form').onsubmit = (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('username-input').value.trim();
+                    if(name.length < 3) return;
+                    // Update staff object with new username
+                    const updatedStaff = {...window.staffMap};
+                    if(!updatedStaff[currentUser.email.toLowerCase()]) updatedStaff[currentUser.email.toLowerCase()] = { role: 'staff' }; // Init if missing
+                    
+                    // If stored as object vs string, handle both
+                    if (typeof updatedStaff[currentUser.email.toLowerCase()] === 'string') {
+                        updatedStaff[currentUser.email.toLowerCase()] = { role: updatedStaff[currentUser.email.toLowerCase()], username: name };
+                    } else {
+                        updatedStaff[currentUser.email.toLowerCase()].username = name;
+                    }
+                    
+                    updateDoc(configRef, { staff: updatedStaff });
+                    document.getElementById('username-modal').classList.add('hidden');
+                };
             }
-            
-            // Define Roles
+
+            // ROLES
+            const role = (typeof myData === 'object') ? myData.role : myData;
             isAdmin = isSuperAdmin || role === 'admin';
-            isManager = isAdmin || role === 'manager'; // Admins are also Managers
+            isManager = isAdmin || role === 'manager';
             
             startDataSync(currentStoreName, isManager);
             CartManager.init(currentStoreName, currentUser);
             
-            // UI Updates
-            const roleText = isAdmin ? "ADMIN" : (isManager ? "MANAGER" : "STAFF");
-            document.getElementById('role-badge').innerText = roleText;
-            
-            // Show/Hide Buttons
-            if(isAdmin) document.getElementById('super-admin-btn').classList.remove('hidden');
+            // GOLDEN MODE
+            const roleBadge = document.getElementById('role-badge');
+            if (isAdmin) {
+                roleBadge.innerText = "ADMINISTRATOR";
+                roleBadge.className = "text-[10px] font-black uppercase tracking-wider mt-0.5 text-gold glow-gold";
+                document.getElementById('super-admin-btn').classList.remove('hidden');
+                // Make Header Icons Gold
+                document.querySelectorAll('#app-screen .max-w-xl .flex button').forEach(b => b.classList.add('text-gold'));
+            } else {
+                roleBadge.innerText = isManager ? "MANAGER" : "STAFF";
+                roleBadge.className = "text-[10px] text-zinc-400 font-bold uppercase tracking-wider mt-0.5";
+            }
             if(isManager) document.getElementById('ledger-btn').classList.remove('hidden');
             
         } else if (currentUser.email === SUPER_ADMIN_EMAIL.toLowerCase()) {
@@ -97,6 +121,7 @@ function checkPermissions() {
     });
 }
 
+// ... (Rest of Form Listeners: login, item-form, search - same as before) ...
 document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('store-name-input').value.toUpperCase();
@@ -116,7 +141,7 @@ window.openItemModal = () => {
     document.getElementById('modal').classList.remove('hidden'); 
     document.getElementById('item-form').reset(); 
     document.getElementById('item-id').value = '';
-    // Toggle Cost Price Input Visibility
+    // Toggle Cost Price
     if(isAdmin) document.getElementById('cost-price-container').classList.remove('hidden');
     else document.getElementById('cost-price-container').classList.add('hidden');
     
@@ -133,10 +158,7 @@ window.editItem = (id) => {
     document.getElementById('name-input').value = item.name;
     document.getElementById('price-input').value = item.price;
     document.getElementById('bulk-input').value = item.bulkPrice || '';
-    
-    // Fill Cost Price if Admin
     if(isAdmin) document.getElementById('cost-input').value = item.costPrice || '';
-    
     document.getElementById('category-input').value = item.category || 'General';
 };
 
@@ -153,11 +175,7 @@ document.getElementById('item-form').addEventListener('submit', async (e) => {
         isDeleted: false,
         updatedAt: serverTimestamp()
     };
-    
-    // Only save Cost Price if Admin (prevents staff from overwriting it)
-    if(isAdmin) {
-        data.costPrice = parseFloat(document.getElementById('cost-input').value) || 0;
-    }
+    if(isAdmin) data.costPrice = parseFloat(document.getElementById('cost-input').value) || 0;
     
     const ref = getCollectionRef(currentStoreName);
     try {
@@ -170,8 +188,12 @@ document.getElementById('item-form').addEventListener('submit', async (e) => {
 document.getElementById('debt-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('debt-name').value;
+    const items = document.getElementById('debt-items').value;
     const amount = document.getElementById('debt-amount').value;
-    addDebt(currentStoreName, name, amount).then(() => { e.target.reset(); alert("Debt Added"); });
+    processDebt(currentStoreName, currentUser.email, name, items, amount, false).then(() => {
+        e.target.reset();
+        alert("Debt Recorded");
+    });
 });
 
 document.getElementById('add-staff-form').addEventListener('submit', (e) => {
@@ -188,4 +210,4 @@ window.quickAddCategory = async () => {
         const cats = [...(window.storeCategories||[]), newCat.trim()];
         await setDoc(doc(getCollectionRef(currentStoreName), '_config'), { categories: cats }, { merge: true });
     }
-                                }
+    }
