@@ -37,7 +37,6 @@
     </script>
     
     <script>
-        // Error Handler
         function showError(title, detail) {
             const overlay = document.getElementById('loading-overlay');
             if(overlay) {
@@ -140,6 +139,88 @@
         </div>
     </div>
 
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+        <div onclick="window.closeModal('admin-modal')" class="fixed inset-0 bg-zinc-900/80 backdrop-blur-sm"></div>
+        <div class="relative bg-zinc-50 dark:bg-zinc-900 w-full max-w-2xl h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-white/10">
+            <div class="bg-white dark:bg-zinc-900 px-6 py-5 flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800">
+                <h3 class="font-black text-zinc-900 dark:text-white text-lg">Admin HQ</h3>
+                <button onclick="window.closeModal('admin-modal')" class="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 p-2.5 rounded-xl transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <div class="grid grid-cols-5 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 px-2 overflow-x-auto">
+                <button onclick="window.switchAdminTab('stats')" class="tab-btn active py-4 text-[11px] font-extrabold uppercase tracking-wide text-zinc-400 dark:text-zinc-500" id="tab-stats">Stats</button>
+                <button onclick="window.switchAdminTab('ledger')" class="tab-btn py-4 text-[11px] font-extrabold uppercase tracking-wide text-zinc-400 dark:text-zinc-500" id="tab-ledger">Ledger</button>
+                <button onclick="window.switchAdminTab('team')" class="tab-btn py-4 text-[11px] font-extrabold uppercase tracking-wide text-zinc-400 dark:text-zinc-500" id="tab-team">Team</button>
+                <button onclick="window.switchAdminTab('trash')" class="tab-btn py-4 text-[11px] font-extrabold uppercase tracking-wide text-zinc-400 dark:text-zinc-500" id="tab-trash">Bin</button>
+                <button onclick="window.switchAdminTab('tools')" class="tab-btn py-4 text-[11px] font-extrabold uppercase tracking-wide text-zinc-400 dark:text-zinc-500" id="tab-tools">Tools</button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 custom-scrollbar bg-zinc-50/50 dark:bg-zinc-950/50">
+                <div id="view-stats" class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
+                            <div class="text-zinc-400 text-[10px] font-bold uppercase tracking-wider mb-2">Active Items</div>
+                            <div class="text-3xl font-black text-zinc-900 dark:text-white" id="stat-active-count">0</div>
+                        </div>
+                        <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
+                            <div class="text-zinc-400 text-[10px] font-bold uppercase tracking-wider mb-2">Total Database</div>
+                            <div class="text-3xl font-black text-zinc-900 dark:text-white" id="stat-total-db">0</div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
+                        <h4 class="text-xs font-bold text-zinc-500 uppercase mb-4">Price Range</h4>
+                        <div class="h-48 relative"><canvas id="priceChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div id="view-ledger" class="hidden space-y-4">
+                     <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
+                         <h4 class="font-bold text-zinc-800 dark:text-white mb-4">Add New Debt</h4>
+                         <form id="debt-form" class="flex flex-col gap-3">
+                             <input type="text" id="debt-name" required placeholder="Customer Name" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+                             <div class="flex gap-2">
+                                 <input type="number" id="debt-amount" required placeholder="Amount (₦)" class="flex-1 p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+                                 <button type="submit" class="bg-teal-600 text-white px-6 rounded-xl font-bold hover:bg-teal-700">Add</button>
+                             </div>
+                         </form>
+                     </div>
+                     <div class="flex justify-between items-center px-1"><span class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Active Debts</span><span id="total-debt" class="text-xs font-bold text-rose-500">Total: ₦0.00</span></div>
+                     <div id="debt-list" class="space-y-2"></div>
+                </div>
+                
+                <div id="view-team" class="hidden space-y-4">
+                    <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
+                        <h4 class="font-bold text-zinc-800 dark:text-white mb-2">Add Team Member</h4>
+                        <form id="add-staff-form" class="flex flex-col gap-3">
+                            <input type="email" id="new-staff-email" required class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm focus:ring-2 focus:ring-teal-500 outline-none" placeholder="Email address">
+                            <div class="flex gap-2">
+                                <select id="new-staff-role" class="flex-1 p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm"><option value="manager">Manager</option><option value="staff">Staff (Read Only)</option></select>
+                                <button type="submit" class="bg-teal-600 text-white px-5 rounded-xl text-sm font-bold hover:bg-teal-700">Add</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="staff-list" class="space-y-2"></div>
+                </div>
+
+                <div id="view-trash" class="hidden space-y-3">
+                    <div class="flex justify-between items-center px-1 mb-2"><span class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Deleted Items</span></div>
+                    <div id="trash-list" class="space-y-2"></div>
+                </div>
+                
+                <div id="view-tools" class="hidden space-y-4">
+                    <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
+                        <h4 class="font-bold text-zinc-800 dark:text-white text-sm mb-2">Bulk Price Adjuster</h4>
+                        <div class="flex gap-2">
+                            <input type="number" id="inflation-input" class="w-full p-2 rounded border" placeholder="Percentage %">
+                            <button onclick="window.applyBulkUpdate('increase')" class="bg-emerald-500 text-white px-4 rounded font-bold">Increase</button>
+                            <button onclick="window.applyBulkUpdate('decrease')" class="bg-rose-500 text-white px-4 rounded font-bold">Decrease</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div id="receipt-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div onclick="document.getElementById('receipt-modal').classList.add('hidden')" class="fixed inset-0 bg-zinc-900/80 backdrop-blur-sm no-print"></div>
         <div class="relative bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-[scaleIn_0.2s_ease-out]">
@@ -218,68 +299,6 @@
         </div>
     </div>
 
-    <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
-        <div onclick="window.closeModal('admin-modal')" class="fixed inset-0 bg-zinc-900/80 backdrop-blur-sm"></div>
-        <div class="relative bg-zinc-50 dark:bg-zinc-900 w-full max-w-2xl h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-white/10">
-            <div class="bg-white dark:bg-zinc-900 px-6 py-5 flex justify-between items-center border-b border-zinc-100 dark:border-zinc-800">
-                <h3 class="font-black text-zinc-900 dark:text-white text-lg">Admin HQ</h3>
-                <button onclick="window.closeModal('admin-modal')" class="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 hover:text-zinc-900 p-2.5 rounded-xl transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-            
-            <div class="grid grid-cols-4 bg-white dark:bg-zinc-900 border-b border-zinc-100 dark:border-zinc-800 px-2">
-                <button onclick="window.switchAdminTab('stats')" class="tab-btn active py-4 text-[11px] font-extrabold uppercase tracking-wide text-zinc-400 dark:text-zinc-500" id="tab-stats">Stats</button>
-                <button onclick="window.switchAdminTab('team')" class="tab-btn py-4 text-[11px] font-extrabold uppercase tracking-wide text-zinc-400 dark:text-zinc-500" id="tab-team">Team</button>
-                <button onclick="window.switchAdminTab('trash')" class="tab-btn py-4 text-[11px] font-extrabold uppercase tracking-wide text-zinc-400 dark:text-zinc-500" id="tab-trash">Bin</button>
-                <button onclick="window.switchAdminTab('tools')" class="tab-btn py-4 text-[11px] font-extrabold uppercase tracking-wide text-zinc-400 dark:text-zinc-500" id="tab-tools">Tools</button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-6 custom-scrollbar bg-zinc-50/50 dark:bg-zinc-950/50">
-                <div id="view-stats" class="space-y-5">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
-                            <div class="text-zinc-400 text-[10px] font-bold uppercase tracking-wider mb-2">Active Items</div>
-                            <div class="text-3xl font-black text-zinc-900 dark:text-white" id="stat-active-count">0</div>
-                        </div>
-                        <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
-                            <div class="text-zinc-400 text-[10px] font-bold uppercase tracking-wider mb-2">Total Database</div>
-                            <div class="text-3xl font-black text-zinc-900 dark:text-white" id="stat-total-db">0</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="view-team" class="hidden space-y-4">
-                    <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
-                        <h4 class="font-bold text-zinc-800 dark:text-white mb-2">Add Team Member</h4>
-                        <form id="add-staff-form" class="flex flex-col gap-3">
-                            <input type="email" id="new-staff-email" required class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm focus:ring-2 focus:ring-teal-500 outline-none" placeholder="Email address">
-                            <div class="flex gap-2">
-                                <select id="new-staff-role" class="flex-1 p-3 rounded-xl border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white text-sm"><option value="manager">Manager</option><option value="staff">Staff (Read Only)</option></select>
-                                <button type="submit" class="bg-teal-600 text-white px-5 rounded-xl text-sm font-bold hover:bg-teal-700">Add</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div id="staff-list" class="space-y-2"></div>
-                </div>
-
-                <div id="view-trash" class="hidden space-y-3">
-                    <div class="flex justify-between items-center px-1 mb-2"><span class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Deleted Items</span></div>
-                    <div id="trash-list" class="space-y-2"></div>
-                </div>
-                
-                <div id="view-tools" class="hidden space-y-4">
-                    <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl border border-zinc-100 dark:border-zinc-700 shadow-sm">
-                        <h4 class="font-bold text-zinc-800 dark:text-white text-sm mb-2">Bulk Price Adjuster</h4>
-                        <div class="flex gap-2">
-                            <input type="number" id="inflation-input" class="w-full p-2 rounded border" placeholder="Percentage %">
-                            <button onclick="window.applyBulkUpdate('increase')" class="bg-emerald-500 text-white px-4 rounded font-bold">Increase</button>
-                            <button onclick="window.applyBulkUpdate('decrease')" class="bg-rose-500 text-white px-4 rounded font-bold">Decrease</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script type="module" src="./main.js"></script>
 </body>
-    </html>
+</html>
