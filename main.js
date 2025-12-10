@@ -13,7 +13,13 @@ let isManager = false;
 
 // Expose functions to HTML
 window.CartManager = CartManager;
-window.logout = () => signOut(auth);
+window.logout = () => {
+    // Clear store name on logout so they can enter it again
+    if(confirm("Log out?")) {
+        localStorage.removeItem('pk_store_name');
+        signOut(auth);
+    }
+};
 window.toggleDarkMode = () => { document.documentElement.classList.toggle('dark'); };
 window.openSuperAdmin = () => { if(isManager) { document.getElementById('admin-modal').classList.remove('hidden'); switchAdminTab('stats', currentStoreName); } };
 window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
@@ -24,18 +30,26 @@ window.getItem = (id) => visibleItems.find(i => i.id === id);
 
 // --- AUTH LOGIC ---
 onAuthStateChanged(auth, (user) => {
-    if (user) {
+    // FIX: Always hide the loading screen when Firebase responds
+    document.getElementById('loading-overlay').classList.add('hidden');
+
+    if (user && currentStoreName) {
+        // User is logged in AND has a Store Name -> Show App
         currentUser = user;
-        if(currentStoreName) {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
-            document.getElementById('welcome-msg').innerText = `Welcome, ${user.displayName || 'User'}`;
-            
-            checkPermissions();
-        }
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('app-screen').classList.remove('hidden');
+        document.getElementById('welcome-msg').innerText = `Welcome, ${user.displayName || 'User'}`;
+        
+        checkPermissions();
     } else {
+        // User is logged out OR missing Store Name -> Show Login
         document.getElementById('login-screen').classList.remove('hidden');
         document.getElementById('app-screen').classList.add('hidden');
+        
+        // Pre-fill store name if we have it
+        if(currentStoreName) {
+            document.getElementById('store-name-input').value = currentStoreName;
+        }
     }
 });
 
@@ -47,13 +61,13 @@ function checkPermissions() {
             const data = docSnap.data();
             const staff = data.staff || {};
             const categories = data.categories || ['General'];
-            window.storeCategories = categories; // Global category list
+            window.storeCategories = categories; 
 
             isSuperAdmin = (currentUser.email === SUPER_ADMIN_EMAIL.toLowerCase());
             const role = staff[currentUser.email.toLowerCase()];
             
             if (!isSuperAdmin && !role) {
-                alert("Access Denied");
+                alert("Access Denied: You are not staff here.");
                 signOut(auth);
                 return;
             }
@@ -81,20 +95,28 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('store-name-input').value.toUpperCase();
     if(name.length < 2) return alert("Invalid Name");
+    
+    // Save name and force a reload to trigger the auth check cleanly
     localStorage.setItem('pk_store_name', name);
     currentStoreName = name;
-    signInWithPopup(auth, new GoogleAuthProvider());
+    
+    // Show loading while we redirect to Google
+    document.getElementById('loading-overlay').classList.remove('hidden');
+    
+    signInWithPopup(auth, new GoogleAuthProvider()).catch(error => {
+        document.getElementById('loading-overlay').classList.add('hidden');
+        alert("Login Failed: " + error.message);
+    });
 });
 
 // Search Listener
 document.getElementById('search-input').addEventListener('input', () => renderList(isManager));
 
-// Item Form Logic (Add/Edit)
+// Item Form Logic
 window.openItemModal = () => { 
     document.getElementById('modal').classList.remove('hidden'); 
     document.getElementById('item-form').reset(); 
     document.getElementById('item-id').value = '';
-    // Populate Categories
     const sel = document.getElementById('category-input');
     sel.innerHTML = '';
     (window.storeCategories||['General']).forEach(c => { const o = document.createElement('option'); o.innerText=c; sel.appendChild(o); });
@@ -131,14 +153,12 @@ document.getElementById('item-form').addEventListener('submit', async (e) => {
             await updateDoc(doc(ref, id), data);
         } else {
             data.createdAt = serverTimestamp();
-            // Use dummy ID generation or addDoc
             await setDoc(doc(collection(ref.firestore, ref.path)), data);
         }
         window.closeModal('modal');
     } catch(e) { alert("Error saving: " + e.message); }
 });
 
-// Quick Add Category
 window.quickAddCategory = async () => {
     if(!isManager) return alert("Manager only");
     const newCat = prompt("New Category:");
