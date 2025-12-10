@@ -35,16 +35,50 @@
             }
         }
     </script>
+
+    <script>
+        function showError(title, detail) {
+            const overlay = document.getElementById('loading-overlay');
+            if(overlay) {
+                // Ensure overlay is visible
+                overlay.classList.remove('hidden');
+                // Replace content with readable error
+                overlay.innerHTML = `
+                    <div class="p-6 text-center text-zinc-900 dark:text-white max-w-sm mx-auto">
+                        <div class="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        </div>
+                        <h2 class="text-xl font-bold mb-2">${title}</h2>
+                        <div class="bg-zinc-100 dark:bg-zinc-800 p-4 rounded text-left text-xs font-mono overflow-auto max-h-40 border border-zinc-200 dark:border-zinc-700 mb-6 select-all">
+                            ${detail}
+                        </div>
+                        <button onclick="window.location.reload()" class="w-full bg-zinc-900 dark:bg-white text-white dark:text-black font-bold py-3 rounded-xl">Tap to Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        window.onerror = function(msg, url, line) {
+            // Filter out minor resize errors
+            if(msg.includes("ResizeObserver")) return false;
+            showError("System Error", `Message: ${msg}\nFile: ${url}\nLine: ${line}`);
+            return false;
+        };
+
+        window.addEventListener('unhandledrejection', function(event) {
+            showError("Network/Data Error", `Reason: ${event.reason ? event.reason.message : event.reason}\n\nCheck your connection or Firebase rules.`);
+        });
+    </script>
 </head>
 <body class="bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 min-h-screen selection:bg-teal-500 selection:text-white">
 
     <div id="loading-overlay" class="fixed inset-0 z-[60] bg-zinc-50 dark:bg-black flex flex-col items-center justify-center">
         <div class="mb-6 relative">
              <div class="absolute inset-0 bg-teal-500/20 rounded-full animate-ping"></div>
-             <div class="w-24 h-24 bg-teal-600 rounded-2xl relative z-10 flex items-center justify-center text-white font-bold text-4xl shadow-2xl">F</div>
+             <div class="w-24 h-24 bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl relative z-10 flex items-center justify-center text-white font-black text-4xl shadow-2xl">F</div>
         </div>
-        <p id="loading-text" class="text-zinc-400 dark:text-zinc-500 font-medium animate-pulse tracking-wide text-xs uppercase">Initializing System...</p>
-        <button onclick="localStorage.removeItem('pk_store_name'); window.location.reload()" class="absolute bottom-10 text-xs text-zinc-300 hover:text-teal-500 transition-colors">Reset App Data</button>
+        <p id="loading-text" class="text-zinc-400 dark:text-zinc-500 font-medium animate-pulse tracking-wide text-xs uppercase">Starting App...</p>
+        <button onclick="localStorage.clear(); window.location.reload()" class="absolute bottom-10 text-xs text-zinc-300 hover:text-teal-500 transition-colors">Reset Local Data</button>
     </div>
 
     <div id="update-toast" class="toast"><span>New Update Available</span><button class="bg-white text-zinc-900 px-3 py-1 rounded-full text-xs font-bold" onclick="window.location.reload()">Update</button></div>
@@ -63,6 +97,7 @@
                     <input type="text" id="store-name-input" required class="block w-full rounded-2xl border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 border p-4 text-center text-lg font-bold text-zinc-900 dark:text-white focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 outline-none uppercase placeholder-zinc-400 transition-all" placeholder="STORE ID">
                 </div>
                 <button type="submit" id="login-btn" class="w-full py-4 px-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl text-zinc-700 dark:text-white font-bold hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 relative overflow-hidden">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                     <span>Sign in with Google</span>
                 </button>
             </form>
@@ -118,7 +153,7 @@
         </div>
 
         <div id="fab-container" class="fixed bottom-8 right-6 z-20 hidden flex flex-col gap-4">
-            <button onclick="window.openCart()" id="cart-fab" class="relative bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white w-16 h-16 rounded-3xl shadow-soft flex items-center justify-center hover:scale-110 active:scale-90 transition-all hidden border border-zinc-100 dark:border-zinc-700">
+            <button onclick="window.CartManager.renderModal()" id="cart-fab" class="relative bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white w-16 h-16 rounded-3xl shadow-soft flex items-center justify-center hover:scale-110 active:scale-90 transition-all hidden border border-zinc-100 dark:border-zinc-700">
                 <i data-lucide="shopping-bag" class="w-6 h-6 text-teal-500"></i>
                 <span id="cart-badge" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[11px] font-bold w-6 h-6 rounded-full flex items-center justify-center hidden ring-2 ring-white dark:ring-zinc-900">0</span>
             </button>
@@ -127,7 +162,7 @@
     </div>
 
     <div id="receipt-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div onclick="window.closeReceipt()" class="fixed inset-0 bg-zinc-900/80 backdrop-blur-sm no-print"></div>
+        <div onclick="document.getElementById('receipt-modal').classList.add('hidden')" class="fixed inset-0 bg-zinc-900/80 backdrop-blur-sm no-print"></div>
         <div class="relative bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-[scaleIn_0.2s_ease-out]">
             <div id="receipt-content" class="p-8 bg-white text-zinc-900">
                 <div class="text-center border-b border-dashed border-zinc-300 pb-6 mb-6">
@@ -144,8 +179,8 @@
                 <div class="text-center mt-8 text-[10px] text-zinc-400 font-mono">Thank you for your patronage!</div>
             </div>
             <div class="p-4 bg-zinc-50 border-t border-zinc-100 flex gap-3 no-print">
-                <button onclick="window.closeReceipt()" class="flex-1 py-3 text-zinc-500 font-bold hover:bg-zinc-200 rounded-xl transition-colors">Close</button>
-                <button onclick="window.printReceipt()" class="flex-1 py-3 bg-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-500/20 hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
+                <button onclick="document.getElementById('receipt-modal').classList.add('hidden')" class="flex-1 py-3 text-zinc-500 font-bold hover:bg-zinc-200 rounded-xl transition-colors">Close</button>
+                <button onclick="window.print()" class="flex-1 py-3 bg-teal-600 text-white font-bold rounded-xl shadow-lg shadow-teal-500/20 hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
                     <i data-lucide="printer" class="w-4 h-4"></i> Print
                 </button>
             </div>
@@ -165,7 +200,7 @@
                     <span class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total Amount</span>
                     <span id="cart-total" class="text-3xl font-black text-zinc-900 dark:text-white tracking-tight">₦0.00</span>
                 </div>
-                <button onclick="window.checkout()" class="w-full py-4 bg-teal-500 text-white font-bold rounded-2xl shadow-xl shadow-teal-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 hover:bg-teal-600 text-lg">
+                <button onclick="window.CartManager.checkout()" class="w-full py-4 bg-teal-500 text-white font-bold rounded-2xl shadow-xl shadow-teal-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 hover:bg-teal-600 text-lg">
                     Complete Sale <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </button>
             </div>
