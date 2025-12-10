@@ -1,32 +1,35 @@
-body { font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
-body, div, nav, button, input, textarea { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+/* --- PASTE THIS AT THE BOTTOM OF STYLES.CSS --- */
 
-/* Modern Scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 10px; }
-.dark ::-webkit-scrollbar-thumb { background: #3f3f46; }
+/* GOLDEN ADMIN THEME */
+.text-gold { color: #FFD700 !important; }
+.bg-gold { background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%) !important; color: black !important; }
+.border-gold { border-color: #FFD700 !important; }
 
-.toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px); background: #18181b; color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 12px; white-space: nowrap; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
-
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-.tab-btn { position: relative; width: 100%; display: flex; align-items: center; justify-content: center;}
-.tab-btn::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 3px; background: #0d9488; border-radius: 3px 3px 0 0; transition: width 0.3s ease; }
-.tab-btn.active::after { width: 40%; }
-.tab-btn.active { color: #0d9488; }
-
-.item-card { transition: all 0.2s ease; }
-.item-card:active { transform: scale(0.98); }
-
-/* Receipt Printing Logic */
-@media print {
-    body { background: white; height: auto; overflow: hidden; }
-    body * { visibility: hidden; height: 0; overflow: hidden; }
-    #receipt-content, #receipt-content * { visibility: visible; height: auto; overflow: visible; }
-    #receipt-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; margin: 0; padding: 0; background: white; box-shadow: none; border: none; display: block !important; }
-    #receipt-content { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; color: black; }
-    .no-print { display: none !important; }
+/* Golden Glow Animation */
+.glow-gold { 
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.6); 
+    filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5)); 
 }
+
+/* Professional Admin Badge */
+.admin-badge {
+    background: linear-gradient(90deg, #FDB931 0%, #FFD700 50%, #FDB931 100%);
+    color: #5a4a00;
+    font-weight: 900;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+
+/* DEBT HISTORY (For the new Ledger) */
+.debt-history-item { 
+    border-left: 2px solid #e4e4e7; 
+    padding-left: 10px; 
+    margin-bottom: 8px; 
+}
+.dark .debt-history-item { border-left-color: #3f3f46; }
+
+.debt-history-item.paid { border-left-color: #10b981; }
+.debt-history-item.owed { border-left-color: #f43f5e; }
