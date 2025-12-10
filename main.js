@@ -3,7 +3,7 @@ import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from
 import { doc, onSnapshot, setDoc, updateDoc, serverTimestamp, collection } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 import { startDataSync, renderList, visibleItems } from './inventory.js';
 import { CartManager } from './cart.js';
-import { switchAdminTab, softDeleteItem, restoreItem } from './admin.js';
+import { switchAdminTab, softDeleteItem, restoreItem, addDebt, deleteDebt, addStaff, removeStaff, applyBulkUpdate } from './admin.js';
 
 // Global State
 let currentStoreName = localStorage.getItem('pk_store_name');
@@ -14,7 +14,6 @@ let isManager = false;
 // Expose functions to HTML
 window.CartManager = CartManager;
 window.logout = () => {
-    // Clear store name on logout so they can enter it again
     if(confirm("Log out?")) {
         localStorage.removeItem('pk_store_name');
         signOut(auth);
@@ -28,13 +27,16 @@ window.softDeleteItem = (id) => softDeleteItem(id, currentStoreName, currentUser
 window.restoreItem = (id) => restoreItem(id, currentStoreName, currentUser.email);
 window.getItem = (id) => visibleItems.find(i => i.id === id);
 
+// NEW: Connect Debt & Staff functions
+window.deleteDebt = (id) => deleteDebt(currentStoreName, id);
+window.removeStaff = (email) => removeStaff(currentStoreName, email);
+window.applyBulkUpdate = (type) => applyBulkUpdate(currentStoreName, currentUser.email, type, document.getElementById('inflation-input').value);
+
 // --- AUTH LOGIC ---
 onAuthStateChanged(auth, (user) => {
-    // FIX: Always hide the loading screen when Firebase responds
     document.getElementById('loading-overlay').classList.add('hidden');
 
     if (user && currentStoreName) {
-        // User is logged in AND has a Store Name -> Show App
         currentUser = user;
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app-screen').classList.remove('hidden');
@@ -42,14 +44,9 @@ onAuthStateChanged(auth, (user) => {
         
         checkPermissions();
     } else {
-        // User is logged out OR missing Store Name -> Show Login
         document.getElementById('login-screen').classList.remove('hidden');
         document.getElementById('app-screen').classList.add('hidden');
-        
-        // Pre-fill store name if we have it
-        if(currentStoreName) {
-            document.getElementById('store-name-input').value = currentStoreName;
-        }
+        if(currentStoreName) document.getElementById('store-name-input').value = currentStoreName;
     }
 });
 
@@ -62,6 +59,7 @@ function checkPermissions() {
             const staff = data.staff || {};
             const categories = data.categories || ['General'];
             window.storeCategories = categories; 
+            window.staffMap = staff; // Expose for Admin panel
 
             isSuperAdmin = (currentUser.email === SUPER_ADMIN_EMAIL.toLowerCase());
             const role = staff[currentUser.email.toLowerCase()];
@@ -74,45 +72,36 @@ function checkPermissions() {
             
             isManager = isSuperAdmin || (role === 'manager');
             
-            // Init Modules
             startDataSync(currentStoreName, isManager);
             CartManager.init(currentStoreName, currentUser);
             
-            // UI Updates
             const roleText = isSuperAdmin ? "ADMIN" : (isManager ? "MANAGER" : "STAFF");
             document.getElementById('role-badge').innerText = roleText;
             if(isManager) document.getElementById('super-admin-btn').classList.remove('hidden');
             
         } else if (currentUser.email === SUPER_ADMIN_EMAIL.toLowerCase()) {
-            // Init Config if missing
             setDoc(configRef, { staff: {}, categories: ['General'] });
         }
     });
 }
 
-// Login
+// Forms & Listeners
 document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('store-name-input').value.toUpperCase();
     if(name.length < 2) return alert("Invalid Name");
-    
-    // Save name and force a reload to trigger the auth check cleanly
     localStorage.setItem('pk_store_name', name);
     currentStoreName = name;
-    
-    // Show loading while we redirect to Google
     document.getElementById('loading-overlay').classList.remove('hidden');
-    
     signInWithPopup(auth, new GoogleAuthProvider()).catch(error => {
         document.getElementById('loading-overlay').classList.add('hidden');
         alert("Login Failed: " + error.message);
     });
 });
 
-// Search Listener
 document.getElementById('search-input').addEventListener('input', () => renderList(isManager));
 
-// Item Form Logic
+// Add/Edit Item
 window.openItemModal = () => { 
     document.getElementById('modal').classList.remove('hidden'); 
     document.getElementById('item-form').reset(); 
@@ -135,7 +124,6 @@ window.editItem = (id) => {
 document.getElementById('item-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if(!isManager) return;
-    
     const id = document.getElementById('item-id').value;
     const data = {
         name: document.getElementById('name-input').value.trim(),
@@ -145,18 +133,32 @@ document.getElementById('item-form').addEventListener('submit', async (e) => {
         isDeleted: false,
         updatedAt: serverTimestamp()
     };
-    
     const ref = getCollectionRef(currentStoreName);
-    
     try {
-        if(id) {
-            await updateDoc(doc(ref, id), data);
-        } else {
-            data.createdAt = serverTimestamp();
-            await setDoc(doc(collection(ref.firestore, ref.path)), data);
-        }
+        if(id) { await updateDoc(doc(ref, id), data); } 
+        else { data.createdAt = serverTimestamp(); await setDoc(doc(collection(ref.firestore, ref.path)), data); }
         window.closeModal('modal');
     } catch(e) { alert("Error saving: " + e.message); }
+});
+
+document.getElementById('debt-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('debt-name').value;
+    const amount = document.getElementById('debt-amount').value;
+    addDebt(currentStoreName, name, amount).then(() => {
+        e.target.reset();
+        alert("Debt Added");
+    });
+});
+
+document.getElementById('add-staff-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('new-staff-email').value;
+    const role = document.getElementById('new-staff-role').value;
+    addStaff(currentStoreName, email, role).then(() => {
+        e.target.reset();
+        alert("Staff Added");
+    });
 });
 
 window.quickAddCategory = async () => {
@@ -166,4 +168,4 @@ window.quickAddCategory = async () => {
         const cats = [...(window.storeCategories||[]), newCat.trim()];
         await setDoc(doc(getCollectionRef(currentStoreName), '_config'), { categories: cats }, { merge: true });
     }
-}
+                                                                          }
