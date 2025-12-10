@@ -210,4 +210,4 @@ window.quickAddCategory = async () => {
         const cats = [...(window.storeCategories||[]), newCat.trim()];
         await setDoc(doc(getCollectionRef(currentStoreName), '_config'), { categories: cats }, { merge: true });
     }
-    }
+        }
